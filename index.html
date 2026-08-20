@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Convenant VIP - Etalase Karya</title>
+    <style>
+        /* --- STYLING DASAR & OPTIMASI --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #050510;
+            color: white;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.4); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+        }
+
+        /* --- DESAIN KARTU MENU --- */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            text-align: left;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Efek Hover (Glow & Naik) */
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
+        }
+
+        /* Tempat Gambar */
+        .img-preview {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            background-color: #111;
+        }
+
+        .img-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .img-preview img {
+            transform: scale(1.05);
+        }
+
+        .tier-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .tier-desc {
+            font-size: 14px;
+            color: #b3b3b3;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        /* --- TOMBOL --- */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary { 
+            background: #ffffff; 
+            color: #000000; 
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        .btn-primary:hover { 
+            background: #e6e6e6; 
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+        
+        .btn-secondary { 
+            background: rgba(255,255,255,0.05); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.5); 
+        }
+        .btn-secondary:hover { 
+            background: rgba(255,255,255,0.15); 
+            border-color: #fff;
+        }
+
+        .btn-tele { 
+            background: linear-gradient(135deg, #2AABEE, #229ED9); 
+            color: white; 
+            box-shadow: 0 0 10px rgba(42, 171, 238, 0.4);
+        }
+        .btn-tele:hover { 
+            box-shadow: 0 0 15px rgba(42, 171, 238, 0.7);
+        }
+        
+        .btn-admin {
+            background: rgba(0, 201, 147, 0.1); 
+            color: #00C993; 
+            border: 1px solid #00C993;
+        }
+        .btn-admin:hover {
+            background: rgba(0, 201, 147, 0.2); 
+            box-shadow: 0 0 15px rgba(0, 201, 147, 0.4);
+        }
+
+        /* --- FOOTER PROFESIONAL --- */
+        .footer {
+            margin-top: 50px;
+            padding-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        
+        .heart {
+            color: #e25555;
+            animation: beat 1.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="star-canvas"></canvas>
+
+    <div class="container">
+        
+        <div class="header-title">Req Cersex</div>
+
+        <!-- MENU 1: TAKE ALL IN -->
+        <div class="card">
+            <div class="img-preview">
+                <img src="assets/take-all-in.jpg" alt="Take All In">
+            </div>
+            <div class="tier-title">Convenant Take #ALLin</div>
+            <div class="tier-desc">
+                [ GANTI DESKRIPSI DI SINI ] - Akses penuh ke semua koleksi karya tanpa batas.
+            </div>
+            <div class="btn-group">
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_TRAKTEER_DISINI" class="btn btn-primary">Rp 130.000</a>
+            </div>
+        </div>
+
+        <!-- MENU 2: VIP TIER -->
+        <div class="card">
+            <div class="img-preview">
+                <img src="assets/vip.jpg" alt="VIP Tier">
+            </div>
+            <div class="tier-title">Convenant VIP Tier</div>
+            <div class="tier-desc">
+                [ GANTI DESKRIPSI DI SINI ] - Dapatkan akses prioritas dan konten eksklusif bulanan.
+            </div>
+            <div class="btn-group">
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_TRAKTEER_DISINI" class="btn btn-primary">Rp 100.000</a>
+            </div>
+        </div>
+
+        <!-- MENU 3: PREMIUM TIER -->
+        <div class="card">
+            <div class="img-preview">
+                <img src="assets/premium.jpg" alt="Premium Tier">
+            </div>
+            <div class="tier-title">Convenant Premium Tier</div>
+            <div class="tier-desc">
+                [ GANTI DESKRIPSI DI SINI ] - Nikmati kualitas resolusi tinggi untuk chapter pilihan.
+            </div>
+            <div class="btn-group">
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_TRAKTEER_DISINI" class="btn btn-primary">Rp 30.000</a>
+            </div>
+        </div>
+
+        <!-- MENU 4: STANDART TIER (2 Pilihan) -->
+        <div class="card">
+            <div class="img-preview">
+                <img src="assets/standart.jpg" alt="Standart Tier">
+            </div>
+            <div class="tier-title">Convenant Standart Tier</div>
+            <div class="tier-desc">
+                [ GANTI DESKRIPSI DI SINI ] - Paket baca standar untuk chapter reguler. Pilih sesuai kebutuhan.
+            </div>
+            <div class="btn-group">
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_TRAKTEER_1_DISINI" class="btn btn-primary">Standart 1 (10k)</a>
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_TRAKTEER_2_DISINI" class="btn btn-secondary">Standart 2 (5k)</a>
+            </div>
+        </div>
+
+        <!-- MENU 5: FREE TIER -->
+        <div class="card">
+            <div class="img-preview">
+                <img src="assets/free.jpg" alt="Free Tier">
+            </div>
+            <div class="tier-title">Convenant Free Tier</div>
+            <div class="tier-desc">
+                [ GANTI DESKRIPSI DI SINI ] - Baca gratis dengan melewati iklan pengaman, atau bypass langsung.
+            </div>
+            <div class="btn-group">
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_IKLAN_DISINI" class="btn btn-secondary">Link Iklan</a>
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_SAWERIA_DISINI" class="btn btn-primary">Bypass (2k)</a>
+            </div>
+        </div>
+
+        <!-- MENU 6: PREMIUM NEED (TELEGRAM) -->
+        <div class="card" style="border-color: rgba(42, 171, 238, 0.5);">
+            <div class="img-preview">
+                <img src="assets/telegram.jpg" alt="Premium Need">
+            </div>
+            <div class="tier-title">Premium Need</div>
+            <div class="tier-desc">
+                [ GANTI DESKRIPSI DI SINI ] - Ingin request khusus? Mari bicarakan langsung melalui Telegram.
+            </div>
+            <div class="btn-group">
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_TELEGRAM_DISINI" class="btn btn-tele">Order via Telegram</a>
+            </div>
+        </div>
+
+        <!-- MENU 7: HELPER ADMIN BOT (BARU DITAMBAHKAN) -->
+        <div class="card" style="border-color: rgba(0, 201, 147, 0.5); text-align: center;">
+            <div class="tier-title" style="margin-bottom: 12px;">Bantuan & Bantuan Admin</div>
+            <div class="tier-desc" style="text-align: center; margin-bottom: 20px;">
+                [ GANTI DESKRIPSI DI SINI ] - Mengalami kendala saat akses atau butuh panduan? Hubungi bot admin kami untuk bantuan instan.
+            </div>
+            <div class="btn-group" style="justify-content: center;">
+                <!-- [ GANTI LINK DI SINI ] -->
+                <a href="GANTI_LINK_BOT_TELEGRAM_DISINI" class="btn btn-admin">Chat Bot Admin</a>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            Made with <span class="heart">❤</span> by Convenant
+        </div>
+    </div>
+
+    <!-- SCRIPT ANIMASI BINTANG -->
+    <script>
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.z = Math.random() * width;
+                this.radius = Math.random() * 1.2;
+            }
+
+            update() {
+                this.z -= 0.8; 
+                if (this.z <= 0) {
+                    this.z = width;
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                }
+            }
+
+            draw() {
+                let x = (this.x - width / 2) * (width / this.z) + width / 2;
+                let y = (this.y - height / 2) * (width / this.z) + height / 2;
+                let r = this.radius * (width / this.z);
+
+                if (x >= 0 && x <= width && y >= 0 && y <= height) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${1 - this.z / width})`;
+                    ctx.fill();
+                }
+            }
+        }
+
+        function initStars() {
+            stars = [];
+            const numStars = window.innerWidth < 600 ? 150 : 300; 
+            for (let i = 0; i < numStars; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(0, 0, width, height);
+
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            resize();
+            initStars();
+        });
+
+        resize();
+        initStars();
+        animate();
+    </script>
+</body>
+</html>
