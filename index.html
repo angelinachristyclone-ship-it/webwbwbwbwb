@@ -101,25 +101,45 @@
             box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
         }
 
-        /* Tempat Gambar */
+        /* --- STYLING GAMBAR BARU (BLUR BG + SHARP FRONT) --- */
         .img-preview {
             width: 100%;
             aspect-ratio: 16/9;
             border-radius: 12px;
             margin-bottom: 16px;
             overflow: hidden;
-            background-color: #111;
+            background-color: #000;
+            position: relative; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .img-preview img {
+        .img-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
+            filter: blur(15px); 
+            opacity: 0.5; 
+            z-index: 1;
+            transform: scale(1.1); 
+            pointer-events: none;
+        }
+
+        .img-front {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+            z-index: 2;
             transition: transform 0.3s ease;
         }
 
-        .card:hover .img-preview img {
-            transform: scale(1.05);
+        .card:hover .img-front {
+            transform: scale(1.05); 
         }
 
         .tier-title {
@@ -242,7 +262,8 @@
         <!-- MENU 1: TAKE ALL IN -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/take-all-in.jpg" alt="Take All In">
+                <img class="img-bg" src="assets/take-all-in.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/take-all-in.jpg" alt="Take All In">
             </div>
             <div class="tier-title">Convenant Take All in #VVIP </div>
             <div class="tier-desc">
@@ -256,7 +277,8 @@
         <!-- MENU 2: VIP TIER -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/vip.jpg" alt="VIP Tier">
+                <img class="img-bg" src="assets/vip.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/vip.jpg" alt="VIP Tier">
             </div>
             <div class="tier-title">Convenant VIP Tier</div>
             <div class="tier-desc">
@@ -270,7 +292,8 @@
         <!-- MENU 3: PREMIUM TIER -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/premium.jpg" alt="Premium Tier">
+                <img class="img-bg" src="assets/premium.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/premium.jpg" alt="Premium Tier">
             </div>
             <div class="tier-title">Convenant Premium Tier</div>
             <div class="tier-desc">
@@ -281,10 +304,11 @@
             </div>
         </div>
 
-        <!-- MENU 4: STANDART TIER (GABUNGAN) -->
+        <!-- MENU 4: STANDART TIER -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/standart.jpg" alt="Standart Tier">
+                <img class="img-bg" src="assets/standart.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/standart.jpg" alt="Standart Tier">
             </div>
             <div class="tier-title">Convenant Standart Tier</div>
             <div class="tier-desc">
@@ -298,23 +322,24 @@
         <!-- MENU 5: FREE TIER (JKT48 GROUP) -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/free.jpg" alt="Free Tier">
+                <img class="img-bg" src="assets/free.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/free.jpg" alt="Free Tier">
             </div>
             <div class="tier-title">Convenant Free Tier (JKT48)</div>
             <div class="tier-desc">
                 Grup Deliberasi JKT48 (<strong>2.426 anggota</strong>). Grup Keban 2-3 hari, No garansi, Gabisa di save, No rush (tunggu grup di buat lagi kalo keban).
             </div>
             <div class="btn-group">
-                <!-- Link Iklan taruh '#' dulu kalo belum dapet shortlink-nya -->
-                <a href="#" class="btn btn-secondary">Link Iklan</a>
-                <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20Bypass%20Free%20Tier%20(2k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Bypass (2k)</a>
+                <!-- Cuma sisa 1 tombol Join arah ke link invite grup -->
+                <a href="https://t.me/+Z1fvS2ymaIY1MjE1" class="btn btn-primary" target="_blank">Join</a>
             </div>
         </div>
 
         <!-- MENU 6: PREMIUM NEED (TELEGRAM) -->
         <div class="card" style="border-color: rgba(42, 171, 238, 0.5);">
             <div class="img-preview">
-                <img src="assets/telegram.jpg" alt="Premium Need">
+                <img class="img-bg" src="assets/telegram.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/telegram.jpg" alt="Premium Need">
             </div>
             <div class="tier-title">Premium Need</div>
             <div class="tier-desc">
@@ -332,7 +357,8 @@
         <!-- INTER MENU 1: TAKE ALL INTER -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/inter-take-all.jpg" alt="Inter Take All">
+                <img class="img-bg" src="assets/inter-take-all.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/inter-take-all.jpg" alt="Inter Take All">
             </div>
             <div class="tier-title">Take All Inter</div>
             <div class="tier-desc">
@@ -346,7 +372,8 @@
         <!-- INTER MENU 2: INTER VIP -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/inter-vip.jpg" alt="Inter VIP">
+                <img class="img-bg" src="assets/inter-vip.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/inter-vip.jpg" alt="Inter VIP">
             </div>
             <div class="tier-title">Inter VIP</div>
             <div class="tier-desc">
@@ -360,7 +387,8 @@
         <!-- INTER MENU 3: INTER PREMIUM -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/inter-premium.jpg" alt="Inter Premium">
+                <img class="img-bg" src="assets/inter-premium.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/inter-premium.jpg" alt="Inter Premium">
             </div>
             <div class="tier-title">Inter Premium</div>
             <div class="tier-desc">
@@ -374,7 +402,8 @@
         <!-- INTER MENU 4: INTER START -->
         <div class="card">
             <div class="img-preview">
-                <img src="assets/inter-start.jpg" alt="Inter Start">
+                <img class="img-bg" src="assets/inter-start.jpg" alt="Blur BG">
+                <img class="img-front" src="assets/inter-start.jpg" alt="Inter Start">
             </div>
             <div class="tier-title">Inter Start</div>
             <div class="tier-desc">
@@ -410,7 +439,6 @@
         function confirmInter(url) {
             const isConfirmed = confirm("Pastikan nomor telegram anda adalah international (+1) atau lainnya untuk membuka grup.");
             
-            // Buka di Tab Baru biar web gak ilang
             if (isConfirmed) {
                 window.open(url, '_blank');
             }
