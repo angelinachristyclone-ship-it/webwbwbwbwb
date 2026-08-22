@@ -5,15 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Convenant VIP - OrderVIP</title>
     <style>
-        /* --- STYLING DASAR & OPTIMASI --- */
+        /* --- CSS VARIABLES UNTUK DYNAMIC THEME --- */
+        :root {
+            --bg-color: #05070d;
+            --text-main: #ffffff;
+            --text-sub: #a0aab5;
+            --card-bg: rgba(20, 25, 35, 0.4);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-shadow: rgba(0, 0, 0, 0.5);
+            --card-hover-bg: rgba(30, 35, 45, 0.5);
+            --card-hover-border: rgba(255, 255, 255, 0.3);
+            --btn-primary-bg: #ffffff;
+            --btn-primary-text: #05070d;
+            --btn-secondary-bg: rgba(255,255,255,0.06);
+            --btn-secondary-border: rgba(255,255,255,0.3);
+            --divider-color: rgba(255, 255, 255, 0.15);
+            --glow-color: rgba(255, 255, 255, 0.8);
+            --glow-accent: rgba(42, 171, 238, 0.8);
+            --admin-card-border: rgba(0, 201, 147, 0.4);
+        }
+
+        /* --- TEMA PUTIH (MALL) --- */
+        body.light-theme {
+            --bg-color: #f4f7fa;
+            --text-main: #111827;
+            --text-sub: #4b5563;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --card-shadow: rgba(0, 0, 0, 0.05);
+            --card-hover-bg: rgba(255, 255, 255, 0.9);
+            --card-hover-border: rgba(0, 0, 0, 0.2);
+            --btn-primary-bg: #111827;
+            --btn-primary-text: #ffffff;
+            --btn-secondary-bg: rgba(0,0,0,0.05);
+            --btn-secondary-border: rgba(0,0,0,0.2);
+            --divider-color: rgba(0, 0, 0, 0.1);
+            --glow-color: rgba(0, 0, 0, 0.5);
+            --glow-accent: rgba(42, 171, 238, 0.5);
+            --admin-card-border: rgba(0, 160, 110, 0.4);
+        }
+
+        /* --- STYLING DASAR --- */
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #05070d;
-            color: white;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         #star-canvas {
@@ -41,33 +82,79 @@
             margin-bottom: 8px;
             letter-spacing: 3px;
             text-transform: uppercase;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 15px var(--glow-color);
             animation: glowPulse 2s infinite alternate;
         }
 
-        /* Moto Utama */
         .header-motto {
             font-size: 14px;
-            color: #a0aab5;
+            color: var(--text-sub);
             letter-spacing: 1.5px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             font-style: italic;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
             line-height: 1.6;
+            transition: color 0.3s ease;
         }
 
         @keyframes glowPulse {
-            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
-            to { text-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 0 10px #2AABEE; }
+            from { text-shadow: 0 0 10px rgba(128, 128, 128, 0.3); }
+            to { text-shadow: 0 0 25px var(--glow-color), 0 0 10px var(--glow-accent); }
+        }
+
+        /* --- TAB NAVIGATION (SWAP BUTTONS) --- */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            background: var(--card-bg);
+            padding: 8px;
+            border-radius: 50px;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 40px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--btn-primary-bg);
+            color: var(--btn-primary-text);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* --- VIEW SWAPPER --- */
+        .view-section {
+            display: none;
+            animation: fadeInSlide 0.4s ease forwards;
+        }
+        
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- PEMISAH KATEGORI (DIVIDER) --- */
         .section-divider {
-            margin: 50px 0 30px;
+            margin: 40px 0 30px;
             display: flex;
             align-items: center;
             text-align: center;
-            color: #8994a3;
+            color: var(--text-sub);
             font-size: 16px;
             font-weight: bold;
             text-transform: uppercase;
@@ -76,15 +163,15 @@
         .section-divider::before, .section-divider::after {
             content: '';
             flex: 1;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 1px solid var(--divider-color);
         }
         .section-divider::before { margin-right: 15px; }
         .section-divider::after { margin-left: 15px; }
 
-        /* --- DESAIN KARTU MENU (UI DI-POLISH) --- */
+        /* --- DESAIN KARTU MENU --- */
         .card {
-            background: rgba(20, 25, 35, 0.4); 
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--card-bg); 
+            border: 1px solid var(--card-border);
             border-radius: 20px;
             padding: 18px;
             margin-bottom: 25px;
@@ -92,14 +179,14 @@
             -webkit-backdrop-filter: blur(16px);
             text-align: left;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px var(--card-shadow);
         }
 
         .card:hover {
             transform: translateY(-8px);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 35px rgba(42, 171, 238, 0.2);
-            background: rgba(30, 35, 45, 0.5);
+            border-color: var(--card-hover-border);
+            box-shadow: 0 15px 35px rgba(42, 171, 238, 0.15);
+            background: var(--card-hover-bg);
         }
 
         /* --- STYLING GAMBAR (BLUR BG + SHARP FRONT) --- */
@@ -109,7 +196,7 @@
             border-radius: 14px;
             margin-bottom: 18px;
             overflow: hidden;
-            background-color: #05070d;
+            background-color: #000;
             position: relative; 
             display: flex;
             align-items: center;
@@ -147,19 +234,21 @@
             font-size: 21px;
             font-weight: 800;
             margin-bottom: 8px;
-            color: #ffffff;
+            color: var(--text-main);
             letter-spacing: 0.5px;
+            transition: color 0.3s ease;
         }
 
         .tier-desc {
             font-size: 14px;
-            color: #a0aab5;
+            color: var(--text-sub);
             margin-bottom: 20px;
             line-height: 1.6;
+            transition: color 0.3s ease;
         }
 
         .tier-desc strong {
-            color: #e2e8f0;
+            color: var(--text-main);
         }
 
         /* --- TOMBOL --- */
@@ -187,28 +276,25 @@
             box-sizing: border-box;
         }
 
-        .btn:active {
-            transform: scale(0.95);
-        }
+        .btn:active { transform: scale(0.95); }
 
         .btn-primary { 
-            background: #ffffff; 
-            color: #05070d; 
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            background: var(--btn-primary-bg); 
+            color: var(--btn-primary-text); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .btn-primary:hover { 
-            background: #e2e8f0; 
-            box-shadow: 0 6px 20px rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
         
         .btn-secondary { 
-            background: rgba(255,255,255,0.06); 
-            color: white; 
-            border: 1px solid rgba(255,255,255,0.3); 
+            background: var(--btn-secondary-bg); 
+            color: var(--text-main); 
+            border: 1px solid var(--btn-secondary-border); 
         }
         .btn-secondary:hover { 
-            background: rgba(255,255,255,0.15); 
-            border-color: #ffffff;
+            background: var(--btn-secondary-border); 
         }
 
         .btn-tele { 
@@ -247,19 +333,15 @@
         @keyframes glowingWave {
             0%, 100% {
                 opacity: 0.3;
-                color: #555;
                 text-shadow: 0 0 5px rgba(255, 255, 255, 0);
             }
             50% {
                 opacity: 1;
-                color: #ffffff;
-                text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(42, 171, 238, 0.8);
+                text-shadow: 0 0 15px var(--glow-color), 0 0 25px var(--glow-accent);
             }
         }
         
-        .heart {
-            color: #e25555;
-        }
+        .heart { color: #e25555; }
     </style>
 </head>
 <body>
@@ -272,176 +354,263 @@
         <div class="header-title">Convenant VIP</div>
         <div class="header-motto">"Money for Value, grup bisa keban tapi jarang sekitar 1-2 tahun sekali! Privasi terjaga kualitas atas"</div>
 
-        <!-- ======================= KATALOG REGULER ======================= -->
-
-        <!-- MENU 1: TAKE ALL IN -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/take-all-in.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/take-all-in.jpg" alt="Take All In">
-            </div>
-            <div class="tier-title">Convenant Take All in #VVIP </div>
-            <div class="tier-desc">
-                Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! Selain paket take all in NO GARANSI).
-            </div>
-            <div class="btn-group">
-                <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20In%20VVIP%20(200k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 200.000</a>
-            </div>
+        <!-- TAB SWAPPER -->
+        <div class="tab-container">
+            <button class="tab-btn active" id="btn-store" onclick="switchTab('store')">Convenant Store</button>
+            <button class="tab-btn" id="btn-mall" onclick="switchTab('mall')">Convenant Mall</button>
         </div>
 
-        <!-- MENU 2: VIP TIER -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/vip.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/vip.jpg" alt="VIP Tier">
+        <!-- ======================================================= -->
+        <!--                  VIEW 1: CONVENANT STORE                -->
+        <!-- ======================================================= -->
+        <div id="view-store" class="view-section active">
+            
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/take-all-in.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/take-all-in.jpg" alt="Take All In">
+                </div>
+                <div class="tier-title">Convenant Take All in #VVIP </div>
+                <div class="tier-desc">
+                    Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! Selain paket take all in NO GARANSI).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20In%20VVIP%20(200k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 200.000</a>
+                </div>
             </div>
-            <div class="tier-title">Convenant VIP Tier</div>
-            <div class="tier-desc">
-                VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 197.592 foto, 62.698 video</strong> (include cersex order atau req 2x free).
-            </div>
-            <div class="btn-group">
-                <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20(150k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 150.000</a>
-            </div>
-        </div>
 
-        <!-- MENU 3: PREMIUM TIER -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/premium.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/premium.jpg" alt="Premium Tier">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/vip.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/vip.jpg" alt="VIP Tier">
+                </div>
+                <div class="tier-title">Convenant VIP Tier</div>
+                <div class="tier-desc">
+                    VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 197.592 foto, 62.698 video</strong> (include cersex order atau req 2x free).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20(150k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 150.000</a>
+                </div>
             </div>
-            <div class="tier-title">Convenant Premium Tier</div>
-            <div class="tier-desc">
-                Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap gen 1, 6, 7, 8 ,9 ,10 ,11 ,12. <strong>Media: 32.526 foto, 5.043 video</strong> (include cersex).
-            </div>
-            <div class="btn-group">
-                <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20(35k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 35.000</a>
-            </div>
-        </div>
 
-        <!-- MENU 4: STANDART TIER -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/standart.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/standart.jpg" alt="Standart Tier">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/premium.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/premium.jpg" alt="Premium Tier">
+                </div>
+                <div class="tier-title">Convenant Premium Tier</div>
+                <div class="tier-desc">
+                    Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap gen 1, 6, 7, 8 ,9 ,10 ,11 ,12. <strong>Media: 32.526 foto, 5.043 video</strong> (include cersex).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20(35k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 35.000</a>
+                </div>
             </div>
-            <div class="tier-title">Convenant Standart Tier</div>
-            <div class="tier-desc">
-                Standart: free saver, sudah ada beberapa topik gen 7 sampai 12. <strong>Media: 19.772 foto, 5.895 video</strong> (sudah include Cersex).
-            </div>
-            <div class="btn-group">
-                <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Standart%20(15k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 15.000</a>
-            </div>
-        </div>
 
-        <!-- MENU 5: FREE TIER (JKT48 GROUP) -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/free.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/free.jpg" alt="Free Tier">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/standart.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/standart.jpg" alt="Standart Tier">
+                </div>
+                <div class="tier-title">Convenant Standart Tier</div>
+                <div class="tier-desc">
+                    Standart: free saver, sudah ada beberapa topik gen 7 sampai 12. <strong>Media: 19.772 foto, 5.895 video</strong> (sudah include Cersex).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Standart%20(15k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 15.000</a>
+                </div>
             </div>
-            <div class="tier-title">Convenant Free Tier (JKT48)</div>
-            <div class="tier-desc">
-                Grup Deliberasi JKT48 (<strong>2.426 anggota</strong>). No Nude, Gabisa di save, No rush (sistem acc).
-            </div>
-            <div class="btn-group">
-                <a href="https://t.me/+Z1fvS2ymaIY1MjE1" class="btn btn-primary" target="_blank">Join</a>
-            </div>
-        </div>
 
-        <!-- MENU 6: PREMIUM NEED (TELEGRAM) -->
-        <div class="card" style="border-color: rgba(42, 171, 238, 0.4);">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/telegram.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/telegram.jpg" alt="Premium Need">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/free.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/free.jpg" alt="Free Tier">
+                </div>
+                <div class="tier-title">Convenant Free Tier (JKT48)</div>
+                <div class="tier-desc">
+                    Grup Deliberasi JKT48 (<strong>2.426 anggota</strong>). Grup Keban 2-3 hari, No garansi, Gabisa di save, No rush (tunggu grup di buat lagi kalo keban).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/+Z1fvS2ymaIY1MjE1" class="btn btn-primary" target="_blank">Join</a>
+                </div>
             </div>
-            <div class="tier-title">Premium Need</div>
-            <div class="tier-desc">
-                Perlu apk premium atau telegram need? Here.
-            </div>
-            <div class="btn-group">
-                <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20order%20APK%20Premium%20/%20Telegram%20Need." class="btn btn-tele" target="_blank">Order via Telegram</a>
-            </div>
-        </div>
 
-        <!-- ======================= KATALOG INTER (BARU) ======================= -->
-        
-        <div class="section-divider">Katalog Inter Grup (No Luar)</div>
+            <div class="section-divider">Katalog Inter Grup (No Luar)</div>
 
-        <!-- INTER MENU 1: TAKE ALL INTER -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/inter-take-all.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/inter-take-all.jpg" alt="Inter Take All">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/inter-take-all.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-take-all.jpg" alt="Inter Take All">
+                </div>
+                <div class="tier-title">Take All Inter</div>
+                <div class="tier-desc">
+                    Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! (Bekas grup chat bebas).
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20Inter%20(60k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 60.000</a>
+                </div>
             </div>
-            <div class="tier-title">Take All Inter</div>
-            <div class="tier-desc">
-                Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! (Bekas grup chat bebas).
-            </div>
-            <div class="btn-group">
-                <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20Inter%20(60k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 60.000</a>
-            </div>
-        </div>
 
-        <!-- INTER MENU 2: INTER VIP -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/inter-vip.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/inter-vip.jpg" alt="Inter VIP">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/inter-vip.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-vip.jpg" alt="Inter VIP">
+                </div>
+                <div class="tier-title">Inter VIP</div>
+                <div class="tier-desc">
+                    VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 95.441 foto, 17.862 video</strong> (include cersex order atau req 2x free). Bekas grup chat bebas.
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20VIP%20(50k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 50.000</a>
+                </div>
             </div>
-            <div class="tier-title">Inter VIP</div>
-            <div class="tier-desc">
-                VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 95.441 foto, 17.862 video</strong> (include cersex order atau req 2x free). Bekas grup chat bebas.
-            </div>
-            <div class="btn-group">
-                <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20VIP%20(50k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 50.000</a>
-            </div>
-        </div>
 
-        <!-- INTER MENU 3: INTER PREMIUM -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/inter-premium.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/inter-premium.jpg" alt="Inter Premium">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/inter-premium.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-premium.jpg" alt="Inter Premium">
+                </div>
+                <div class="tier-title">Inter Premium</div>
+                <div class="tier-desc">
+                    Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap. <strong>Media: 24.824 foto, 5.416 video</strong>. Bekas grup chat bebas.
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Premium%20(15k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 15.000</a>
+                </div>
             </div>
-            <div class="tier-title">Inter Premium</div>
-            <div class="tier-desc">
-                Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap. <strong>Media: 24.824 foto, 5.416 video</strong>. Bekas grup chat bebas.
-            </div>
-            <div class="btn-group">
-                <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Premium%20(15k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 15.000</a>
-            </div>
-        </div>
 
-        <!-- INTER MENU 4: INTER START -->
-        <div class="card">
-            <div class="img-preview">
-                <img class="img-bg" src="assets/inter-start.jpg" alt="Blur BG">
-                <img class="img-front" src="assets/inter-start.jpg" alt="Inter Start">
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/inter-start.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-start.jpg" alt="Inter Start">
+                </div>
+                <div class="tier-title">Inter Start</div>
+                <div class="tier-desc">
+                    Standart tier, free saver, sudah ada beberapa topik. <strong>Media: 8.259 foto, 2.477 video</strong> (sudah include Cersex). Bekas grup chat bebas.
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Start%20(5k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 5.000</a>
+                </div>
             </div>
-            <div class="tier-title">Inter Start</div>
-            <div class="tier-desc">
-                Standart tier, free saver, sudah ada beberapa topik. <strong>Media: 8.259 foto, 2.477 video</strong> (sudah include Cersex). Bekas grup chat bebas.
-            </div>
-            <div class="btn-group">
-                <a href="javascript:void(0)" onclick="confirmInter('https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Start%20(5k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 5.000</a>
-            </div>
-        </div>
 
-        <!-- ======================= ADMIN HELPER (TANPA TULISAN CERSEX) ======================= -->
-
-        <!-- MENU 7: BANTUAN ADMIN BOT -->
-        <div class="card" style="border-color: rgba(0, 201, 147, 0.4); text-align: center; margin-top: 30px;">
-            <div class="tier-title" style="margin-bottom: 12px;">Bantuan Admin</div>
-            <div class="tier-desc" style="text-align: center; margin-bottom: 20px;">
-                Hubungi admin untuk bantuan payment, info, atau bertanya.
+            <!-- MENU TESTIMONI (STORE) -->
+            <div class="card" style="border-color: rgba(42, 171, 238, 0.4); margin-top: 30px;">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/testi.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/testi.jpg" alt="Testimoni">
+                </div>
+                <div class="tier-title">Testimoni</div>
+                <div class="tier-desc">
+                    Cek testimoni for trust. Kumpulan bukti transaksi dan kepuasan pelanggan Convenant VIP.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/+xcx7bcofVfplM2I1" class="btn btn-tele" target="_blank">Cek Testimoni</a>
+                </div>
             </div>
-            <div class="btn-group" style="justify-content: center;">
-                <a href="https://t.me/CaramelBiruu?text=Halo%20Admin,%20gw%20butuh%20bantuan%20atau%20mau%20tanya-tanya%20nih." class="btn btn-admin" target="_blank">Hubungi Admin</a>
-            </div>
-        </div>
 
-        <!-- FOOTER -->
+            <!-- MENU BANTUAN ADMIN (STORE) -->
+            <div class="card" style="border-color: var(--admin-card-border); text-align: center;">
+                <div class="tier-title" style="margin-bottom: 12px;">Bantuan Admin</div>
+                <div class="tier-desc" style="text-align: center; margin-bottom: 20px;">
+                    Hubungi admin untuk bantuan payment, info, atau bertanya.
+                </div>
+                <div class="btn-group" style="justify-content: center;">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20Admin,%20gw%20butuh%20bantuan%20atau%20mau%20tanya-tanya%20nih." class="btn btn-admin" target="_blank">Hubungi Admin</a>
+                </div>
+            </div>
+
+        </div> <!-- END OF STORE VIEW -->
+
+        <!-- ======================================================= -->
+        <!--                   VIEW 2: CONVENANT MALL                -->
+        <!-- ======================================================= -->
+        <div id="view-mall" class="view-section">
+            
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/pm.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/pm.jpg" alt="PM All Member">
+                </div>
+                <div class="tier-title">PM All Member</div>
+                <div class="tier-desc">
+                    Req member, pm udh ada semua member bisa milih. Berlangganan pesan eksklusif member JKT48 selama 1 bulan.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20order%20pm%20member." class="btn btn-primary" target="_blank">Rp 7.000 / Bulan</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/exc.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/exc.jpg" alt="Exc Member">
+                </div>
+                <div class="tier-title">Exc Member</div>
+                <div class="tier-desc">
+                    Bisa tanya list di tele ya udh exc member. Akses eksklusif konten member terpilih selama 1 bulan.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20beli%20exc%20member." class="btn btn-primary" target="_blank">Rp 12.000 / Bulan</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/telegram.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/telegram.jpg" alt="Telegram Need">
+                </div>
+                <div class="tier-title">Premium Need</div>
+                <div class="tier-desc">
+                    Perlu apk premium atau telegram need? Here. Sedia berbagai kebutuhan aplikasi premium.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20order%20APK%20Premium%20/%20Telegram%20Need." class="btn btn-primary" target="_blank">Order via Telegram</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/show.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/show.jpg" alt="Live Show JKT48">
+                </div>
+                <div class="tier-title">Live Show JKT48</div>
+                <div class="tier-desc">
+                    Pre order wajib pas pre order sblm show. Dapatkan akses live show teater JKT48.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20bos,%20gw%20mau%20order%20Live%20Show%20JKT48." class="btn btn-primary" target="_blank">Rp 10.000 / Show</a>
+                </div>
+            </div>
+
+            <!-- MENU TESTIMONI (MALL) -->
+            <div class="card" style="border-color: rgba(42, 171, 238, 0.4); margin-top: 30px;">
+                <div class="img-preview">
+                    <img class="img-bg" src="assets/testi.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/testi.jpg" alt="Testimoni">
+                </div>
+                <div class="tier-title">Testimoni</div>
+                <div class="tier-desc">
+                    Cek testimoni for trust. Kumpulan bukti transaksi dan kepuasan pelanggan Convenant.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/+xcx7bcofVfplM2I1" class="btn btn-tele" target="_blank">Cek Testimoni</a>
+                </div>
+            </div>
+
+            <!-- MENU BANTUAN ADMIN (MALL) -->
+            <div class="card" style="border-color: var(--admin-card-border); text-align: center;">
+                <div class="tier-title" style="margin-bottom: 12px;">Bantuan Admin</div>
+                <div class="tier-desc" style="text-align: center; margin-bottom: 20px;">
+                    Hubungi admin untuk bantuan payment, info, atau bertanya.
+                </div>
+                <div class="btn-group" style="justify-content: center;">
+                    <a href="https://t.me/CaramelBiruu?text=Halo%20Admin,%20gw%20butuh%20bantuan%20atau%20mau%20tanya-tanya%20nih." class="btn btn-admin" target="_blank">Hubungi Admin</a>
+                </div>
+            </div>
+
+        </div> <!-- END OF MALL VIEW -->
+
+        <!-- FOOTER (TETAP MUNCUL DI KEDUA VIEW) -->
         <div class="footer">
             Made with <span class="heart">❤</span> by Convenant
         </div>
@@ -449,7 +618,26 @@
 
     <!-- SCRIPT JAVASCRIPT & ANIMASI BINTANG -->
     <script>
-        // --- FUNGSI POPUP UNTUK KATALOG INTER ---
+        // --- LOGIKA TAB SWAPPER & TEMA ---
+        function switchTab(tabName) {
+            // Update tombol active
+            document.getElementById('btn-store').classList.remove('active');
+            document.getElementById('btn-mall').classList.remove('active');
+            document.getElementById('btn-' + tabName).classList.add('active');
+
+            // Hide/Show View
+            document.getElementById('view-store').classList.remove('active');
+            document.getElementById('view-mall').classList.remove('active');
+            document.getElementById('view-' + tabName).classList.add('active');
+
+            // Ubah Tema Body (Bintang & Warna)
+            if (tabName === 'mall') {
+                document.body.classList.add('light-theme');
+            } else {
+                document.body.classList.remove('light-theme');
+            }
+        }
+
         function confirmInter(url) {
             const isConfirmed = confirm("Pastikan nomor telegram anda adalah international (+1) atau lainnya untuk membuka grup.");
             if (isConfirmed) {
@@ -457,7 +645,7 @@
             }
         }
 
-        // --- ANIMASI BINTANG PADAT KEDAP-KEDIP (TWINKLING & DRIFTING) ---
+        // --- ANIMASI BINTANG DINAMIS (BISA PUTIH/HITAM) ---
         const canvas = document.getElementById('star-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, stars = [];
@@ -475,7 +663,6 @@
             constructor() {
                 this.reset();
             }
-
             reset() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
@@ -487,16 +674,13 @@
                 this.fadeDir = Math.random() > 0.5 ? 1 : -1;
                 this.fadeSpeed = Math.random() * 0.015 + 0.005;
             }
-
             update() {
                 this.y -= this.speedY;
                 this.x -= this.speedX;
-
                 if (this.y < 0) {
                     this.y = height;
                     this.x = Math.random() * width;
                 }
-
                 this.opacity += this.fadeSpeed * this.fadeDir;
                 if (this.opacity >= 1) {
                     this.opacity = 1;
@@ -506,11 +690,14 @@
                     this.fadeDir = 1; 
                 }
             }
-
             draw() {
+                // Mengecek apakah lagi di Light Theme (Mall) buat nentuin warna bintang
+                const isLight = document.body.classList.contains('light-theme');
+                const rgb = isLight ? '0, 0, 0' : '255, 255, 255'; // Hitam untuk Mall, Putih untuk Store
+                
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fillStyle = `rgba(${rgb}, ${this.opacity})`;
                 ctx.fill();
             }
         }
@@ -524,7 +711,9 @@
         }
 
         function animate() {
-            ctx.fillStyle = '#05070d';
+            // Mengecek warna background canvas sesuai tema
+            const isLight = document.body.classList.contains('light-theme');
+            ctx.fillStyle = isLight ? '#f4f7fa' : '#05070d';
             ctx.fillRect(0, 0, width, height);
 
             stars.forEach(star => {
