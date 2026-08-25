@@ -229,16 +229,16 @@ async function selectMember(memberId) {
     const memId = activeMember.id;
 
     if (TEAM_DREAM.includes(memId)) {
-        chatArea.style.background = "linear-gradient(180deg, rgba(0, 180, 255, 0.35) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(0, 140, 255, 0.55) 0%, #05070d 80%)";
         currentStarColor = "#00ff66";
     } else if (TEAM_PASSION.includes(memId)) {
-        chatArea.style.background = "linear-gradient(180deg, rgba(255, 30, 60, 0.35) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 40, 0.55) 0%, #05070d 80%)";
         currentStarColor = "#ff7700";
     } else if (TEAM_LOVE.includes(memId)) {
-        chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 128, 0.35) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 140, 0.55) 0%, #05070d 80%)";
         currentStarColor = "#ff0055";
     } else {
-        chatArea.style.background = "linear-gradient(180deg, rgba(25, 35, 55, 0.35) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(30, 45, 70, 0.55) 0%, #05070d 80%)";
         currentStarColor = "#ffffff";
     }
 
@@ -474,6 +474,22 @@ function buildMessageNode(msg) {
     `;
 }
 
+function forceScrollToBottom() {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+    chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
+    
+    requestAnimationFrame(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
+    });
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
+    }, 80);
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
+    }, 300);
+}
+
 function renderMessages(messages) {
     const chatMessages = document.getElementById("chatMessages");
     
@@ -502,7 +518,7 @@ function renderMessages(messages) {
     });
 
     chatMessages.innerHTML = msgHtml;
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    forceScrollToBottom();
 }
 
 // --- INFINITE SCROLL PAGINATION (LOAD 500 PESAN LAMA BERIKUTNYA) ---
@@ -683,10 +699,7 @@ function setupWebSocket() {
 }
 
 function scrollToLatestChat() {
-    const chatMessages = document.getElementById("chatMessages");
-    if (chatMessages) {
-        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-    }
+    forceScrollToBottom();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
