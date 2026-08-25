@@ -432,7 +432,37 @@ function formatDateHeader(dateStr) {
     return d.toLocaleDateString('id-ID', options);
 }
 
-function buildMessageNode(msg) {
+let mediaObserver = null;
+
+function setupMediaViewportObserver() {
+    if (mediaObserver) mediaObserver.disconnect();
+    
+    const container = document.getElementById("chatMessages");
+    if (!container) return;
+
+    mediaObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const mediaElem = entry.target;
+                const realSrc = mediaElem.dataset.src;
+                if (realSrc) {
+                    mediaElem.src = realSrc;
+                    mediaElem.removeAttribute('data-src');
+                    mediaObserver.unobserve(mediaElem);
+                }
+            }
+        });
+    }, {
+        root: container,
+        rootMargin: "300px 0px 300px 0px"
+    });
+
+    document.querySelectorAll('.msg-media[data-src]').forEach(elem => {
+        mediaObserver.observe(elem);
+    });
+}
+
+function buildMessageNode(msg, isRecent = false) {
     let timeOnly = msg.timestamp;
     if (msg.timestamp && msg.timestamp.includes(" ")) {
         const parts = msg.timestamp.split(" ");
@@ -442,22 +472,39 @@ function buildMessageNode(msg) {
     let mediaTag = "";
     if (msg.has_media) {
         const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
+
         if (msg.media_type === 'photo') {
-            mediaTag = `
-                <div style="position:relative;">
-                    <img src="${mediaSrc}" class="msg-media" alt="Foto PM" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
-                    <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto</button>
-                </div>`;
+            if (isRecent) {
+                mediaTag = `
+                    <div style="position:relative; min-height:140px;">
+                        <img src="${mediaSrc}" loading="eager" fetchpriority="high" decoding="async" class="msg-media" alt="Foto PM" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
+                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto</button>
+                    </div>`;
+            } else {
+                mediaTag = `
+                    <div style="position:relative; min-height:140px;">
+                        <img data-src="${mediaSrc}" loading="lazy" decoding="async" class="msg-media" alt="Foto PM" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
+                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto</button>
+                    </div>`;
+            }
         } else if (msg.media_type === 'video') {
-            mediaTag = `
-                <div style="position:relative;">
-                    <video src="${mediaSrc}" class="msg-media" controls preload="metadata" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
-                    <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
-                </div>`;
+            if (isRecent) {
+                mediaTag = `
+                    <div style="position:relative; min-height:140px;">
+                        <video src="${mediaSrc}" loading="eager" fetchpriority="high" class="msg-media" controls preload="metadata" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
+                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
+                    </div>`;
+            } else {
+                mediaTag = `
+                    <div style="position:relative; min-height:140px;">
+                        <video data-src="${mediaSrc}" loading="lazy" class="msg-media" controls preload="metadata" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
+                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
+                    </div>`;
+            }
         } else if (msg.media_type === 'audio') {
             mediaTag = `
                 <div style="background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; margin-bottom:6px;">
-                    <audio src="${mediaSrc}" controls style="width:100%; margin-bottom:4px;"></audio>
+                    <audio src="${mediaSrc}" controls preload="none" style="width:100%; margin-bottom:4px;"></audio>
                     <button class="save-media-btn" style="font-size:11px;" onclick="directDownload(this, '${mediaSrc}', 'pm_audio_${msg.id}.m4a')">💾 Simpan Voice/Audio</button>
                 </div>`;
         }
@@ -500,9 +547,11 @@ function renderMessages(messages) {
 
     let msgHtml = "";
     let lastDate = "";
+    const totalCount = messages.length;
 
     // Render pesan (terlama di atas, terbaru di bawah)
-    messages.slice().reverse().forEach(msg => {
+    const reversed = messages.slice().reverse();
+    reversed.forEach((msg, idx) => {
         let currentDate = "";
         if (msg.timestamp && msg.timestamp.includes(" ")) {
             currentDate = msg.timestamp.split(" ")[0];
@@ -514,11 +563,14 @@ function renderMessages(messages) {
             lastDate = currentDate;
         }
 
-        msgHtml += buildMessageNode(msg);
+        // Prioritas tinggi (eager load) untuk 25 pesan terbaru yang langsung terlihat di viewport bawah
+        const isRecent = (idx >= totalCount - 25);
+        msgHtml += buildMessageNode(msg, isRecent);
     });
 
     chatMessages.innerHTML = msgHtml;
     forceScrollToBottom();
+    setupMediaViewportObserver();
 }
 
 // --- INFINITE SCROLL PAGINATION (LOAD 500 PESAN LAMA BERIKUTNYA) ---
