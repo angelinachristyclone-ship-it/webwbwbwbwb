@@ -565,14 +565,19 @@
                 
                 // Prioritaskan MYTH (_MYTH.jpg), jika tidak ada fallback ke UNCOMMON (_UNCOMMON.jpg)
                 // Jika belum berlangganan -> versi grey (_grey.jpg)
-                const mythSrc = isSubbed ? "../../skin/" + mem.file + "_MYTH.jpg" : "../../skin/" + mem.file + "_MYTH_grey.jpg";
-                const uncommonSrc = isSubbed ? "../../skin/" + mem.file + "_UNCOMMON.jpg" : "../../skin/" + mem.file + "_UNCOMMON_grey.jpg";
-                const fallbackSrc = "../../skin/" + mem.file + "_UNCOMMON_grey.jpg";
+                // 4-Tier Fallback Gambar: MYTH -> UNCOMMON -> RARE -> COMMON -> Default Logo
+                const baseFile = mem.file;
+                const mythSrc = isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
+                const uncommonSrc = isSubbed ? `../../skin/${baseFile}_UNCOMMON.jpg` : `../../skin/${baseFile}_UNCOMMON_grey.jpg";`;
+                const rareSrc = isSubbed ? `../../skin/${baseFile}_RARE.jpg` : `../../skin/${baseFile}_RARE_grey.jpg`;
+                const commonSrc = isSubbed ? `../../skin/${baseFile}_COMMON.jpg` : `../../skin/${baseFile}_COMMON_grey.jpg`;
+                const defaultLogo = "../../logo.png";
 
                 html += `
                     <div class="member-item ${activeMember && activeMember.id === mem.id ? 'active' : ''}" onclick="selectMember('${mem.id}')">
                         <div class="member-avatar-wrap">
-                            <img src="${mythSrc}" class="${imgClass}" alt="${mem.name}" onerror="this.onerror=null;this.src='${uncommonSrc}';this.onerror=function(){this.src='${fallbackSrc}';};">
+                            <img src="${mythSrc}" class="${imgClass}" alt="${mem.name}" 
+                                 onerror="this.onerror=null;this.src='${uncommonSrc}';this.onerror=function(){this.src='${rareSrc}';this.onerror=function(){this.src='${commonSrc}';this.onerror=function(){this.src='${defaultLogo}';};};};">
                             ${!isSubbed ? '<div class="lock-icon-badge">🔒</div>' : ''}
                         </div>
                         <div class="member-info">
@@ -624,16 +629,24 @@
             const isSubbed = subscribedFolders.includes(activeMember.name.toUpperCase()) || subscribedFolders.includes(activeMember.id.toUpperCase());
             
             document.getElementById("headerName").innerText = activeMember.name;
-            const headerImg = isSubbed 
-                ? "../../skin/" + activeMember.file + "_MYTH.jpg" 
-                : "../../skin/" + activeMember.file + "_MYTH_grey.jpg";
-            const headerUncommon = isSubbed
-                ? "../../skin/" + activeMember.file + "_UNCOMMON.jpg" 
-                : "../../skin/" + activeMember.file + "_UNCOMMON_grey.jpg";
+            const baseFile = activeMember.file;
+            const headerMyth = isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
+            const headerUncommon = isSubbed ? `../../skin/${baseFile}_UNCOMMON.jpg` : `../../skin/${baseFile}_UNCOMMON_grey.jpg`;
+            const headerRare = isSubbed ? `../../skin/${baseFile}_RARE.jpg` : `../../skin/${baseFile}_RARE_grey.jpg`;
+            const headerCommon = isSubbed ? `../../skin/${baseFile}_COMMON.jpg` : `../../skin/${baseFile}_COMMON_grey.jpg`;
+            const defaultLogo = "../../logo.png";
+
             const headerAvatar = document.getElementById("headerAvatar");
-            headerAvatar.src = headerImg;
+            headerAvatar.src = headerMyth;
             headerAvatar.onerror = function() {
                 this.src = headerUncommon;
+                this.onerror = function() {
+                    this.src = headerRare;
+                    this.onerror = function() {
+                        this.src = headerCommon;
+                        this.onerror = function() { this.src = defaultLogo; };
+                    };
+                };
             };
             headerAvatar.className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
             document.getElementById("headerSub").innerText = isSubbed ? "Aktif Berlangganan" : "🔒 Belum Berlangganan";
@@ -825,7 +838,25 @@
             requestAnimationFrame(animate);
         }
 
-        // --- WEBSOCKET REAL-TIME BROADCAST LISTENER ---
+        // --- WEBSOCKET REAL-TIME BROADCAST LISTENER + BROWSER NOTIFICATION ---
+        function requestNotificationPermission() {
+            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+        }
+
+        function triggerWebNotification(memberName, textContent) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                const title = `📩 Pesan PM Baru dari ${memberName}`;
+                const options = {
+                    body: textContent || "Member baru saja mengirimkan pesan/media baru di Convenant PM!",
+                    icon: "../../logo.png",
+                    badge: "../../logo.png"
+                };
+                new Notification(title, options);
+            }
+        }
+
         function setupWebSocket() {
             const session = getCookie("user_session_pm");
             if (!session) return;
@@ -836,6 +867,11 @@
                 const ws = new WebSocket(wsUrl);
                 ws.onmessage = function(event) {
                     const data = JSON.parse(event.data);
+                    const memName = data.folder_name || "Member PM";
+
+                    // Kirim Notifikasi Browser ke User yang sedang berlangganan
+                    triggerWebNotification(memName, data.text);
+
                     if (activeMember && data.folder_name && data.folder_name.toUpperCase() === activeMember.name.toUpperCase()) {
                         // Jika pesan baru sesuai dengan member yang sedang dibuka, secara dinamis tampilkan ke chat
                         const chatMessages = document.getElementById("chatMessages");
@@ -876,6 +912,7 @@
         initStars();
         animate();
         setupWebSocket();
+        requestNotificationPermission();
     </script>
 </body>
 </html>
