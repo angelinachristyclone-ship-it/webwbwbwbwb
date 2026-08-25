@@ -848,9 +848,7 @@
             if ("Notification" in window && Notification.permission === "granted") {
                 const title = `📩 Pesan PM Baru dari ${memberName}`;
                 const options = {
-                    body: textContent || "Member baru saja mengirimkan pesan/media baru di Convenant PM!",
-                    icon: "../../logo.png",
-                    badge: "../../logo.png"
+                    body: textContent || "Member baru saja mengirimkan pesan/media baru di Convenant PM!"
                 };
                 new Notification(title, options);
             }
