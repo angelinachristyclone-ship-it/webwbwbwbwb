@@ -682,13 +682,31 @@ function setupWebSocket() {
     } catch (e) {}
 }
 
+function scrollToLatestChat() {
+    const chatMessages = document.getElementById("chatMessages");
+    if (chatMessages) {
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initPage();
     const chatMessages = document.getElementById("chatMessages");
     if (chatMessages) {
         chatMessages.addEventListener("scroll", function() {
+            // Infinite scroll ke atas untuk load pesan lama
             if (this.scrollTop < 60) {
                 loadOlderMessages();
+            }
+            // Tampilkan / sembunyikan tombol panah bawah
+            const btn = document.getElementById("scrollToBottomBtn");
+            if (btn) {
+                const isUp = (this.scrollHeight - this.scrollTop - this.clientHeight) > 250;
+                if (isUp) {
+                    btn.classList.add("visible");
+                } else {
+                    btn.classList.remove("visible");
+                }
             }
         });
     }
