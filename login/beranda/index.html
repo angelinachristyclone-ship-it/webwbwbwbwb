@@ -555,6 +555,24 @@
             }
         }
 
+        function handleAvatarError(imgElem, baseFile, isSubbed) {
+            const suffix = isSubbed ? ".jpg" : "_grey.jpg";
+            const tiers = ["UNCOMMON", "MYTH", "RARE", "COMMON"];
+            let idx = 0;
+            
+            function tryNext() {
+                if (idx < tiers.length) {
+                    const tier = tiers[idx++];
+                    imgElem.src = `../../skin/${baseFile}_${tier}${suffix}`;
+                } else {
+                    imgElem.onerror = null;
+                    imgElem.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23555'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
+                }
+            }
+            imgElem.onerror = tryNext;
+            tryNext();
+        }
+
         function renderMemberList() {
             const listContainer = document.getElementById("memberList");
             let html = "";
@@ -562,22 +580,14 @@
             MEMBER_PM_LIST.forEach(mem => {
                 const isSubbed = subscribedFolders.includes(mem.name.toUpperCase()) || subscribedFolders.includes(mem.id.toUpperCase());
                 const imgClass = isSubbed ? "member-avatar" : "member-avatar grey";
-                
-                // Prioritaskan MYTH (_MYTH.jpg), jika tidak ada fallback ke UNCOMMON (_UNCOMMON.jpg)
-                // Jika belum berlangganan -> versi grey (_grey.jpg)
-                // 4-Tier Fallback Gambar: MYTH -> UNCOMMON -> RARE -> COMMON -> Default Logo
                 const baseFile = mem.file;
                 const mythSrc = isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
-                const uncommonSrc = isSubbed ? `../../skin/${baseFile}_UNCOMMON.jpg` : `../../skin/${baseFile}_UNCOMMON_grey.jpg";`;
-                const rareSrc = isSubbed ? `../../skin/${baseFile}_RARE.jpg` : `../../skin/${baseFile}_RARE_grey.jpg`;
-                const commonSrc = isSubbed ? `../../skin/${baseFile}_COMMON.jpg` : `../../skin/${baseFile}_COMMON_grey.jpg`;
-                const defaultLogo = "../../logo.png";
 
                 html += `
                     <div class="member-item ${activeMember && activeMember.id === mem.id ? 'active' : ''}" onclick="selectMember('${mem.id}')">
                         <div class="member-avatar-wrap">
                             <img src="${mythSrc}" class="${imgClass}" alt="${mem.name}" 
-                                 onerror="this.onerror=null;this.src='${uncommonSrc}';this.onerror=function(){this.src='${rareSrc}';this.onerror=function(){this.src='${commonSrc}';this.onerror=function(){this.src='${defaultLogo}';};};};">
+                                 onerror="handleAvatarError(this, '${baseFile}', ${isSubbed});">
                             ${!isSubbed ? '<div class="lock-icon-badge">🔒</div>' : ''}
                         </div>
                         <div class="member-info">
@@ -631,22 +641,11 @@
             document.getElementById("headerName").innerText = activeMember.name;
             const baseFile = activeMember.file;
             const headerMyth = isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
-            const headerUncommon = isSubbed ? `../../skin/${baseFile}_UNCOMMON.jpg` : `../../skin/${baseFile}_UNCOMMON_grey.jpg`;
-            const headerRare = isSubbed ? `../../skin/${baseFile}_RARE.jpg` : `../../skin/${baseFile}_RARE_grey.jpg`;
-            const headerCommon = isSubbed ? `../../skin/${baseFile}_COMMON.jpg` : `../../skin/${baseFile}_COMMON_grey.jpg`;
-            const defaultLogo = "../../logo.png";
 
             const headerAvatar = document.getElementById("headerAvatar");
             headerAvatar.src = headerMyth;
             headerAvatar.onerror = function() {
-                this.src = headerUncommon;
-                this.onerror = function() {
-                    this.src = headerRare;
-                    this.onerror = function() {
-                        this.src = headerCommon;
-                        this.onerror = function() { this.src = defaultLogo; };
-                    };
-                };
+                handleAvatarError(this, baseFile, isSubbed);
             };
             headerAvatar.className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
             document.getElementById("headerSub").innerText = isSubbed ? "Aktif Berlangganan" : "🔒 Belum Berlangganan";
