@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Convenant VIP — Login Portal</title>
+    <style>
+        :root {
+            --bg-color: #05070d;
+            --text-main: #ffffff;
+            --text-sub: #a0aab5;
+            --card-bg: rgba(15, 20, 30, 0.75);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --btn-bg: #ffffff;
+            --btn-text: #05070d;
+            --glow-color: rgba(255, 255, 255, 0.8);
+            --glow-accent: rgba(42, 171, 238, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px var(--glow-color);
+            animation: glowPulse 2.5s infinite alternate;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-sub);
+            letter-spacing: 1.5px;
+            margin-bottom: 32px;
+            font-style: italic;
+        }
+
+        @keyframes glowPulse {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.4); }
+            to { text-shadow: 0 0 25px rgba(255, 255, 255, 0.9), 0 0 40px var(--glow-accent); }
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 36px 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .login-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .error-msg {
+            color: #ff4d4d;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            background: rgba(255, 77, 77, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.15);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .hint-box {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .hint-box code {
+            background: rgba(255, 255, 255, 0.1);
+            color: #2aabee;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="star-canvas"></canvas>
+
+    <div class="login-container">
+        <div class="header-title">Convenant</div>
+        <div class="header-subtitle">VIP Order & PM Portal Access</div>
+
+        <div class="login-card">
+            <div class="input-group">
+                <label class="input-label" for="userId">Telegram ID</label>
+                <input type="text" id="userId" class="input-field" placeholder="Masukkan ID Telegram (contoh: 123456789)" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="password">Password</label>
+                <input type="password" id="password" class="input-field" placeholder="Masukkan Password" autocomplete="current-password">
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+
+            <button id="loginBtn" class="login-btn" onclick="handleLogin()">MASUK PORTAL</button>
+
+            <div class="hint-box">
+                Belum punya password? Kirim <code>/regis</code> ke PM Bot Telegram kami untuk membuat akun!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "https://shinezzzz-iddiletele.hf.space";
+
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1);
+                if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+            }
+            return null;
+        }
+
+        function setCookie(name, value, days) {
+            let d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/;SameSite=Lax";
+        }
+
+        async function checkSession() {
+            const session = getCookie("user_session_pm");
+            if (!session) return;
+            try {
+                const res = await fetch(BACKEND_URL + "/pm/cekseasonpm", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ session_cookie: session })
+                });
+                const data = await res.json();
+                if (data.valid) {
+                    window.location.href = "./beranda/";
+                }
+            } catch (e) {
+                console.log("Cek session error:", e);
+            }
+        }
+
+        async function handleLogin() {
+            const userId = document.getElementById("userId").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMsg = document.getElementById("errorMsg");
+            const loginBtn = document.getElementById("loginBtn");
+
+            errorMsg.style.display = "none";
+
+            if (!userId || !password) {
+                errorMsg.innerText = "❌ Telegram ID dan Password wajib diisi!";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            loginBtn.innerText = "⏳ MEMPROSES...";
+            loginBtn.disabled = true;
+
+            try {
+                const res = await fetch(BACKEND_URL + "/pm/loginpm", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: userId, password: password })
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    setCookie("user_session_pm", data.session_key, 7);
+                    window.location.href = "./beranda/";
+                } else {
+                    errorMsg.innerText = "❌ " + (data.msg || "Login gagal. Cek ID dan Password!");
+                    errorMsg.style.display = "block";
+                }
+            } catch (e) {
+                errorMsg.innerText = "❌ Gagal terhubung ke server backend.";
+                errorMsg.style.display = "block";
+            } finally {
+                loginBtn.innerText = "MASUK PORTAL";
+                loginBtn.disabled = false;
+            }
+        }
+
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") handleLogin();
+        });
+
+        window.addEventListener("DOMContentLoaded", checkSession);
+
+        // --- ANIMASI BINTANG STAR-CANVAS ---
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.alpha = Math.random();
+                this.speed = Math.random() * 0.01 + 0.005;
+            }
+            update() {
+                this.alpha += this.speed;
+                if (this.alpha > 1 || this.alpha < 0) this.speed = -this.speed;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(this.alpha)})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initStars() {
+            resize();
+            stars = [];
+            const count = Math.floor((width * height) / 3000);
+            for (let i = 0; i < count; i++) stars.push(new Star());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', initStars);
+        initStars();
+        animate();
+    </script>
+</body>
+</html>
