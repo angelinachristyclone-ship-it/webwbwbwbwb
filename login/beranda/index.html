@@ -563,17 +563,16 @@
                 const isSubbed = subscribedFolders.includes(mem.name.toUpperCase()) || subscribedFolders.includes(mem.id.toUpperCase());
                 const imgClass = isSubbed ? "member-avatar" : "member-avatar grey";
                 
-                // Jika berlangganan -> Pakai gambar warna normal
-                // Jika belum berlangganan -> Pakai gambar versi grey (_grey.jpg)
-                const imgSrc = isSubbed 
-                    ? "../../skin/" + mem.file + "_UNCOMMON.jpg" 
-                    : "../../skin/" + mem.file + "_UNCOMMON_grey.jpg";
+                // Prioritaskan MYTH (_MYTH.jpg), jika tidak ada fallback ke UNCOMMON (_UNCOMMON.jpg)
+                // Jika belum berlangganan -> versi grey (_grey.jpg)
+                const mythSrc = isSubbed ? "../../skin/" + mem.file + "_MYTH.jpg" : "../../skin/" + mem.file + "_MYTH_grey.jpg";
+                const uncommonSrc = isSubbed ? "../../skin/" + mem.file + "_UNCOMMON.jpg" : "../../skin/" + mem.file + "_UNCOMMON_grey.jpg";
                 const fallbackSrc = "../../skin/" + mem.file + "_UNCOMMON_grey.jpg";
 
                 html += `
                     <div class="member-item ${activeMember && activeMember.id === mem.id ? 'active' : ''}" onclick="selectMember('${mem.id}')">
                         <div class="member-avatar-wrap">
-                            <img src="${imgSrc}" class="${imgClass}" alt="${mem.name}" onerror="this.onerror=null;this.src='${fallbackSrc}';">
+                            <img src="${mythSrc}" class="${imgClass}" alt="${mem.name}" onerror="this.onerror=null;this.src='${uncommonSrc}';this.onerror=function(){this.src='${fallbackSrc}';};">
                             ${!isSubbed ? '<div class="lock-icon-badge">🔒</div>' : ''}
                         </div>
                         <div class="member-info">
@@ -626,10 +625,17 @@
             
             document.getElementById("headerName").innerText = activeMember.name;
             const headerImg = isSubbed 
+                ? "../../skin/" + activeMember.file + "_MYTH.jpg" 
+                : "../../skin/" + activeMember.file + "_MYTH_grey.jpg";
+            const headerUncommon = isSubbed
                 ? "../../skin/" + activeMember.file + "_UNCOMMON.jpg" 
                 : "../../skin/" + activeMember.file + "_UNCOMMON_grey.jpg";
-            document.getElementById("headerAvatar").src = headerImg;
-            document.getElementById("headerAvatar").className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
+            const headerAvatar = document.getElementById("headerAvatar");
+            headerAvatar.src = headerImg;
+            headerAvatar.onerror = function() {
+                this.src = headerUncommon;
+            };
+            headerAvatar.className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
             document.getElementById("headerSub").innerText = isSubbed ? "Aktif Berlangganan" : "🔒 Belum Berlangganan";
 
             const chatMessages = document.getElementById("chatMessages");
