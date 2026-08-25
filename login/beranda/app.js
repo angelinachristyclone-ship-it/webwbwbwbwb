@@ -12,7 +12,7 @@ const MEMBER_PM_LIST = [
     { id: "Virgi", name: "PM Virgi", file: "ASTRELLA_VIRGIANANDA" },
     { id: "Feni", name: "PM Feni", file: "FENI_FITRIYANTI" },
     { id: "Fera", name: "PM Fera", file: "AFERA_THALIA" },
-    { id: "Jazzy", name: "PM Jazzy", file: "JAZZLYN_TRISHA" },
+    { id: "Jazzy", name: "PM Jazzy", file: "PUTRI_JAZYTA" },
     { id: "Eli", name: "PM Eli", file: "HELISMA_PUTRI" },
     { id: "Oline", name: "PM Oline", file: "OLINE_MANUEL" },
     { id: "Raisha", name: "PM Raisha", file: "RAISHA_SYIFA" },
