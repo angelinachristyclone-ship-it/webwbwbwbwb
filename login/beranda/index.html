@@ -857,14 +857,27 @@
             }
         }
 
+        let wsRetryCount = 0;
+        const MAX_WS_RETRIES = 5;
+
         function setupWebSocket() {
             const session = getCookie("user_session_pm");
             if (!session) return;
+            if (wsRetryCount >= MAX_WS_RETRIES) {
+                console.warn("[WebSocket] Reached maximum reconnection attempts. Stopping polling to prevent rate limits.");
+                return;
+            }
+
             const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = BACKEND_URL.replace(/^http/, 'ws') + "/pm/ws/" + session;
 
             try {
                 const ws = new WebSocket(wsUrl);
+
+                ws.onopen = function() {
+                    wsRetryCount = 0; // Reset counter saat koneksi sukses
+                };
+
                 ws.onmessage = function(event) {
                     const data = JSON.parse(event.data);
                     const memName = data.folder_name || "Member PM";
@@ -873,7 +886,6 @@
                     triggerWebNotification(memName, data.text);
 
                     if (activeMember && data.folder_name && data.folder_name.toUpperCase() === activeMember.name.toUpperCase()) {
-                        // Jika pesan baru sesuai dengan member yang sedang dibuka, secara dinamis tampilkan ke chat
                         const chatMessages = document.getElementById("chatMessages");
                         const timeOnly = data.timestamp ? data.timestamp.split(" ")[1] || data.timestamp : "";
                         
@@ -902,7 +914,14 @@
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }
                 };
-                ws.onclose = function() { setTimeout(setupWebSocket, 5000); };
+
+                ws.onclose = function() {
+                    wsRetryCount++;
+                    const delay = Math.min(30000, 5000 * wsRetryCount);
+                    if (wsRetryCount <= MAX_WS_RETRIES) {
+                        setTimeout(setupWebSocket, delay);
+                    }
+                };
             } catch (e) {
                 console.log("WebSocket connection error:", e);
             }
