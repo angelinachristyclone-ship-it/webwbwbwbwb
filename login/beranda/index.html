@@ -337,19 +337,27 @@
             font-size: 14px;
         }
 
-        /* --- PANEL MEDIA SUB TAB (KANAN) --- */
+        /* --- PANEL MEDIA SUB TAB (SLIDE OVERLAY) --- */
         .media-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
             width: 340px;
-            background: var(--panel-bg);
+            height: 100vh;
+            background: rgba(12, 16, 26, 0.95);
             border-left: 1px solid var(--border-color);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-            z-index: 2;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.6);
+        }
+
+        .media-panel.open {
+            transform: translateX(0);
         }
 
         .media-panel-header {
@@ -357,6 +365,25 @@
             border-bottom: 1px solid var(--border-color);
             font-size: 16px;
             font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-panel-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .close-panel-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .media-grid {
@@ -380,20 +407,6 @@
         .media-grid-item:hover {
             transform: scale(1.05);
         }
-
-        /* RESPONSIVE UNTUK HP */
-        @media (max-width: 768px) {
-            .media-panel {
-                position: fixed;
-                right: 0;
-                top: 0;
-                z-index: 100;
-                transform: translateX(100%);
-            }
-            .media-panel.open {
-                transform: translateX(0);
-            }
-        }
     </style>
 </head>
 <body>
@@ -414,14 +427,17 @@
     <!-- MAIN CHAT AREA -->
     <div class="chat-area">
         <div class="chat-header">
-            <div class="header-member-info" onclick="toggleMediaPanel()">
+            <div class="header-member-info" onclick="toggleMediaPanel()" title="Klik untuk lihat Shared Media">
                 <img id="headerAvatar" src="../../logo.png" class="header-member-avatar" alt="Avatar">
                 <div>
                     <div id="headerName" class="header-member-name">Pilih Member PM</div>
                     <div id="headerSub" class="header-member-sub">Convenant VIP Archive</div>
                 </div>
             </div>
-            <button class="order-btn" style="padding: 8px 16px; font-size: 12px;" onclick="logout()">Logout</button>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button class="order-btn" style="padding: 8px 14px; font-size: 12px; background: rgba(42, 171, 238, 0.2); border: 1px solid rgba(42, 171, 238, 0.4);" onclick="toggleMediaPanel()">🖼️ Shared Media</button>
+                <button class="order-btn" style="padding: 8px 16px; font-size: 12px;" onclick="logout()">Logout</button>
+            </div>
         </div>
 
         <div id="chatMessages" class="chat-messages">
@@ -432,9 +448,12 @@
         </div>
     </div>
 
-    <!-- PANEL MEDIA (POP MEDIA SUB TAB KANAN) -->
+    <!-- PANEL MEDIA (SLIDE OVERLAY KANAN) -->
     <div id="mediaPanel" class="media-panel">
-        <div class="media-panel-header">📷 Media Tersimpan (Shared Media)</div>
+        <div class="media-panel-header">
+            <span>📷 Shared Media</span>
+            <button class="close-panel-btn" onclick="toggleMediaPanel()">✖</button>
+        </div>
         <div id="mediaGrid" class="media-grid">
             <!-- Shared media rendered via JS -->
         </div>
@@ -462,7 +481,7 @@
             { id: "Gita", name: "PM Gita", file: "GITA_SEKAR" },
             { id: "Intan", name: "PM Intan", file: "NUR_INTAN" },
             { id: "Lily", name: "PM Lily", file: "MICHELLE_ALEXANDRA" },
-            { id: "Danella", name: "PM Danella", file: "DANELLA_PIAWAHAN" },
+            { id: "Danella", name: "PM Danella", file: "DENA_NATALIA" },
             { id: "Erine", name: "PM Erine", file: "CATHERINA_VALLENCIA" },
             { id: "Fritzy", name: "PM Fritzy", file: "FRITZY_ROSMERIAN" },
             { id: "Lana", name: "PM Lana", file: "AURHEL_ALANA" },
@@ -506,7 +525,7 @@
             { id: "Ralyne", name: "PM Ralyne", file: "RALYNE_VAN" },
             { id: "Bella", name: "PM Bella", file: "CHRISTABELLA_BONITA" },
             { id: "Nayla", name: "PM Nayla", file: "NAYLA_SUJI" },
-            { id: "Auwia", name: "PM Auwia", file: "AUREL_MAYORI" },
+            { id: "Auwia", name: "PM Auwia", file: "AULIA_RIZA" },
             { id: "Maxine", name: "PM Maxine", file: "MAXINE_FAYE" }
         ];
 
@@ -610,29 +629,39 @@
 
         let currentStarColor = "#ffffff";
 
+        // INFINITE SCROLL PAGINATION STATE
+        let oldestMsgId = 0;
+        let isLoadingMore = false;
+        let hasMoreMessages = true;
+
         async function selectMember(memberId) {
             activeMember = MEMBER_PM_LIST.find(m => m.id === memberId);
             renderMemberList();
 
-            // Ubah Tema Background Berdasarkan Team / Generasi Member
+            // Reset status pagination
+            oldestMsgId = 0;
+            isLoadingMore = false;
+            hasMoreMessages = true;
+
+            // Ubah Tema Background Berdasarkan Team / Generasi Member (Tajam ke Hitam Polos #05070d)
             const chatArea = document.querySelector(".chat-area");
             const memId = activeMember.id;
 
             if (TEAM_DREAM.includes(memId)) {
-                // Team Dream: Biru Muda ke Putih dengan Bintang Hijau
-                chatArea.style.background = "linear-gradient(180deg, rgba(135, 206, 250, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%)";
+                // Team Dream: Biru Tajam -> Hitam #05070d dengan Bintang Hijau
+                chatArea.style.background = "linear-gradient(180deg, rgba(0, 180, 255, 0.35) 0%, #05070d 80%)";
                 currentStarColor = "#00ff66";
             } else if (TEAM_PASSION.includes(memId)) {
-                // Team Passion: Merah ke Putih dengan Bintang Oranye
-                chatArea.style.background = "linear-gradient(180deg, rgba(220, 20, 60, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%)";
-                currentStarColor = "#ff8800";
+                // Team Passion: Merah Tajam -> Hitam #05070d dengan Bintang Oranye
+                chatArea.style.background = "linear-gradient(180deg, rgba(255, 30, 60, 0.35) 0%, #05070d 80%)";
+                currentStarColor = "#ff7700";
             } else if (TEAM_LOVE.includes(memId)) {
-                // Team Love / Generasi 8-12: Pink ke Putih dengan Bintang Merah
-                chatArea.style.background = "linear-gradient(180deg, rgba(255, 105, 180, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%)";
+                // Team Love / Generasi 8-12: Pink Tajam -> Hitam #05070d dengan Bintang Merah
+                chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 128, 0.35) 0%, #05070d 80%)";
                 currentStarColor = "#ff0055";
             } else {
-                // Default: Putih ke Hitam dengan Bintang Putih
-                chatArea.style.background = "linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(5, 7, 13, 0.9) 100%)";
+                // Default: Dark Navy -> Hitam #05070d dengan Bintang Putih
+                chatArea.style.background = "linear-gradient(180deg, rgba(25, 35, 55, 0.35) 0%, #05070d 80%)";
                 currentStarColor = "#ffffff";
             }
 
@@ -671,12 +700,19 @@
                 const res = await fetch(BACKEND_URL + "/pm/getpmmessages", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name })
+                    body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name, limit: 50, offset_id: 0 })
                 });
                 const data = await res.json();
 
                 if (res.ok && data.ok) {
-                    renderMessages(data.messages || []);
+                    const msgs = data.messages || [];
+                    if (msgs.length > 0) {
+                        oldestMsgId = msgs[msgs.length - 1].id;
+                        if (msgs.length < 50) hasMoreMessages = false;
+                    } else {
+                        hasMoreMessages = false;
+                    }
+                    renderMessages(msgs);
                 } else {
                     chatMessages.innerHTML = `<div class="unsubscribed-notice"><h3>⚠️ Notice</h3><p>${data.msg}</p></div>`;
                 }
@@ -694,6 +730,48 @@
             return d.toLocaleDateString('id-ID', options);
         }
 
+        function buildMessageNode(msg) {
+            let timeOnly = msg.timestamp;
+            if (msg.timestamp && msg.timestamp.includes(" ")) {
+                const parts = msg.timestamp.split(" ");
+                timeOnly = parts[1] || msg.timestamp;
+            }
+
+            let mediaTag = "";
+            if (msg.has_media) {
+                const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
+                if (msg.media_type === 'photo') {
+                    mediaTag = `
+                        <div style="position:relative;">
+                            <img src="${mediaSrc}" class="msg-media" alt="Foto PM">
+                            <a href="${mediaSrc}" download class="save-media-btn" title="Simpan Foto">💾 Simpan Foto</a>
+                        </div>`;
+                } else if (msg.media_type === 'video') {
+                    mediaTag = `
+                        <div style="position:relative;">
+                            <video src="${mediaSrc}" class="msg-media" controls></video>
+                            <a href="${mediaSrc}" download class="save-media-btn" title="Simpan Video">💾 Simpan Video</a>
+                        </div>`;
+                } else if (msg.media_type === 'audio') {
+                    mediaTag = `
+                        <div style="background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; margin-bottom:6px;">
+                            <audio src="${mediaSrc}" controls style="width:100%; margin-bottom:4px;"></audio>
+                            <a href="${mediaSrc}" download class="save-media-btn" style="font-size:11px;" title="Simpan Audio">💾 Simpan Voice/Audio</a>
+                        </div>`;
+                }
+            }
+
+            return `
+                <div class="msg-row">
+                    <div class="msg-bubble">
+                        ${mediaTag}
+                        <div>${(msg.text || "").replace(/\n/g, '<br>')}</div>
+                    </div>
+                    <div class="msg-timestamp">[${timeOnly}]</div>
+                </div>
+            `;
+        }
+
         function renderMessages(messages) {
             const chatMessages = document.getElementById("chatMessages");
             const mediaGrid = document.getElementById("mediaGrid");
@@ -709,72 +787,116 @@
             let lastDate = "";
 
             // Render pesan (terlama di atas, terbaru di bawah)
-            messages.reverse().forEach(msg => {
-                let timeOnly = msg.timestamp;
+            messages.slice().reverse().forEach(msg => {
                 let currentDate = "";
-
-                // Parsing timestamp YYYY-MM-DD HH:MM:SS
                 if (msg.timestamp && msg.timestamp.includes(" ")) {
-                    const parts = msg.timestamp.split(" ");
-                    currentDate = parts[0];
-                    timeOnly = parts[1] || msg.timestamp;
+                    currentDate = msg.timestamp.split(" ")[0];
                 }
 
-                // Sisipkan Pemisah Tanggal jika berganti hari
                 if (currentDate && currentDate !== lastDate) {
                     const formattedDateStr = formatDateHeader(currentDate);
-                    msgHtml += `
-                        <div class="date-divider">
-                            <span class="date-badge">${formattedDateStr}</span>
-                        </div>
-                    `;
+                    msgHtml += `<div class="date-divider"><span class="date-badge">${formattedDateStr}</span></div>`;
                     lastDate = currentDate;
                 }
 
-                let mediaTag = "";
-                if (msg.has_media) {
+                if (msg.has_media && msg.media_type === 'photo') {
                     const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
-                    if (msg.media_type === 'photo') {
-                        mediaTag = `
-                            <div style="position:relative;">
-                                <img src="${mediaSrc}" class="msg-media" alt="Foto PM">
-                                <a href="${mediaSrc}" download class="save-media-btn" title="Simpan Foto">💾 Simpan Foto</a>
-                            </div>`;
-                        mediaHtml += `
-                            <div style="position:relative; display:inline-block;">
-                                <a href="${mediaSrc}" target="_blank"><img src="${mediaSrc}" class="media-grid-item" alt="Media"></a>
-                                <a href="${mediaSrc}" download style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:10px; padding:3px 6px; border-radius:4px; text-decoration:none;">💾 Save</a>
-                            </div>`;
-                    } else if (msg.media_type === 'video') {
-                        mediaTag = `
-                            <div style="position:relative;">
-                                <video src="${mediaSrc}" class="msg-media" controls></video>
-                                <a href="${mediaSrc}" download class="save-media-btn" title="Simpan Video">💾 Simpan Video</a>
-                            </div>`;
-                    } else if (msg.media_type === 'audio') {
-                        mediaTag = `
-                            <div style="background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; margin-bottom:6px;">
-                                <audio src="${mediaSrc}" controls style="width:100%; margin-bottom:4px;"></audio>
-                                <a href="${mediaSrc}" download class="save-media-btn" style="font-size:11px;" title="Simpan Audio">💾 Simpan Voice/Audio</a>
-                            </div>`;
-                    }
+                    mediaHtml += `
+                        <div style="position:relative; display:inline-block;">
+                            <a href="${mediaSrc}" target="_blank"><img src="${mediaSrc}" class="media-grid-item" alt="Media"></a>
+                            <a href="${mediaSrc}" download style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:10px; padding:3px 6px; border-radius:4px; text-decoration:none;">💾 Save</a>
+                        </div>`;
                 }
 
-                msgHtml += `
-                    <div class="msg-row">
-                        <div class="msg-bubble">
-                            ${mediaTag}
-                            <div>${msg.text.replace(/\n/g, '<br>')}</div>
-                        </div>
-                        <div class="msg-timestamp">[${timeOnly}]</div>
-                    </div>
-                `;
+                msgHtml += buildMessageNode(msg);
             });
 
             chatMessages.innerHTML = msgHtml;
             mediaGrid.innerHTML = mediaHtml || `<div style="grid-column: span 3; text-align:center; color:var(--text-sub); padding:20px;">Tidak ada media foto</div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
+        // --- INFINITE SCROLL PAGINATION (SCROLL KE ATAS UNTUK MEMUAT CHAT LAMA) ---
+        async function loadOlderMessages() {
+            if (isLoadingMore || !hasMoreMessages || !activeMember || oldestMsgId === 0) return;
+            
+            isLoadingMore = true;
+            const chatMessages = document.getElementById("chatMessages");
+            const previousScrollHeight = chatMessages.scrollHeight;
+
+            const loaderDiv = document.createElement("div");
+            loaderDiv.id = "scrollLoader";
+            loaderDiv.style.textAlign = "center";
+            loaderDiv.style.color = "var(--text-sub)";
+            loaderDiv.style.padding = "10px";
+            loaderDiv.style.fontSize = "12px";
+            loaderDiv.innerText = "⏳ Memuat pesan lama...";
+            chatMessages.insertBefore(loaderDiv, chatMessages.firstChild);
+
+            const session = getCookie("user_session_pm");
+            try {
+                const res = await fetch(BACKEND_URL + "/pm/getpmmessages", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_cookie: session,
+                        folder_name: activeMember.name,
+                        limit: 50,
+                        offset_id: oldestMsgId
+                    })
+                });
+                const data = await res.json();
+                const loader = document.getElementById("scrollLoader");
+                if (loader) loader.remove();
+
+                if (res.ok && data.ok && data.messages && data.messages.length > 0) {
+                    const olderMsgs = data.messages;
+                    if (olderMsgs.length < 50) hasMoreMessages = false;
+                    oldestMsgId = olderMsgs[olderMsgs.length - 1].id;
+
+                    // Sisipkan pesan-pesan lama di bagian atas
+                    const tempDiv = document.createElement("div");
+                    let prependHtml = "";
+                    let lastDate = "";
+
+                    olderMsgs.slice().reverse().forEach(msg => {
+                        let currentDate = "";
+                        if (msg.timestamp && msg.timestamp.includes(" ")) {
+                            currentDate = msg.timestamp.split(" ")[0];
+                        }
+                        if (currentDate && currentDate !== lastDate) {
+                            const formattedDateStr = formatDateHeader(currentDate);
+                            prependHtml += `<div class="date-divider"><span class="date-badge">${formattedDateStr}</span></div>`;
+                            lastDate = currentDate;
+                        }
+                        prependHtml += buildMessageNode(msg);
+                    });
+
+                    tempDiv.innerHTML = prependHtml;
+                    while (tempDiv.firstChild) {
+                        chatMessages.insertBefore(tempDiv.firstChild, chatMessages.firstChild);
+                    }
+
+                    // Jaga posisi scroll agar tidak melompat
+                    const newScrollHeight = chatMessages.scrollHeight;
+                    chatMessages.scrollTop = newScrollHeight - previousScrollHeight;
+                } else {
+                    hasMoreMessages = false;
+                }
+            } catch (e) {
+                const loader = document.getElementById("scrollLoader");
+                if (loader) loader.remove();
+            } finally {
+                isLoadingMore = false;
+            }
+        }
+
+        // Pasang Scroll Listener untuk Infinite Scroll Pagination
+        document.getElementById("chatMessages").addEventListener("scroll", function() {
+            if (this.scrollTop < 60) {
+                loadOlderMessages();
+            }
+        });
 
         function toggleMediaPanel() {
             document.getElementById("mediaPanel").classList.toggle("open");
