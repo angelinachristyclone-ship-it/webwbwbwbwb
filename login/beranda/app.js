@@ -1,5 +1,36 @@
 const BACKEND_URL = "https://shinezzzz-iddiletele.hf.space";
 
+// ============================================
+// PHASE 12: ADAPTIVE EXPERIENCE ENGINE
+// ============================================
+const AdaptiveEngine = {
+    profile: "STANDARD", // COMPACT, STANDARD, DESKTOP
+    isLowEnd: false,
+    saveData: false,
+    
+    init() {
+        const cores = navigator.hardwareConcurrency || 4;
+        const memory = navigator.deviceMemory || 4;
+        const conn = navigator.connection || {};
+        this.saveData = conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g';
+        this.isLowEnd = cores <= 2 || memory <= 2 || this.saveData;
+
+        if (this.isLowEnd) {
+            this.profile = "COMPACT";
+            document.body.classList.add("low-end-device", "save-data-mode");
+            if (window.mediaPrefetcher) {
+                window.mediaPrefetcher.maxWorkers = 2;
+            }
+        } else if (window.innerWidth >= 1441) {
+            this.profile = "DESKTOP";
+            document.body.classList.add("desktop-device");
+        } else {
+            this.profile = "STANDARD";
+        }
+        console.log(`[AdaptiveEngine] Profile initialized: ${this.profile} (LowEnd: ${this.isLowEnd}, SaveData: ${this.saveData})`);
+    }
+};
+
 // DAFTAR 61 MEMBER PM LENGKAP
 const MEMBER_PM_LIST = [
     { id: "Delynn", name: "PM Delynn", file: "ADELINE_WIJAYA" },
@@ -68,8 +99,8 @@ const MEMBER_PM_LIST = [
 ];
 
 // TEAM CATEGORIES
-const TEAM_DREAM = ["Delynn", "Olla", "Freya", "Ella", "Gita", "Greesel", "Uty", "Lyn", "Marsha", "Nachia", "Oline", "Nala", "Amanda", "Chelsea", "Gendis"];
-const TEAM_PASSION = ["Feni", "Muthe", "Jessi", "Christy", "Oniel", "Lulu", "Kathrina", "Raisha", "Danella", "Daisy", "Aralie", "Erine", "Levia", "Levi", "Ribka", "Kimmy", "Eli"];
+const TEAM_DREAM = ["Delynn", "Olla", "Freya", "Ella", "Gita", "Greesel", "Uty", "Lyn", "Marsha", "Nachia", "Oline", "Nala", "Amanda", "Chelsea", "Gendis", "Eli"];
+const TEAM_PASSION = ["Feni", "Muthe", "Jessi", "Christy", "Oniel", "Lulu", "Kathrina", "Raisha", "Danella", "Daisy", "Aralie", "Erine", "Levia", "Levi", "Ribka", "Kimmy"];
 const TEAM_LOVE = ["Fiony", "Indah", "Lia", "Alya", "Anindya", "Cathy", "Elin", "Cynthia", "Gracie", "Michie", "Lana", "Fritzy", "Lily", "Trisha", "Nayla"];
 
 // UNCOMMON AVATAR MEMBERS LIST
@@ -88,15 +119,27 @@ let currentMediaTab = 'photo';
 let currentFetchController = null;
 let searchDebounceTimer = null;
 
+function getMediaUrl(msgId) {
+    const session = getCookie("user_session_pm") || "";
+    return `${BACKEND_URL}/pm/media/${msgId}?session_cookie=${encodeURIComponent(session)}`;
+}
+
+function getThumbUrl(msgId) {
+    const session = getCookie("user_session_pm") || "";
+    return `${BACKEND_URL}/pm/thumb/${msgId}?session_cookie=${encodeURIComponent(session)}`;
+}
+
 // ============================================
-// MEDIA PREFETCH MANAGER (BACKGROUND QUEUE & DIRECTIONAL PRELOAD)
+// MEDIA ENGINE v2 (4-LEVEL PRIORITY SYSTEM & STATE MACHINE)
+// QUEUED -> PREFETCHING -> CACHED -> DISPLAYED
 // ============================================
 class MediaPrefetchManager {
-    constructor(maxConcurrency = 5) {
-        this.maxConcurrency = maxConcurrency;
+    constructor() {
+        const threads = navigator.hardwareConcurrency || 4;
+        this.maxConcurrency = threads > 4 ? 6 : 3;
         this.activeCount = 0;
-        this.queue = [];
-        this.cache = new Map(); // msg_id -> 'loading' | 'loaded' | 'failed'
+        this.queue = []; // Items: { msgId, priority: 0|1|2|3 }
+        this.cache = new Map(); // msgId -> 'QUEUED' | 'PREFETCHING' | 'CACHED' | 'FAILED'
         this.manifest = [];
         this.currentMember = null;
     }
@@ -105,65 +148,151 @@ class MediaPrefetchManager {
         this.queue = [];
         this.manifest = [];
         this.currentMember = memberName;
-        // Keep browser cached images, just reset active queue
     }
 
     setManifest(manifestData) {
         this.manifest = manifestData || [];
+        // Trigger Priority 3 background indexing across full manifest
+        this.manifest.forEach(item => {
+            if (item && item.id && !this.cache.has(item.id)) {
+                this.enqueue(item.id, 3); // Priority 3: Full background manifest
+            }
+        });
+        console.log(`[MediaEngine v2] Manifest loaded for ${this.currentMember}: ${this.manifest.length} total assets.`);
     }
 
-    enqueue(msgId, priority = false) {
-        if (!msgId || this.cache.has(msgId)) return;
+    getMediaReadiness() {
+        let queued = 0, prefetching = 0, cached = 0, failed = 0;
+        this.cache.forEach((status) => {
+            if (status === 'QUEUED') queued++;
+            else if (status === 'PREFETCHING') prefetching++;
+            else if (status === 'CACHED') cached++;
+            else if (status === 'FAILED') failed++;
+        });
+
+        const displayed = document.querySelectorAll('.msg-media, .media-grid-item').length;
+        return {
+            member: this.currentMember || "Unknown",
+            media_total: this.manifest.length,
+            queued: queued,
+            prefetching: prefetching,
+            cached: cached,
+            failed: failed,
+            displayed: displayed
+        };
+    }
+
+    enqueue(msgId, priorityLevel = 3) {
+        if (!msgId) return;
+        const currentStatus = this.cache.get(msgId);
+        if (currentStatus === 'CACHED' || currentStatus === 'PREFETCHING') return;
+
+        this.cache.set(msgId, 'QUEUED');
         
-        this.cache.set(msgId, 'queued');
-        if (priority) {
-            this.queue.unshift(msgId);
-        } else {
-            this.queue.push(msgId);
+        // Remove duplicate entry if exists
+        this.queue = this.queue.filter(item => item.msgId !== msgId);
+
+        // Insert based on priority (0: Viewport, 1: Buffer 900px, 2: Near 100 msgs, 3: Background)
+        const newItem = { msgId, priority: priorityLevel };
+        let inserted = false;
+        for (let i = 0; i < this.queue.length; i++) {
+            if (this.queue[i].priority > priorityLevel) {
+                this.queue.splice(i, 0, newItem);
+                inserted = true;
+                break;
+            }
         }
+        if (!inserted) this.queue.push(newItem);
+
         this.processQueue();
     }
 
-    prefetchAround(currentMsgId, distance = 30) {
+    prefetchAround(currentMsgId) {
         if (!this.manifest.length) return;
         const idx = this.manifest.findIndex(m => m.id === currentMsgId);
         if (idx === -1) return;
 
-        const start = Math.max(0, idx - distance);
-        const end = Math.min(this.manifest.length - 1, idx + distance);
+        // Priority 0: Viewport item (Immediate)
+        this.enqueue(currentMsgId, 0);
 
-        for (let i = start; i <= end; i++) {
-            const item = this.manifest[i];
-            if (item && !this.cache.has(item.id)) {
-                this.enqueue(item.id, i < idx); // Higher priority for directional scroll-up
-            }
+        // Priority 1: ±900px Buffer region (±15 items)
+        const p1Start = Math.max(0, idx - 15);
+        const p1End = Math.min(this.manifest.length - 1, idx + 5);
+        for (let i = p1Start; i <= p1End; i++) {
+            if (this.manifest[i]) this.enqueue(this.manifest[i].id, 1);
+        }
+
+        // Priority 2: ±100 Messages history region
+        const p2Start = Math.max(0, idx - 100);
+        const p2End = Math.min(this.manifest.length - 1, idx + 20);
+        for (let i = p2Start; i <= p2End; i++) {
+            if (this.manifest[i]) this.enqueue(this.manifest[i].id, 2);
         }
     }
 
     processQueue() {
         while (this.activeCount < this.maxConcurrency && this.queue.length > 0) {
-            const msgId = this.queue.shift();
-            this.fetchThumbnail(msgId);
+            const item = this.queue.shift();
+            this.fetchThumbnail(item.msgId);
         }
     }
 
     fetchThumbnail(msgId) {
         this.activeCount++;
-        this.cache.set(msgId, 'loading');
+        this.cache.set(msgId, 'PREFETCHING');
 
-        const thumbUrl = `${BACKEND_URL}/pm/thumb/${msgId}`;
+        const thumbUrl = getThumbUrl(msgId);
         const img = new Image();
+        img.decoding = "async";
         
         img.onload = () => {
-            this.cache.set(msgId, 'loaded');
+            this.cache.set(msgId, 'CACHED');
             this.activeCount--;
             this.processQueue();
         };
 
         img.onerror = () => {
-            this.cache.set(msgId, 'failed');
-            this.activeCount--;
-            this.processQueue();
+            // Auto token refresh on 401/403 or network drop
+            if (activeMember) {
+                const session = getCookie("user_session_pm");
+                fetch(BACKEND_URL + "/pm/media-access", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_cookie: session,
+                        folder_name: activeMember.name,
+                        msg_id: msgId
+                    })
+                }).then(r => r.json()).then(data => {
+                    if (data && data.ok && data.thumb_url) {
+                        const retryImg = new Image();
+                        retryImg.decoding = "async";
+                        retryImg.onload = () => {
+                            this.cache.set(msgId, 'CACHED');
+                            this.activeCount--;
+                            this.processQueue();
+                        };
+                        retryImg.onerror = () => {
+                            this.cache.set(msgId, 'FAILED');
+                            this.activeCount--;
+                            this.processQueue();
+                        };
+                        retryImg.src = BACKEND_URL + data.thumb_url;
+                        return;
+                    }
+                    this.cache.set(msgId, 'FAILED');
+                    this.activeCount--;
+                    this.processQueue();
+                }).catch(() => {
+                    this.cache.set(msgId, 'FAILED');
+                    this.activeCount--;
+                    this.processQueue();
+                });
+            } else {
+                this.cache.set(msgId, 'FAILED');
+                this.activeCount--;
+                this.processQueue();
+            }
         };
 
         img.src = thumbUrl;
@@ -187,6 +316,7 @@ function logout() {
 }
 
 async function initPage() {
+    AdaptiveEngine.init();
     const session = getCookie("user_session_pm");
     if (!session) {
         window.location.href = "../";
@@ -304,6 +434,19 @@ function showSidebarMobile() {
 }
 
 async function selectMember(memberId) {
+    const chatMessages = document.getElementById("chatMessages");
+    const commentInput = document.getElementById("commentInput");
+    if (activeMember) {
+        try {
+            if (chatMessages) localStorage.setItem("scroll_pos_" + activeMember.name, chatMessages.scrollTop);
+            if (commentInput && commentInput.value.trim()) {
+                localStorage.setItem("draft_" + activeMember.name, commentInput.value.trim());
+            } else {
+                localStorage.removeItem("draft_" + activeMember.name);
+            }
+        } catch(e) {}
+    }
+
     if (activeMember && activeMember.id === memberId && currentMemberAllMessages.length > 0) {
         document.body.classList.add("mobile-chat-active");
         return;
@@ -312,9 +455,14 @@ async function selectMember(memberId) {
     activeMember = MEMBER_PM_LIST.find(m => m.id === memberId);
     renderMemberList();
 
+    // Restore Draft for new active member
+    if (commentInput && activeMember) {
+        const savedDraft = localStorage.getItem("draft_" + activeMember.name);
+        commentInput.value = savedDraft || "";
+    }
+
     document.body.classList.add("mobile-chat-active");
 
-    // Abort request fetch member sebelumnya jika user berpindah cepat
     if (currentFetchController) {
         currentFetchController.abort();
     }
@@ -383,12 +531,12 @@ async function selectMember(memberId) {
         }
     }).catch(() => {});
 
-    // Fetch pesan Telegram awal (Limit 50 pesan seperti Telegram Web)
+    // Stage 1 Initial Load: Fetch 200 pesan pertama langsung agar instan & banyak
     try {
         const res = await fetch(BACKEND_URL + "/pm/getpmmessages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name, limit: 50, offset_id: 0 }),
+            body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name, limit: 200, offset_id: 0 }),
             signal: currentFetchController.signal
         });
         const data = await res.json();
@@ -398,23 +546,68 @@ async function selectMember(memberId) {
             currentMemberAllMessages = msgs;
             if (msgs.length > 0) {
                 oldestMsgId = msgs[msgs.length - 1].id;
-                if (msgs.length < 50) hasMoreMessages = false;
+                if (msgs.length < 200) hasMoreMessages = false;
                 
-                // Memicu prefetcher untuk pesan media terdekat
                 msgs.forEach(m => {
                     if (m.has_media) mediaPrefetcher.enqueue(m.id);
                 });
+
+                // Stage 2 Background Streamer: Narik sisa ribuan pesan secara otomatis di background!
+                if (hasMoreMessages) {
+                    startBackgroundHistoryStreamer(activeMember.name, currentFetchController.signal);
+                }
             } else {
                 hasMoreMessages = false;
             }
             renderMessages(msgs);
             renderMediaGrid();
+            fetchPinnedMessagesBanner();
         } else {
             chatMessages.innerHTML = `<div class="unsubscribed-notice"><h3>⚠️ Notice</h3><p>${data.msg}</p></div>`;
         }
     } catch (e) {
         if (e.name !== "AbortError") {
             chatMessages.innerHTML = `<div style="margin:auto; color:#ff4d4d;">❌ Gagal memuat pesan dari Telegram.</div>`;
+        }
+    }
+}
+
+async function startBackgroundHistoryStreamer(memberName, signal) {
+    const session = getCookie("user_session_pm");
+    while (hasMoreMessages && activeMember && activeMember.name === memberName) {
+        if (signal.aborted) break;
+        await new Promise(r => setTimeout(r, 600)); // Jeda rate-limit ringan antar batch
+        if (signal.aborted) break;
+
+        try {
+            const res = await fetch(BACKEND_URL + "/pm/getpmmessages", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    session_cookie: session,
+                    folder_name: memberName,
+                    limit: 200,
+                    offset_id: oldestMsgId
+                }),
+                signal: signal
+            });
+            const data = await res.json();
+            if (res.ok && data.ok && data.messages && data.messages.length > 0) {
+                const olderMsgs = data.messages;
+                if (olderMsgs.length < 200) hasMoreMessages = false;
+                oldestMsgId = olderMsgs[olderMsgs.length - 1].id;
+                currentMemberAllMessages = currentMemberAllMessages.concat(olderMsgs);
+
+                olderMsgs.forEach(m => {
+                    if (m.has_media) mediaPrefetcher.enqueue(m.id);
+                });
+
+                renderMediaGrid();
+            } else {
+                hasMoreMessages = false;
+            }
+        } catch (e) {
+            break;
         }
     }
 }
@@ -524,6 +717,25 @@ function switchMediaTab(tabType) {
         imgElem.src = mediaSrc;
     } else if (imgElem.dataset.retryStep === "1") {
         imgElem.dataset.retryStep = "2";
+        const msgId = imgElem.closest('.msg-row') ? imgElem.closest('.msg-row').dataset.msgId : null;
+        if (msgId && activeMember) {
+            fetch(BACKEND_URL + "/pm/media-access", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    session_cookie: getCookie("user_session_pm"),
+                    folder_name: activeMember.name,
+                    msg_id: parseInt(msgId, 10)
+                })
+            }).then(r => r.json()).then(data => {
+                if (data && data.ok && data.thumb_url) {
+                    imgElem.src = BACKEND_URL + data.thumb_url;
+                    delete imgElem.dataset.retryStep;
+                    return;
+                }
+            }).catch(() => {});
+        }
+
         const parent = imgElem.parentElement;
         if (parent && !parent.querySelector('.media-error-card')) {
             imgElem.style.display = "none";
@@ -533,7 +745,7 @@ function switchMediaTab(tabType) {
             card.onclick = function() {
                 imgElem.style.display = "block";
                 delete imgElem.dataset.retryStep;
-                imgElem.src = thumbSrc + "?t=" + Date.now();
+                imgElem.src = thumbSrc + "&t=" + Date.now();
                 card.remove();
             };
             card.innerHTML = `<div style="font-size: 18px; margin-bottom: 2px;">🖼️</div><div style="font-size: 11px; color: #a0acba;">Foto PM (Ketuk untuk muat ulang)</div>`;
@@ -558,8 +770,8 @@ function renderMediaGrid() {
 
     let html = "";
     filtered.forEach(msg => {
-        const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
-        const thumbSrc = BACKEND_URL + "/pm/thumb/" + msg.id;
+        const mediaSrc = getMediaUrl(msg.id);
+        const thumbSrc = getThumbUrl(msg.id);
         if (currentMediaTab === 'photo') {
             html += `
                 <div style="position:relative; cursor:pointer;" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
@@ -620,8 +832,8 @@ function buildMessageNode(msg, isRecent = false) {
 
     let mediaTag = "";
     if (msg.has_media) {
-        const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
-        const thumbSrc = BACKEND_URL + "/pm/thumb/" + msg.id;
+        const mediaSrc = getMediaUrl(msg.id);
+        const thumbSrc = getThumbUrl(msg.id);
 
         if (msg.media_type === 'photo') {
             mediaTag = `
@@ -651,10 +863,271 @@ function buildMessageNode(msg, isRecent = false) {
             <div class="msg-bubble">
                 ${mediaTag}
                 <div>${(msg.text || "").replace(/\n/g, '<br>')}</div>
-                <div class="msg-timestamp">${timeOnly}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; pt-2; border-top:1px solid rgba(255,255,255,0.05);">
+                    <div style="display:flex; gap:6px;">
+                        <button style="background:none; border:none; color:var(--accent-blue); font-size:11px; cursor:pointer; padding:0;" onclick="promptReplyComment(${msg.id})">💬 Balas</button>
+                        <span style="color:rgba(255,255,255,0.2);">|</span>
+                        <button style="background:none; border:none; color:#ffd700; font-size:11px; cursor:pointer; padding:0;" onclick="toggleSaveMessage(${msg.id})">⭐ Simpan</button>
+                        <span style="color:rgba(255,255,255,0.2);">|</span>
+                        <button style="background:none; border:none; color:#00e5ff; font-size:11px; cursor:pointer; padding:0;" onclick="togglePinMessage(${msg.id})">📌 Pin</button>
+                        <span style="color:rgba(255,255,255,0.2);">|</span>
+                        <button style="background:none; border:none; font-size:12px; cursor:pointer; padding:0;" onclick="toggleReaction(${msg.id}, '❤️')">❤️</button>
+                        <button style="background:none; border:none; font-size:12px; cursor:pointer; padding:0;" onclick="toggleReaction(${msg.id}, '😂')">😂</button>
+                        <button style="background:none; border:none; font-size:12px; cursor:pointer; padding:0;" onclick="toggleReaction(${msg.id}, '😭')">😭</button>
+                        <button style="background:none; border:none; font-size:12px; cursor:pointer; padding:0;" onclick="toggleReaction(${msg.id}, '🔥')">🔥</button>
+                    </div>
+                    <div class="msg-timestamp">${timeOnly}</div>
+                </div>
             </div>
         </div>
     `;
+}
+
+async function togglePinMessage(msgId) {
+    const session = getCookie("user_session_pm");
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/pin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_cookie: session,
+                archive_message_id: msgId,
+                folder_name: activeMember ? activeMember.name : ""
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            alert(data.is_pinned ? "📌 Pesan berhasil disematkan di Pinned Header!" : "🗑️ Pesan dilepas dari Pinned Header!");
+            fetchPinnedMessagesBanner();
+        }
+    } catch(e) {}
+}
+
+async function fetchPinnedMessagesBanner() {
+    if (!activeMember) return;
+    const session = getCookie("user_session_pm");
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/pinned-messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name })
+        });
+        const data = await res.json();
+        const headerSub = document.getElementById("headerSub");
+        if (headerSub && data.ok && data.pinned && data.pinned.length > 0) {
+            const firstPin = data.pinned[0];
+            headerSub.innerHTML = `📌 ${data.pinned.length} Pesan Disematkan | <span style="text-decoration:underline; cursor:pointer;" onclick="jumpToMessage(${firstPin.archive_message_id})">Lompat ke Pesan #${firstPin.archive_message_id}</span>`;
+        }
+    } catch(e) {}
+}
+
+async function jumpToDate(dateStr) {
+    if (!dateStr || !activeMember) return;
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/jump-date", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ folder_name: activeMember.name, date: dateStr })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok && data.archive_message_id) {
+            jumpToMessage(data.archive_message_id);
+        } else {
+            alert(data.msg || "Pesan tidak ditemukan pada tanggal tersebut");
+        }
+    } catch(e) {
+        alert("Gagal melakukan Jump to Date: " + e.message);
+    }
+}
+
+async function performGlobalSearch(query) {
+    if (!query || !query.trim()) return;
+    const session = getCookie("user_session_pm");
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/global-search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_cookie: session, query: query.trim() })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            renderGlobalSearchResults(data.results || []);
+        }
+    } catch(e) {}
+}
+
+function renderGlobalSearchResults(results) {
+    let overlay = document.getElementById("globalSearchOverlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "globalSearchOverlay";
+        overlay.style.cssText = "position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); z-index:99999; padding:20px; display:flex; flex-direction:column; overflow-y:auto;";
+        document.body.appendChild(overlay);
+    }
+    
+    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="margin:0; font-size:18px; color:var(--text-main);">🔍 Hasil Pencarian Global (${results.length})</h2>
+        <button style="background:none; border:none; color:#fff; font-size:22px; cursor:pointer;" onclick="document.getElementById('globalSearchOverlay').remove()">✕</button>
+    </div>`;
+
+    if (results.length === 0) {
+        html += `<div style="text-align:center; color:var(--text-sub); margin:auto; font-size:14px;">Tidak ditemukan pesan dengan kata kunci tersebut.</div>`;
+    } else {
+        html += `<div style="display:flex; flex-direction:column; gap:10px;">`;
+        results.forEach(item => {
+            html += `
+                <div style="background:rgba(255,255,255,0.06); padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); cursor:pointer;" onclick="selectMemberAndJump('${item.member_name}', ${item.id})">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--accent-blue); font-weight:600; margin-bottom:4px;">
+                        <span>👤 ${item.member_name}</span>
+                        <span style="color:var(--text-sub);">${item.created_at || ''}</span>
+                    </div>
+                    <div style="font-size:13px; color:var(--text-main); line-height:1.4;">${(item.text_content || '').substring(0, 150)}...</div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+    }
+
+    overlay.innerHTML = html;
+}
+
+function selectMemberAndJump(memberName, msgId) {
+    const overlay = document.getElementById("globalSearchOverlay");
+    if (overlay) overlay.remove();
+    const memObj = MEMBER_PM_LIST.find(m => m.name.toUpperCase() === memberName.toUpperCase() || m.id.toUpperCase() === memberName.toUpperCase());
+    if (memObj) {
+        selectMember(memObj.id);
+        setTimeout(() => jumpToMessage(msgId), 1200);
+    }
+}
+
+function jumpToMessage(msgId) {
+    if (!msgId) return;
+    const targetRow = document.querySelector(`.msg-row[data-msg-id="${msgId}"]`);
+    if (targetRow) {
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetRow.style.transition = "background 0.3s ease";
+        targetRow.style.background = "rgba(255, 215, 0, 0.25)";
+        targetRow.style.borderRadius = "12px";
+        setTimeout(() => {
+            targetRow.style.background = "none";
+        }, 2500);
+    }
+}
+
+function showToast(message) {
+    let toast = document.getElementById("appToast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "appToast";
+        toast.style.cssText = "position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:rgba(18,24,38,0.92); color:#fff; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; border:1px solid rgba(255,255,255,0.12); backdrop-filter:blur(8px); box-shadow:0 6px 20px rgba(0,0,0,0.4); z-index:99999; transition:opacity 0.3s ease;";
+        document.body.appendChild(toast);
+    }
+    toast.innerText = message;
+    toast.style.opacity = "1";
+    setTimeout(() => { toast.style.opacity = "0"; }, 2500);
+}
+
+function copyMessageLink(msgId) {
+    if (!activeMember) return;
+    const link = `${window.location.origin}${window.location.pathname}?member=${encodeURIComponent(activeMember.name)}&message=${msgId}`;
+    navigator.clipboard.writeText(link).then(() => {
+        showToast("Tautan pesan telah disalin");
+    }).catch(() => {
+        prompt("Salin tautan pesan:", link);
+    });
+}
+
+function copyMessageText(text) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("Teks pesan telah disalin");
+    });
+}
+
+async function requestDeltaSync() {
+    if (!activeMember || currentMemberAllMessages.length === 0) return;
+    const session = getCookie("user_session_pm");
+    const newestId = currentMemberAllMessages[0].id;
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/sync-delta", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_cookie: session,
+                folder_name: activeMember.name,
+                after_id: newestId
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok && data.delta && data.delta.length > 0) {
+            data.delta.forEach(msg => appendSingleMessage(msg));
+            console.log(`[SmartSync] Successfully synced ${data.delta.length} missing delta messages!`);
+        }
+    } catch(e) {}
+}
+
+async function toggleSaveMessage(msgId) {
+    const session = getCookie("user_session_pm");
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_cookie: session,
+                archive_message_id: msgId,
+                folder_name: activeMember ? activeMember.name : ""
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            alert(data.is_saved ? "📌 Pesan berhasil disimpan ke Bookmark!" : "🗑️ Pesan dihapus dari Bookmark!");
+        }
+    } catch(e) {}
+}
+
+async function toggleReaction(msgId, emoji) {
+    const session = getCookie("user_session_pm");
+    try {
+        await fetch(BACKEND_URL + "/pm/react", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_cookie: session,
+                archive_message_id: msgId,
+                reaction: emoji,
+                folder_name: activeMember ? activeMember.name : ""
+            })
+        });
+    } catch(e) {}
+}
+
+async function promptReplyComment(msgId) {
+    const text = prompt("Ketik balasan/komentar kamu untuk pesan PM ini (akan dikirim ke Telegram Archive Group):");
+    if (!text || !text.trim()) return;
+
+    const session = getCookie("user_session_pm");
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/comment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_cookie: session,
+                folder_name: activeMember ? activeMember.name : "",
+                target_archive_message_id: msgId,
+                comment_text: text.trim(),
+                client_request_id: "req_" + Date.now()
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            alert("✅ Balasan berhasil dikirim ke Telegram Archive Topic!");
+        } else {
+            alert("⚠️ " + (data.msg || "Gagal mengirim balasan"));
+        }
+    } catch(e) {
+        alert("❌ Error mengirim balasan: " + e.message);
+    }
 }
 
 function forceScrollToBottom() {
@@ -694,6 +1167,51 @@ function attachChatScrollListener() {
     };
 }
 
+let readStateObserver = null;
+let readStateDebounce = null;
+
+function debouncedUpdateReadState(msgId) {
+    clearTimeout(readStateDebounce);
+    readStateDebounce = setTimeout(() => {
+        if (!activeMember) return;
+        const session = getCookie("user_session_pm");
+        fetch(BACKEND_URL + "/pm/read", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_cookie: session,
+                folder_name: activeMember.name,
+                last_read_message_id: msgId
+            })
+        }).catch(() => {});
+    }, 1500);
+}
+
+function setupReadStateObserver() {
+    if (readStateObserver) readStateObserver.disconnect();
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages || !activeMember) return;
+
+    let maxReadId = 0;
+    readStateObserver = new IntersectionObserver((entries) => {
+        if (document.visibilityState !== 'visible') return;
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const msgId = parseInt(entry.target.dataset.msgId, 10);
+                if (msgId && msgId > maxReadId) {
+                    maxReadId = msgId;
+                }
+            }
+        });
+        if (maxReadId > 0) {
+            debouncedUpdateReadState(maxReadId);
+        }
+    }, { root: chatMessages, threshold: 0.5 });
+
+    const rows = chatMessages.querySelectorAll('.msg-row[data-msg-id]');
+    rows.forEach(r => readStateObserver.observe(r));
+}
+
 function renderMessages(messages) {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -725,9 +1243,18 @@ function renderMessages(messages) {
     });
 
     chatMessages.innerHTML = msgHtml;
-    forceScrollToBottom();
+    try {
+        const savedPos = localStorage.getItem("scroll_pos_" + activeMember.name);
+        if (savedPos !== null && parseInt(savedPos, 10) > 0) {
+            chatMessages.scrollTop = parseInt(savedPos, 10);
+        } else {
+            forceScrollToBottom();
+        }
+    } catch(e) {
+        forceScrollToBottom();
+    }
     attachChatScrollListener();
-    setupMediaViewportObserver();
+    setupReadStateObserver();
 }
 
 // INCREMENTAL APPEND SINGLE MESSAGE (TELEGRAM WEB BEHAVIOR)
@@ -931,15 +1458,19 @@ function setupWebSocket() {
 
         ws.onopen = function() {
             wsRetryCount = 0;
+            requestDeltaSync();
         };
 
         ws.onmessage = function(event) {
             try {
                 const data = JSON.parse(event.data);
-                if (data && data.folder_name) {
+                if (data.type === 'comment_created') {
+                    console.log('[WS] New comment created:', data.comment);
+                } else if (data.type === 'reaction_updated') {
+                    console.log('[WS] Reaction updated for msg:', data.archive_message_id, data.reactions);
+                } else if (data && data.folder_name) {
                     triggerWebNotification(data.folder_name, data.text);
                     if (activeMember && activeMember.name.toUpperCase() === data.folder_name.toUpperCase()) {
-                        // INCREMENTAL APPEND SINGLE MESSAGE (Telegram Web Behavior!)
                         const newMsg = data.message || {
                             id: data.id || Date.now(),
                             text: data.text || "",
@@ -965,8 +1496,153 @@ function scrollToLatestChat() {
     forceScrollToBottom();
 }
 
+// ============================================
+// DURABLE INDEXEDDB OFFLINE OUTBOX & NETWORK LISTENERS
+// ============================================
+let outboxDb = null;
+
+function initOfflineOutboxDB() {
+    if (!('indexedDB' in window)) return;
+    const req = indexedDB.open("ConvenantOutboxDB", 1);
+    req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains("pm_outbox")) {
+            db.createObjectStore("pm_outbox", { keyPath: "id", autoIncrement: true });
+        }
+    };
+    req.onsuccess = (e) => {
+        outboxDb = e.target.result;
+        processOfflineOutboxQueue();
+    };
+}
+
+function queueOfflineComment(commentPayload) {
+    if (!outboxDb) return;
+    const tx = outboxDb.transaction("pm_outbox", "readwrite");
+    const store = tx.objectStore("pm_outbox");
+    store.add({ ...commentPayload, created_at: Date.now() });
+}
+
+let isOutboxProcessing = false;
+
+function processOfflineOutboxQueue() {
+    if (!outboxDb || !navigator.onLine || isOutboxProcessing) return;
+    isOutboxProcessing = true;
+
+    const tx = outboxDb.transaction("pm_outbox", "readwrite");
+    const store = tx.objectStore("pm_outbox");
+    const req = store.getAll();
+    req.onsuccess = () => {
+        const items = (req.result || []).filter(i => !i.is_locked);
+        if (items.length === 0) {
+            isOutboxProcessing = false;
+            return;
+        }
+        items.forEach((item) => {
+            item.is_locked = true;
+            fetch(BACKEND_URL + "/pm/comment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(item)
+            }).then(r => r.json()).then(data => {
+                if (data && data.ok && (data.client_request_id === item.client_request_id || (data.comment && data.comment.client_request_id === item.client_request_id))) {
+                    const deleteTx = outboxDb.transaction("pm_outbox", "readwrite");
+                    deleteTx.objectStore("pm_outbox").delete(item.id);
+                } else {
+                    item.is_locked = false;
+                }
+            }).catch(() => {
+                item.is_locked = false;
+            });
+        });
+        setTimeout(() => { isOutboxProcessing = false; }, 3000);
+    };
+}
+
+async function fetchNotifications() {
+    const session = getCookie("user_session_pm");
+    if (!session) return;
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_cookie: session })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            renderNotificationPanel(data.notifications || []);
+        }
+    } catch(e) {}
+}
+
+function renderNotificationPanel(notifs) {
+    let badge = document.getElementById("notifBadgeCount");
+    const unreadCount = notifs.filter(n => !n.is_read).length;
+    if (badge) {
+        if (unreadCount > 0) {
+            badge.innerText = unreadCount;
+            badge.style.display = "inline-block";
+        } else {
+            badge.style.display = "none";
+        }
+    }
+}
+
+function updateNetworkBanner(statusText, isError = false) {
+    let banner = document.getElementById("networkStatusBar");
+    if (!banner) {
+        banner = document.createElement("div");
+        banner.id = "networkStatusBar";
+        banner.style.cssText = "position:fixed; top:0; left:0; width:100%; padding:6px 12px; font-size:12px; font-weight:600; text-align:center; z-index:99999; transition:transform 0.3s ease;";
+        document.body.appendChild(banner);
+    }
+    banner.style.background = isError ? "rgba(220, 38, 38, 0.95)" : "rgba(16, 185, 129, 0.95)";
+    banner.style.color = "#ffffff";
+    banner.innerText = statusText;
+    banner.style.transform = "translateY(0)";
+    if (!isError) {
+        setTimeout(() => { banner.style.transform = "translateY(-100%)"; }, 3000);
+    }
+}
+
+window.addEventListener('online', () => {
+    updateNetworkBanner("⚡ Koneksi pulih — Mengirim antrean outbox & menyinkronkan data...");
+    processOfflineOutboxQueue();
+    requestDeltaSync();
+});
+
+window.addEventListener('offline', () => {
+    updateNetworkBanner("🌐 Internet terputus — Komentar akan tersimpan persisten di IndexedDB Outbox", true);
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     initPage();
+    initOfflineOutboxDB();
+
+    // DESKTOP KEYBOARD SHORTCUTS (Ctrl+K = Search, Esc = Close Modal)
+    document.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            const q = prompt("🔍 Cari seluruh pesan PM (contoh: from:Fiony has:photo semangat):");
+            if (q) performGlobalSearch(q);
+        } else if (e.key === "Escape") {
+            const overlay = document.getElementById("globalSearchOverlay");
+            if (overlay) overlay.remove();
+            const lightbox = document.getElementById("lightboxModal");
+            if (lightbox) lightbox.style.display = "none";
+        }
+    });
+
+    // DYNAMIC VISUAL VIEWPORT KEYBOARD HANDLING (MOBILE iOS & ANDROID)
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+            const appShell = document.querySelector('.app-shell');
+            if (appShell) {
+                appShell.style.height = `${window.visualViewport.height}px`;
+            }
+        });
+    }
+
     const chatMessages = document.getElementById("chatMessages");
     if (chatMessages) {
         chatMessages.addEventListener("scroll", function() {
@@ -983,5 +1659,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
+    }
+
+    // DEEP LINK AUTO-JUMP (/pm/beranda/?message=68575)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetMessageId = urlParams.get('message');
+    if (targetMessageId) {
+        setTimeout(() => jumpToMessage(targetMessageId), 1200);
     }
 });
