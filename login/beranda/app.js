@@ -69,8 +69,11 @@ const MEMBER_PM_LIST = [
 
 // TEAM CATEGORIES
 const TEAM_DREAM = ["Delynn", "Olla", "Freya", "Ella", "Gita", "Greesel", "Uty", "Lyn", "Marsha", "Nachia", "Oline", "Nala", "Amanda", "Chelsea", "Gendis"];
-const TEAM_PASSION = ["Feni", "Muthe", "Jessi", "Christy", "Oniel", "Lulu", "Kathrina", "Raisha", "Danella", "Daisy", "Aralie", "Erine", "Levia", "Levi", "Ribka", "Kimmy"];
+const TEAM_PASSION = ["Feni", "Muthe", "Jessi", "Christy", "Oniel", "Lulu", "Kathrina", "Raisha", "Danella", "Daisy", "Aralie", "Erine", "Levia", "Levi", "Ribka", "Kimmy", "Eli"];
 const TEAM_LOVE = ["Fiony", "Indah", "Lia", "Alya", "Anindya", "Cathy", "Elin", "Cynthia", "Gracie", "Michie", "Lana", "Fritzy", "Lily", "Trisha", "Nayla"];
+
+// UNCOMMON AVATAR MEMBERS LIST
+const UNCOMMON_MEMBERS = ["Virgi", "Vera", "Jazzy", "Intan", "Jemima", "Maira", "Ekin", "Giaa", "Gia", "Heidi", "Rara", "Sona", "Rilly", "Mikaela", "Carissa", "Fahira", "Ralyne", "Bella", "Auwia", "Maxine", "Maxime"];
 
 let subscribedFolders = [];
 let activeMember = null;
@@ -132,9 +135,26 @@ async function initPage() {
     }
 }
 
+function getMemberAvatarSrc(mem, isSubbed) {
+    const baseFile = mem.file;
+    const isUncommon = UNCOMMON_MEMBERS.includes(mem.id);
+    if (isUncommon) {
+        return isSubbed ? `../../skin/${baseFile}_UNCOMMON.jpg` : `../../skin/${baseFile}_UNCOMMON_grey.jpg`;
+    }
+    return isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
+}
+
 function handleAvatarError(imgElem, baseFile, isSubbed) {
-    imgElem.onerror = null;
-    imgElem.src = "../../logo.png";
+    if (!imgElem.dataset.fallbackStep) {
+        imgElem.dataset.fallbackStep = "1";
+        imgElem.src = isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
+    } else if (imgElem.dataset.fallbackStep === "1") {
+        imgElem.dataset.fallbackStep = "2";
+        imgElem.src = `../../skin_jpg/${baseFile}.jpg`;
+    } else {
+        imgElem.onerror = null;
+        imgElem.src = "../../logo.png";
+    }
 }
 
 // DEBOUNCED MEMBER SEARCH IN SIDEBAR
@@ -168,7 +188,7 @@ function renderMemberList() {
         const isSubbed = subscribedFolders.includes(mem.name.toUpperCase()) || subscribedFolders.includes(mem.id.toUpperCase());
         const imgClass = isSubbed ? "member-avatar" : "member-avatar grey";
         const baseFile = mem.file;
-        const mythSrc = isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
+        const mythSrc = getMemberAvatarSrc(mem, isSubbed);
 
         let teamClass = "team-default";
         if (TEAM_DREAM.includes(mem.id)) teamClass = "team-dream";
@@ -242,7 +262,7 @@ async function selectMember(memberId) {
     
     document.getElementById("headerName").innerText = activeMember.name;
     const baseFile = activeMember.file;
-    const headerMyth = isSubbed ? `../../skin/${baseFile}_MYTH.jpg` : `../../skin/${baseFile}_MYTH_grey.jpg`;
+    const headerMyth = getMemberAvatarSrc(activeMember, isSubbed);
 
     const headerAvatar = document.getElementById("headerAvatar");
     headerAvatar.src = headerMyth;
