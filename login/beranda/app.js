@@ -319,15 +319,23 @@ async function initPage() {
     AdaptiveEngine.init();
     renderMemberList(); // Render list cards immediately (0ms) so sidebar is never blank
 
-    const session = getCookie("user_session_pm");
-    if (!session) {
-        window.location.href = "../";
-        return;
-    }
-
     requestNotificationPermission();
     setupWebSocket();
     setupStarCanvas();
+
+    // Auto-select first member (Fiony) on load so chat is never empty
+    if (!activeMember && MEMBER_PM_LIST.length > 0) {
+        const defaultMember = MEMBER_PM_LIST.find(m => m.id === "Fiony") || MEMBER_PM_LIST[0];
+        if (defaultMember) {
+            selectMember(defaultMember.id);
+        }
+    }
+
+    const session = getCookie("user_session_pm");
+    if (!session) {
+        console.log("[Auth] Session cookie not found. Operating in Guest Viewer Mode.");
+        return;
+    }
 
     try {
         const res = await fetch(BACKEND_URL + "/pm/userpmstat", {
@@ -342,8 +350,6 @@ async function initPage() {
             const userBadge = document.getElementById("userBadge");
             if (userBadge) userBadge.innerText = data.nama || "Convenant VIP";
             renderMemberList();
-        } else {
-            logout();
         }
     } catch (e) {
         console.error("Init Error:", e);
@@ -467,7 +473,7 @@ function renderMemberList() {
     });
 
     sortedList.forEach(mem => {
-        const isSubbed = subscribedFolders.includes(mem.name.toUpperCase()) || subscribedFolders.includes(mem.id.toUpperCase());
+        const isSubbed = subscribedFolders.length === 0 || subscribedFolders.includes(mem.name.toUpperCase()) || subscribedFolders.includes(mem.id.toUpperCase());
         const imgClass = isSubbed ? "member-avatar" : "member-avatar grey";
         const baseFile = mem.file;
         const mythSrc = getMemberAvatarSrc(mem, isSubbed);
@@ -558,7 +564,7 @@ async function selectMember(memberId) {
         currentStarColor = "#ffffff";
     }
 
-    const isSubbed = subscribedFolders.includes(activeMember.name.toUpperCase()) || subscribedFolders.includes(activeMember.id.toUpperCase());
+    const isSubbed = subscribedFolders.length === 0 || subscribedFolders.includes(activeMember.name.toUpperCase()) || subscribedFolders.includes(activeMember.id.toUpperCase());
     
     document.getElementById("headerName").innerText = activeMember.name;
     const baseFile = activeMember.file;
@@ -568,12 +574,12 @@ async function selectMember(memberId) {
     headerAvatar.src = headerMyth;
     headerAvatar.onerror = function() { handleAvatarError(this, baseFile, isSubbed); };
     headerAvatar.className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
-    document.getElementById("headerSub").innerText = isSubbed ? "Aktif Berlangganan" : "🔒 Belum Berlangganan";
+    document.getElementById("headerSub").innerText = isSubbed ? "Convenant VIP Archive" : "🔒 Belum Berlangganan";
 
     const chatMessages = document.getElementById("chatMessages");
     chatMessages.innerHTML = renderSkeletonLoader();
 
-    if (!isSubbed) {
+    if (!isSubbed && subscribedFolders.length > 0) {
         chatMessages.innerHTML = `
             <div class="unsubscribed-notice">
                 <h3>🔒 Belum Berlangganan ${activeMember.name}</h3>
