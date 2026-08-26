@@ -592,6 +592,10 @@ async function selectMember(memberId) {
 
     mediaPrefetcher.reset(activeMember.name);
 
+    // Resolve session locally inside selectMember().
+    // initPage() has its own block-scoped `session`; it is NOT visible here.
+    const session = getCookie("user_session_pm") || "";
+
     // Fetch media manifest secara async di background (ringan)
     fetch(BACKEND_URL + "/pm/media-manifest", {
         method: "POST",
