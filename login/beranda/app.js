@@ -88,6 +88,90 @@ let currentMediaTab = 'photo';
 let currentFetchController = null;
 let searchDebounceTimer = null;
 
+// ============================================
+// MEDIA PREFETCH MANAGER (BACKGROUND QUEUE & DIRECTIONAL PRELOAD)
+// ============================================
+class MediaPrefetchManager {
+    constructor(maxConcurrency = 5) {
+        this.maxConcurrency = maxConcurrency;
+        this.activeCount = 0;
+        this.queue = [];
+        this.cache = new Map(); // msg_id -> 'loading' | 'loaded' | 'failed'
+        this.manifest = [];
+        this.currentMember = null;
+    }
+
+    reset(memberName) {
+        this.queue = [];
+        this.manifest = [];
+        this.currentMember = memberName;
+        // Keep browser cached images, just reset active queue
+    }
+
+    setManifest(manifestData) {
+        this.manifest = manifestData || [];
+    }
+
+    enqueue(msgId, priority = false) {
+        if (!msgId || this.cache.has(msgId)) return;
+        
+        this.cache.set(msgId, 'queued');
+        if (priority) {
+            this.queue.unshift(msgId);
+        } else {
+            this.queue.push(msgId);
+        }
+        this.processQueue();
+    }
+
+    prefetchAround(currentMsgId, distance = 30) {
+        if (!this.manifest.length) return;
+        const idx = this.manifest.findIndex(m => m.id === currentMsgId);
+        if (idx === -1) return;
+
+        const start = Math.max(0, idx - distance);
+        const end = Math.min(this.manifest.length - 1, idx + distance);
+
+        for (let i = start; i <= end; i++) {
+            const item = this.manifest[i];
+            if (item && !this.cache.has(item.id)) {
+                this.enqueue(item.id, i < idx); // Higher priority for directional scroll-up
+            }
+        }
+    }
+
+    processQueue() {
+        while (this.activeCount < this.maxConcurrency && this.queue.length > 0) {
+            const msgId = this.queue.shift();
+            this.fetchThumbnail(msgId);
+        }
+    }
+
+    fetchThumbnail(msgId) {
+        this.activeCount++;
+        this.cache.set(msgId, 'loading');
+
+        const thumbUrl = `${BACKEND_URL}/pm/thumb/${msgId}`;
+        const img = new Image();
+        
+        img.onload = () => {
+            this.cache.set(msgId, 'loaded');
+            this.activeCount--;
+            this.processQueue();
+        };
+
+        img.onerror = () => {
+            this.cache.set(msgId, 'failed');
+            this.activeCount--;
+            this.processQueue();
+        };
+
+        img.src = thumbUrl;
+    }
+}
+
+const mediaPrefetcher = new MediaPrefetchManager(5);
+
 function getCookie(name) {
     let nameEQ = name + "="; let ca = document.cookie.split(';');
     for (let i = 0; i < ca.length; i++) {
@@ -285,8 +369,21 @@ async function selectMember(memberId) {
         return;
     }
 
+    mediaPrefetcher.reset(activeMember.name);
+
+    // Fetch media manifest secara async di background (ringan)
+    fetch(BACKEND_URL + "/pm/media-manifest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name }),
+        signal: currentFetchController.signal
+    }).then(res => res.json()).then(mdata => {
+        if (mdata && mdata.ok && mdata.manifest) {
+            mediaPrefetcher.setManifest(mdata.manifest);
+        }
+    }).catch(() => {});
+
     // Fetch pesan Telegram awal (Limit 50 pesan seperti Telegram Web)
-    const session = getCookie("user_session_pm");
     try {
         const res = await fetch(BACKEND_URL + "/pm/getpmmessages", {
             method: "POST",
@@ -302,6 +399,11 @@ async function selectMember(memberId) {
             if (msgs.length > 0) {
                 oldestMsgId = msgs[msgs.length - 1].id;
                 if (msgs.length < 50) hasMoreMessages = false;
+                
+                // Memicu prefetcher untuk pesan media terdekat
+                msgs.forEach(m => {
+                    if (m.has_media) mediaPrefetcher.enqueue(m.id);
+                });
             } else {
                 hasMoreMessages = false;
             }
@@ -416,6 +518,28 @@ function switchMediaTab(tabType) {
         if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
     }
     renderMediaGrid();
+}function handleMediaError(imgElem, thumbSrc, mediaSrc) {
+    if (!imgElem.dataset.retryStep) {
+        imgElem.dataset.retryStep = "1";
+        imgElem.src = mediaSrc;
+    } else if (imgElem.dataset.retryStep === "1") {
+        imgElem.dataset.retryStep = "2";
+        const parent = imgElem.parentElement;
+        if (parent && !parent.querySelector('.media-error-card')) {
+            imgElem.style.display = "none";
+            const card = document.createElement("div");
+            card.className = "media-error-card";
+            card.style.cssText = "padding: 14px; text-align: center; background: rgba(255,255,255,0.04); border-radius: 10px; border: 1px dashed rgba(255,255,255,0.2); margin: 4px 0; cursor: pointer;";
+            card.onclick = function() {
+                imgElem.style.display = "block";
+                delete imgElem.dataset.retryStep;
+                imgElem.src = thumbSrc + "?t=" + Date.now();
+                card.remove();
+            };
+            card.innerHTML = `<div style="font-size: 18px; margin-bottom: 2px;">🖼️</div><div style="font-size: 11px; color: #a0acba;">Foto PM (Ketuk untuk muat ulang)</div>`;
+            parent.appendChild(card);
+        }
+    }
 }
 
 function renderMediaGrid() {
@@ -424,21 +548,22 @@ function renderMediaGrid() {
     const filtered = currentMemberAllMessages.filter(m => m.has_media && m.media_type === currentMediaTab);
 
     if (filtered.length === 0) {
-        mediaGrid.innerHTML = `<div style="grid-column: span 3; text-align:center; color:var(--text-sub); padding:30px; font-size:13px;">Tidak ada media ${currentMediaTab}</div>`;
+        let emptyHtml = `<div style="grid-column: span 3; text-align:center; color:var(--text-sub); padding:30px; font-size:13px;">Tidak ada media ${currentMediaTab} dalam riwayat ini</div>`;
+        if (hasMoreMessages) {
+            emptyHtml += `<div style="grid-column: span 3; text-align:center;"><button class="order-btn" style="padding:6px 14px; font-size:12px;" onclick="loadOlderMessages();">⏳ Muat Riwayat Media Lebih Lama</button></div>`;
+        }
+        mediaGrid.innerHTML = emptyHtml;
         return;
     }
 
-    // Batch limit max 20 items per render agar tidak memberatkan browser
-    const batched = filtered.slice(0, 20);
-
     let html = "";
-    batched.forEach(msg => {
+    filtered.forEach(msg => {
         const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
         const thumbSrc = BACKEND_URL + "/pm/thumb/" + msg.id;
         if (currentMediaTab === 'photo') {
             html += `
                 <div style="position:relative; cursor:pointer;" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
-                    <img src="${thumbSrc}" loading="lazy" class="media-grid-item" alt="Media Thumbnail" onerror="this.onerror=null; this.src='${mediaSrc}';">
+                    <img src="${thumbSrc}" loading="lazy" class="media-grid-item" alt="Media Thumbnail" onerror="handleMediaError(this, '${thumbSrc}', '${mediaSrc}')">
                 </div>`;
         } else if (currentMediaTab === 'video') {
             html += `
@@ -454,6 +579,11 @@ function renderMediaGrid() {
                 </div>`;
         }
     });
+
+    if (hasMoreMessages) {
+        html += `<div style="grid-column: span 3; text-align:center; padding-top:10px;"><button class="order-btn" style="padding:6px 14px; font-size:12px;" onclick="loadOlderMessages();">⏳ Muat Media Lebih Lama</button></div>`;
+    }
+
     mediaGrid.innerHTML = html;
 }
 
@@ -473,58 +603,12 @@ function renderSkeletonLoader() {
             <div class="skeleton-bubble medium"></div>
             <div class="skeleton-bubble long"></div>
             <div class="skeleton-bubble short"></div>
-            <div class="skeleton-bubble medium"></div>
         </div>
     `;
 }
 
-let mediaObserver = null;
-
-function getAdaptiveRootMargin() {
-    const deviceMemory = navigator.deviceMemory || 4;
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    const effectiveType = connection ? connection.effectiveType : '4g';
-    const saveData = connection ? connection.saveData : false;
-
-    if (deviceMemory <= 3 || saveData || effectiveType === '2g' || effectiveType === '3g') {
-        return "400px 0px 400px 0px"; // Low RAM / Save Data mode (Prevent OOM)
-    } else if (deviceMemory >= 8 && effectiveType === '4g') {
-        return "800px 0px 800px 0px"; // Desktop / High RAM & Fast Connection
-    }
-    return "600px 0px 600px 0px"; // Default Balanced Profile
-}
-
 function setupMediaViewportObserver() {
-    if (mediaObserver) mediaObserver.disconnect();
-    
-    const container = document.getElementById("chatMessages");
-    if (!container) return;
-
-    const adaptiveMargin = getAdaptiveRootMargin();
-
-    mediaObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const mediaElem = entry.target;
-            const realSrc = mediaElem.dataset.src;
-            
-            if (entry.isIntersecting) {
-                if (realSrc && mediaElem.src !== realSrc) {
-                    mediaElem.src = realSrc;
-                }
-            } else {
-                if (realSrc && mediaElem.src === realSrc) {
-                    mediaElem.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-                }
-            }
-        });
-    }, {
-        root: container,
-        rootMargin: adaptiveMargin
-    });
-
-    document.querySelectorAll('.msg-media[data-src]').forEach(elem => {
-        mediaObserver.observe(elem);
-    });
+    // Disabled destructive blank-gif swapping
 }
 
 function buildMessageNode(msg, isRecent = false) {
@@ -537,35 +621,22 @@ function buildMessageNode(msg, isRecent = false) {
     let mediaTag = "";
     if (msg.has_media) {
         const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
+        const thumbSrc = BACKEND_URL + "/pm/thumb/" + msg.id;
 
         if (msg.media_type === 'photo') {
-            if (isRecent) {
-                mediaTag = `
-                    <div style="position:relative; min-height:140px;">
-                        <img src="${mediaSrc}" loading="eager" fetchpriority="high" decoding="async" class="msg-media" alt="Foto PM" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
-                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto</button>
-                    </div>`;
-            } else {
-                mediaTag = `
-                    <div style="position:relative; min-height:140px;">
-                        <img data-src="${mediaSrc}" loading="lazy" decoding="async" class="msg-media" alt="Foto PM" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
-                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto</button>
-                    </div>`;
-            }
+            mediaTag = `
+                <div style="position:relative; min-height:140px;">
+                    <img src="${thumbSrc}" data-src="${mediaSrc}" loading="lazy" decoding="async" class="msg-media" alt="Foto PM" 
+                         onerror="handleMediaError(this, '${thumbSrc}', '${mediaSrc}')" 
+                         onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
+                    <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto</button>
+                </div>`;
         } else if (msg.media_type === 'video') {
-            if (isRecent) {
-                mediaTag = `
-                    <div style="position:relative; min-height:140px;">
-                        <video src="${mediaSrc}" loading="eager" fetchpriority="high" class="msg-media" controls preload="metadata" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
-                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
-                    </div>`;
-            } else {
-                mediaTag = `
-                    <div style="position:relative; min-height:140px;">
-                        <video data-src="${mediaSrc}" loading="lazy" class="msg-media" controls preload="metadata" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
-                        <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
-                    </div>`;
-            }
+            mediaTag = `
+                <div style="position:relative; min-height:140px;">
+                    <video src="${mediaSrc}" loading="lazy" class="msg-media" controls preload="metadata" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
+                    <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
+                </div>`;
         } else if (msg.media_type === 'audio') {
             mediaTag = `
                 <div style="background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; margin-bottom:6px;">
@@ -596,6 +667,33 @@ function forceScrollToBottom() {
     });
 }
 
+function attachChatScrollListener() {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+
+    chatMessages.onscroll = function() {
+        // Pre-fetch 50 pesan lama berikutnya sebelum user benar-benar menyentuh mentok atas (scrollTop < 400px)
+        if (chatMessages.scrollTop < 400 && hasMoreMessages && !isLoadingMore) {
+            loadOlderMessages();
+        }
+
+        // Trigger Directional Thumbnail Prefetching untuk pesan terdekat di sekitar viewport
+        const visibleRows = chatMessages.querySelectorAll('.msg-row[data-msg-id]');
+        if (visibleRows.length > 0) {
+            const topRow = visibleRows[0];
+            const topId = parseInt(topRow.dataset.msgId, 10);
+            if (topId) mediaPrefetcher.prefetchAround(topId, 35);
+        }
+
+        const isNearBottom = (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight) < 250;
+        const btn = document.getElementById("scrollToBottomBtn");
+        if (btn) {
+            if (isNearBottom) btn.classList.remove("visible");
+            else btn.classList.add("visible");
+        }
+    };
+}
+
 function renderMessages(messages) {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
@@ -622,13 +720,13 @@ function renderMessages(messages) {
             lastDate = currentDate;
         }
 
-        // Limit eager loading to bottom 5 items only
         const isRecent = (idx >= totalCount - 5);
         msgHtml += buildMessageNode(msg, isRecent);
     });
 
     chatMessages.innerHTML = msgHtml;
     forceScrollToBottom();
+    attachChatScrollListener();
     setupMediaViewportObserver();
 }
 
@@ -696,6 +794,10 @@ async function loadOlderMessages() {
             if (olderMsgs.length < 50) hasMoreMessages = false;
             oldestMsgId = olderMsgs[olderMsgs.length - 1].id;
             currentMemberAllMessages = currentMemberAllMessages.concat(olderMsgs);
+
+            olderMsgs.forEach(m => {
+                if (m.has_media) mediaPrefetcher.enqueue(m.id);
+            });
 
             const tempDiv = document.createElement("div");
             let prependHtml = "";
