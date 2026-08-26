@@ -2,80 +2,90 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Convenant VIP — Beranda Archive PM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Convenant VIP — Archive PM JKT48</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- CANVAS BINTANG BERGERAK BACKGROUND 60FPS -->
-    <canvas id="star-canvas"></canvas>
+    <!-- BACKGROUND STAR ANIMATION -->
+    <canvas id="star-canvas" aria-hidden="true"></canvas>
 
     <!-- LIGHTBOX MODAL FULLSCREEN PREVIEW -->
-    <div id="lightboxModal" class="lightbox-modal" onclick="closeLightbox(event)">
-        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+    <div id="lightboxModal" class="lightbox-modal" role="dialog" aria-modal="true" aria-label="Media Preview" onclick="closeLightbox(event)">
+        <button class="lightbox-close" aria-label="Tutup preview" onclick="closeLightbox(event)">&times;</button>
         <div class="lightbox-content-wrap" onclick="event.stopPropagation()">
             <div id="lightboxMediaContainer"></div>
-            <div style="margin-top:14px; display:flex; justify-content:center; gap:12px;">
-                <button id="lightboxSaveBtn" class="order-btn" style="padding:9px 22px; font-size:13px;">💾 Simpan File</button>
+            <div class="lightbox-actions">
+                <button id="lightboxSaveBtn" class="order-btn">💾 Simpan File</button>
             </div>
         </div>
     </div>
 
-    <!-- SIDEBAR KIRI (DAFTAR 61 MEMBER PM) -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-title-wrap">
-                <div class="sidebar-title">Archive PM JKT48</div>
-                <div id="userBadge" class="user-badge">Convenant VIP</div>
+    <!-- APP SHELL CONTAINER -->
+    <div class="app-shell">
+        
+        <!-- SIDEBAR KIRI (DAFTAR MEMBER PM JKT48) -->
+        <aside class="sidebar" role="navigation" aria-label="Daftar Member PM">
+            <header class="sidebar-header">
+                <div class="sidebar-title-wrap">
+                    <h1 class="sidebar-title">Archive PM JKT48</h1>
+                    <span id="userBadge" class="user-badge">Convenant VIP</span>
+                </div>
+                <div class="member-search" role="search">
+                    <input type="text" id="memberSearchInput" class="member-search-input" placeholder="🔍 Cari oshi kamu..." aria-label="Cari member oshi" oninput="filterMemberList()">
+                </div>
+            </header>
+            <div id="memberList" class="member-list" role="listbox" aria-label="Pilih Oshi">
+                <!-- Member items rendered via JS -->
             </div>
-            <!-- INPUT PENCARIAN PROFIL MEMBER OSHI -->
-            <input type="text" id="memberSearchInput" class="member-search-input" placeholder="🔍 Cari oshi kamu..." oninput="filterMemberList()">
-        </div>
-        <div id="memberList" class="member-list">
-            <!-- Member items rendered via JS -->
-        </div>
-    </div>
+        </aside>
 
-    <!-- MAIN CHAT AREA -->
-    <div class="chat-area">
-        <div class="chat-header">
-            <div class="header-member-info" onclick="toggleMediaPanel()" title="Klik untuk lihat Shared Media">
-                <img id="headerAvatar" src="../../logo.png" class="header-member-avatar" alt="Avatar">
-                <div>
-                    <div id="headerName" class="header-member-name">Pilih Member PM</div>
-                    <div id="headerSub" class="header-member-sub">Convenant VIP Archive</div>
+        <!-- MAIN CHAT AREA -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <button id="backToSidebarBtn" class="back-sidebar-btn" aria-label="Kembali ke daftar member" onclick="showSidebarMobile()" title="Kembali ke daftar member">←</button>
+                
+                <div class="header-member-info" onclick="toggleMediaPanel()" role="button" tabindex="0" title="Klik untuk lihat Shared Media">
+                    <img id="headerAvatar" src="../../logo.png" class="header-member-avatar" alt="Avatar Member">
+                    <div class="header-text-group">
+                        <div id="headerName" class="header-member-name">Pilih Member PM</div>
+                        <div id="headerSub" class="header-member-sub">Convenant VIP Archive</div>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <button class="header-icon-btn" aria-label="Shared Media" onclick="toggleMediaPanel()" title="Shared Media">🖼️</button>
+                    <button class="header-icon-btn logout-btn" aria-label="Logout" onclick="logout()" title="Logout">🚪</button>
+                </div>
+            </header>
+
+            <div id="chatMessages" class="chat-messages" role="log" aria-live="polite">
+                <div class="unsubscribed-notice">
+                    <h3>💬 Selamat Datang di Convenant PM</h3>
+                    <p>Silakan pilih member PM dari daftar di sebelah kiri untuk melihat pesan arsip real-time Telegram.</p>
                 </div>
             </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <button class="order-btn" style="padding: 8px 14px; font-size: 12px; background: rgba(42, 171, 238, 0.2); border: 1px solid rgba(42, 171, 238, 0.4);" onclick="toggleMediaPanel()">🖼️ Shared Media</button>
-                <button class="order-btn" style="padding: 8px 16px; font-size: 12px;" onclick="logout()">Logout</button>
-            </div>
-        </div>
 
-        <div id="chatMessages" class="chat-messages">
-            <div class="unsubscribed-notice">
-                <h3>💬 Selamat Datang di Convenant PM</h3>
-                <p>Silakan pilih member PM dari daftar di sebelah kiri untuk melihat pesan arsip real-time Telegram.</p>
-            </div>
-        </div>
-        <!-- TOMBOL PANAH BAWAH OTOMATIS KE CHAT TERBARU -->
-        <button id="scrollToBottomBtn" class="scroll-bottom-btn" onclick="scrollToLatestChat()" title="Ke chat terbaru">⬇</button>
-    </div>
+            <!-- TOMBOL FLOATING PANAH BAWAH KE CHAT TERBARU -->
+            <button id="scrollToBottomBtn" class="scroll-bottom-btn" aria-label="Ke chat terbaru" onclick="scrollToLatestChat()" title="Ke chat terbaru">⬇</button>
+        </main>
 
-    <!-- PANEL MEDIA (SLIDE OVERLAY KANAN) -->
-    <div id="mediaPanel" class="media-panel">
-        <div class="media-panel-header">
-            <span>📷 Shared Media</span>
-            <button class="close-panel-btn" onclick="toggleMediaPanel()">✖</button>
-        </div>
-        <div class="media-tabs">
-            <button id="mediaTabPhoto" class="media-tab-btn active" onclick="switchMediaTab('photo')">🖼️ Foto</button>
-            <button id="mediaTabVideo" class="media-tab-btn" onclick="switchMediaTab('video')">🎥 Video</button>
-            <button id="mediaTabAudio" class="media-tab-btn" onclick="switchMediaTab('audio')">🎵 Audio</button>
-        </div>
-        <div id="mediaGrid" class="media-grid">
-            <!-- Shared media rendered via JS -->
-        </div>
+        <!-- PANEL MEDIA (SLIDE OVERLAY KANAN) -->
+        <section id="mediaPanel" class="media-panel" aria-label="Panel Shared Media">
+            <header class="media-panel-header">
+                <span>📷 Shared Media</span>
+                <button class="close-panel-btn" aria-label="Tutup panel media" onclick="toggleMediaPanel()">✖</button>
+            </header>
+            <nav class="media-tabs" role="tablist">
+                <button id="mediaTabPhoto" class="media-tab-btn active" role="tab" aria-selected="true" onclick="switchMediaTab('photo')">🖼️ Foto</button>
+                <button id="mediaTabVideo" class="media-tab-btn" role="tab" aria-selected="false" onclick="switchMediaTab('video')">🎥 Video</button>
+                <button id="mediaTabAudio" class="media-tab-btn" role="tab" aria-selected="false" onclick="switchMediaTab('audio')">🎵 Audio</button>
+            </nav>
+            <div id="mediaGrid" class="media-grid" role="region" aria-label="Grid Media">
+                <!-- Shared media rendered via JS -->
+            </div>
+        </section>
+
     </div>
 
     <script src="app.js"></script>

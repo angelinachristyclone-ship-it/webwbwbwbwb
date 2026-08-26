@@ -76,12 +76,14 @@ let subscribedFolders = [];
 let activeMember = null;
 let currentStarColor = "#ffffff";
 
-// INFINITE SCROLL PAGINATION STATE & MEDIA GRID STATE
+// STATE MANAGEMENT & REQUEST CANCELLATION
 let oldestMsgId = 0;
 let isLoadingMore = false;
 let hasMoreMessages = true;
 let currentMemberAllMessages = [];
 let currentMediaTab = 'photo';
+let currentFetchController = null;
+let searchDebounceTimer = null;
 
 function getCookie(name) {
     let nameEQ = name + "="; let ca = document.cookie.split(';');
@@ -118,7 +120,8 @@ async function initPage() {
 
         if (res.ok && data.ok) {
             subscribedFolders = (data.subscriptions || []).map(s => s.folder_name.toUpperCase());
-            document.getElementById("userBadge").innerText = data.nama || "Convenant VIP";
+            const userBadge = document.getElementById("userBadge");
+            if (userBadge) userBadge.innerText = data.nama || "Convenant VIP";
             renderMemberList();
         } else {
             logout();
@@ -130,51 +133,29 @@ async function initPage() {
 }
 
 function handleAvatarError(imgElem, baseFile, isSubbed) {
-    if (baseFile === "HUMAIRA_RAMADHANI") {
-        const ghUrl = isSubbed
-            ? "https://raw.githubusercontent.com/angelinachristyclone-ship-it/webwbwbwbwb/main/skin/HUMAIRA_RAMADHANI_UNCOMMON.jpg"
-            : "https://raw.githubusercontent.com/angelinachristyclone-ship-it/webwbwbwbwb/main/skin/HUMAIRA_RAMADHANI_UNCOMMON_grey.jpg";
-        imgElem.onerror = function() {
-            this.onerror = null;
-            this.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23555'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
-        };
-        imgElem.src = ghUrl;
-        return;
-    }
-    const suffix = isSubbed ? ".jpg" : "_grey.jpg";
-    const tiers = ["UNCOMMON", "MYTH", "RARE", "COMMON"];
-    let idx = 0;
-    
-    function tryNext() {
-        if (idx < tiers.length) {
-            const tier = tiers[idx++];
-            imgElem.src = `../../skin/${baseFile}_${tier}${suffix}`;
-        } else {
-            imgElem.onerror = null;
-            imgElem.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23555'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
-        }
-    }
-    imgElem.onerror = tryNext;
-    tryNext();
+    imgElem.onerror = null;
+    imgElem.src = "../../logo.png";
 }
 
-// FITUR PENCARIAN PROFIL MEMBER OSHI DI SIDEBAR KIRI
+// DEBOUNCED MEMBER SEARCH IN SIDEBAR
 function filterMemberList() {
-    renderMemberList();
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+        renderMemberList();
+    }, 120);
 }
 
 function renderMemberList() {
     const listContainer = document.getElementById("memberList");
+    if (!listContainer) return;
     const query = (document.getElementById("memberSearchInput") ? document.getElementById("memberSearchInput").value : "").toLowerCase().trim();
     let html = "";
 
-    // 1. Filter Berdasarkan Pencarian Oshi
     const filteredList = MEMBER_PM_LIST.filter(mem => {
         if (!query) return true;
         return mem.name.toLowerCase().includes(query) || mem.id.toLowerCase().includes(query);
     });
 
-    // 2. Prioritas: Member BERLANGGANAN Tampil Paling ATAS
     const sortedList = filteredList.sort((a, b) => {
         const isSubA = subscribedFolders.includes(a.name.toUpperCase()) || subscribedFolders.includes(a.id.toUpperCase());
         const isSubB = subscribedFolders.includes(b.name.toUpperCase()) || subscribedFolders.includes(b.id.toUpperCase());
@@ -195,7 +176,7 @@ function renderMemberList() {
         else if (TEAM_LOVE.includes(mem.id)) teamClass = "team-love";
 
         html += `
-            <div class="member-item ${teamClass} ${activeMember && activeMember.id === mem.id ? 'active' : ''}" onclick="selectMember('${mem.id}')">
+            <div class="member-item ${teamClass} ${activeMember && activeMember.id === mem.id ? 'active' : ''}" onclick="selectMember('${mem.id}')" role="option" aria-selected="${activeMember && activeMember.id === mem.id}">
                 <div class="member-avatar-wrap">
                     <img src="${mythSrc}" class="${imgClass}" alt="${mem.name}" 
                          onerror="handleAvatarError(this, '${baseFile}', ${isSubbed});">
@@ -214,31 +195,46 @@ function renderMemberList() {
     listContainer.innerHTML = html || `<div style="text-align:center; color:var(--text-sub); padding:20px; font-size:13px;">Oshi "${query}" tidak ditemukan</div>`;
 }
 
+function showSidebarMobile() {
+    document.body.classList.remove("mobile-chat-active");
+}
+
 async function selectMember(memberId) {
+    if (activeMember && activeMember.id === memberId && currentMemberAllMessages.length > 0) {
+        document.body.classList.add("mobile-chat-active");
+        return;
+    }
+
     activeMember = MEMBER_PM_LIST.find(m => m.id === memberId);
     renderMemberList();
 
-    // Reset status pagination & data media
+    document.body.classList.add("mobile-chat-active");
+
+    // Abort request fetch member sebelumnya jika user berpindah cepat
+    if (currentFetchController) {
+        currentFetchController.abort();
+    }
+    currentFetchController = new AbortController();
+
     oldestMsgId = 0;
     isLoadingMore = false;
     hasMoreMessages = true;
     currentMemberAllMessages = [];
 
-    // Ubah Tema Background Berdasarkan Team / Generasi Member (Tajam ke Hitam Polos #05070d)
     const chatArea = document.querySelector(".chat-area");
     const memId = activeMember.id;
 
     if (TEAM_DREAM.includes(memId)) {
-        chatArea.style.background = "linear-gradient(180deg, rgba(0, 140, 255, 0.55) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(0, 140, 255, 0.55) 0%, #0f0f0f 80%)";
         currentStarColor = "#00ff66";
     } else if (TEAM_PASSION.includes(memId)) {
-        chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 40, 0.55) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 40, 0.55) 0%, #0f0f0f 80%)";
         currentStarColor = "#ff7700";
     } else if (TEAM_LOVE.includes(memId)) {
-        chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 140, 0.55) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(255, 0, 140, 0.55) 0%, #0f0f0f 80%)";
         currentStarColor = "#ff0055";
     } else {
-        chatArea.style.background = "linear-gradient(180deg, rgba(30, 45, 70, 0.55) 0%, #05070d 80%)";
+        chatArea.style.background = "linear-gradient(180deg, rgba(30, 45, 70, 0.55) 0%, #0f0f0f 80%)";
         currentStarColor = "#ffffff";
     }
 
@@ -250,14 +246,12 @@ async function selectMember(memberId) {
 
     const headerAvatar = document.getElementById("headerAvatar");
     headerAvatar.src = headerMyth;
-    headerAvatar.onerror = function() {
-        handleAvatarError(this, baseFile, isSubbed);
-    };
+    headerAvatar.onerror = function() { handleAvatarError(this, baseFile, isSubbed); };
     headerAvatar.className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
     document.getElementById("headerSub").innerText = isSubbed ? "Aktif Berlangganan" : "🔒 Belum Berlangganan";
 
     const chatMessages = document.getElementById("chatMessages");
-    chatMessages.innerHTML = `<div style="margin:auto; color:var(--text-sub);">⏳ Memuat 600 riwayat pesan PM ${activeMember.name}...</div>`;
+    chatMessages.innerHTML = renderSkeletonLoader();
 
     if (!isSubbed) {
         chatMessages.innerHTML = `
@@ -271,13 +265,14 @@ async function selectMember(memberId) {
         return;
     }
 
-    // Fetch pesan real-time Telegram dari backend /pm/getpmmessages (LANGSUNG LOAD 600 CHAT SEKALIGUS)
+    // Fetch pesan Telegram awal (Limit 50 pesan seperti Telegram Web)
     const session = getCookie("user_session_pm");
     try {
         const res = await fetch(BACKEND_URL + "/pm/getpmmessages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name, limit: 600, offset_id: 0 })
+            body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name, limit: 50, offset_id: 0 }),
+            signal: currentFetchController.signal
         });
         const data = await res.json();
 
@@ -286,7 +281,7 @@ async function selectMember(memberId) {
             currentMemberAllMessages = msgs;
             if (msgs.length > 0) {
                 oldestMsgId = msgs[msgs.length - 1].id;
-                if (msgs.length < 600) hasMoreMessages = false;
+                if (msgs.length < 50) hasMoreMessages = false;
             } else {
                 hasMoreMessages = false;
             }
@@ -296,11 +291,13 @@ async function selectMember(memberId) {
             chatMessages.innerHTML = `<div class="unsubscribed-notice"><h3>⚠️ Notice</h3><p>${data.msg}</p></div>`;
         }
     } catch (e) {
-        chatMessages.innerHTML = `<div style="margin:auto; color:#ff4d4d;">❌ Gagal memuat pesan dari Telegram.</div>`;
+        if (e.name !== "AbortError") {
+            chatMessages.innerHTML = `<div style="margin:auto; color:#ff4d4d;">❌ Gagal memuat pesan dari Telegram.</div>`;
+        }
     }
 }
 
-// --- LIGHTBOX MODAL FULLSCREEN PREVIEW & SAFE BLOB DOWNLOAD ---
+// LIGHTBOX MODAL & SAFE BLOB DOWNLOAD
 function openLightbox(mediaSrc, mediaType, filename) {
     const modal = document.getElementById("lightboxModal");
     const container = document.getElementById("lightboxMediaContainer");
@@ -379,18 +376,31 @@ async function downloadBlobMedia(mediaUrl, filename) {
     directDownload(null, mediaUrl, filename);
 }
 
-// --- SHARED MEDIA TABS & GRID RENDER ---
+// SHARED MEDIA TABS & BATCHED GRID RENDER (BATCH 20 ITEMS)
 function switchMediaTab(tabType) {
     currentMediaTab = tabType;
-    document.querySelectorAll('.media-tab-btn').forEach(btn => btn.classList.remove('active'));
-    if (tabType === 'photo') document.getElementById('mediaTabPhoto').classList.add('active');
-    if (tabType === 'video') document.getElementById('mediaTabVideo').classList.add('active');
-    if (tabType === 'audio') document.getElementById('mediaTabAudio').classList.add('active');
+    document.querySelectorAll('.media-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+    });
+    if (tabType === 'photo') {
+        const btn = document.getElementById('mediaTabPhoto');
+        if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
+    }
+    if (tabType === 'video') {
+        const btn = document.getElementById('mediaTabVideo');
+        if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
+    }
+    if (tabType === 'audio') {
+        const btn = document.getElementById('mediaTabAudio');
+        if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
+    }
     renderMediaGrid();
 }
 
 function renderMediaGrid() {
     const mediaGrid = document.getElementById("mediaGrid");
+    if (!mediaGrid) return;
     const filtered = currentMemberAllMessages.filter(m => m.has_media && m.media_type === currentMediaTab);
 
     if (filtered.length === 0) {
@@ -398,18 +408,22 @@ function renderMediaGrid() {
         return;
     }
 
+    // Batch limit max 20 items per render agar tidak memberatkan browser
+    const batched = filtered.slice(0, 20);
+
     let html = "";
-    filtered.forEach(msg => {
+    batched.forEach(msg => {
         const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
+        const thumbSrc = BACKEND_URL + "/pm/thumb/" + msg.id;
         if (currentMediaTab === 'photo') {
             html += `
                 <div style="position:relative; cursor:pointer;" onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
-                    <img src="${mediaSrc}" class="media-grid-item" alt="Media">
+                    <img src="${thumbSrc}" loading="lazy" class="media-grid-item" alt="Media Thumbnail" onerror="this.onerror=null; this.src='${mediaSrc}';">
                 </div>`;
         } else if (currentMediaTab === 'video') {
             html += `
                 <div style="position:relative; cursor:pointer;" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')">
-                    <video src="${mediaSrc}" class="media-grid-item" style="object-fit:cover;"></video>
+                    <img src="${thumbSrc}" loading="lazy" class="media-grid-item" style="object-fit:cover;" onerror="this.onerror=null; this.src='../../logo.png';">
                     <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); border-radius:8px; color:#fff; font-size:16px;">▶</div>
                 </div>`;
         } else if (currentMediaTab === 'audio') {
@@ -423,7 +437,7 @@ function renderMediaGrid() {
     mediaGrid.innerHTML = html;
 }
 
-// --- RENDER CHAT DENGAN PEMISAH TANGGAL & HARI ---
+// RENDER CHAT DENGAN PEMISAH TANGGAL
 function formatDateHeader(dateStr) {
     if (!dateStr) return "";
     const d = new Date(dateStr.replace(/-/g, '/'));
@@ -432,7 +446,33 @@ function formatDateHeader(dateStr) {
     return d.toLocaleDateString('id-ID', options);
 }
 
+function renderSkeletonLoader() {
+    return `
+        <div class="skeleton-wrapper">
+            <div class="skeleton-bubble short"></div>
+            <div class="skeleton-bubble medium"></div>
+            <div class="skeleton-bubble long"></div>
+            <div class="skeleton-bubble short"></div>
+            <div class="skeleton-bubble medium"></div>
+        </div>
+    `;
+}
+
 let mediaObserver = null;
+
+function getAdaptiveRootMargin() {
+    const deviceMemory = navigator.deviceMemory || 4;
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const effectiveType = connection ? connection.effectiveType : '4g';
+    const saveData = connection ? connection.saveData : false;
+
+    if (deviceMemory <= 3 || saveData || effectiveType === '2g' || effectiveType === '3g') {
+        return "400px 0px 400px 0px"; // Low RAM / Save Data mode (Prevent OOM)
+    } else if (deviceMemory >= 8 && effectiveType === '4g') {
+        return "800px 0px 800px 0px"; // Desktop / High RAM & Fast Connection
+    }
+    return "600px 0px 600px 0px"; // Default Balanced Profile
+}
 
 function setupMediaViewportObserver() {
     if (mediaObserver) mediaObserver.disconnect();
@@ -440,21 +480,26 @@ function setupMediaViewportObserver() {
     const container = document.getElementById("chatMessages");
     if (!container) return;
 
+    const adaptiveMargin = getAdaptiveRootMargin();
+
     mediaObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            const mediaElem = entry.target;
+            const realSrc = mediaElem.dataset.src;
+            
             if (entry.isIntersecting) {
-                const mediaElem = entry.target;
-                const realSrc = mediaElem.dataset.src;
-                if (realSrc) {
+                if (realSrc && mediaElem.src !== realSrc) {
                     mediaElem.src = realSrc;
-                    mediaElem.removeAttribute('data-src');
-                    mediaObserver.unobserve(mediaElem);
+                }
+            } else {
+                if (realSrc && mediaElem.src === realSrc) {
+                    mediaElem.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
                 }
             }
         });
     }, {
         root: container,
-        rootMargin: "300px 0px 300px 0px"
+        rootMargin: adaptiveMargin
     });
 
     document.querySelectorAll('.msg-media[data-src]').forEach(elem => {
@@ -511,12 +556,12 @@ function buildMessageNode(msg, isRecent = false) {
     }
 
     return `
-        <div class="msg-row">
+        <div class="msg-row" data-msg-id="${msg.id}">
             <div class="msg-bubble">
                 ${mediaTag}
                 <div>${(msg.text || "").replace(/\n/g, '<br>')}</div>
+                <div class="msg-timestamp">${timeOnly}</div>
             </div>
-            <div class="msg-timestamp">[${timeOnly}]</div>
         </div>
     `;
 }
@@ -529,16 +574,11 @@ function forceScrollToBottom() {
     requestAnimationFrame(() => {
         chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
     });
-    setTimeout(() => {
-        chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
-    }, 80);
-    setTimeout(() => {
-        chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
-    }, 300);
 }
 
 function renderMessages(messages) {
     const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
     
     if (messages.length === 0) {
         chatMessages.innerHTML = `<div style="margin:auto; color:var(--text-sub);">Belum ada riwayat pesan PM.</div>`;
@@ -549,7 +589,6 @@ function renderMessages(messages) {
     let lastDate = "";
     const totalCount = messages.length;
 
-    // Render pesan (terlama di atas, terbaru di bawah)
     const reversed = messages.slice().reverse();
     reversed.forEach((msg, idx) => {
         let currentDate = "";
@@ -563,8 +602,8 @@ function renderMessages(messages) {
             lastDate = currentDate;
         }
 
-        // Prioritas tinggi (eager load) untuk 25 pesan terbaru yang langsung terlihat di viewport bawah
-        const isRecent = (idx >= totalCount - 25);
+        // Limit eager loading to bottom 5 items only
+        const isRecent = (idx >= totalCount - 5);
         msgHtml += buildMessageNode(msg, isRecent);
     });
 
@@ -573,22 +612,49 @@ function renderMessages(messages) {
     setupMediaViewportObserver();
 }
 
-// --- INFINITE SCROLL PAGINATION (LOAD 500 PESAN LAMA BERIKUTNYA) ---
+// INCREMENTAL APPEND SINGLE MESSAGE (TELEGRAM WEB BEHAVIOR)
+function appendSingleMessage(newMsg) {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+
+    // Tambahkan ke memori pesan member aktif
+    currentMemberAllMessages.unshift(newMsg);
+
+    const isNearBottom = (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight) < 250;
+
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = buildMessageNode(newMsg, true);
+    while (tempDiv.firstChild) {
+        chatMessages.appendChild(tempDiv.firstChild);
+    }
+
+    if (isNearBottom) {
+        forceScrollToBottom();
+    } else {
+        const btn = document.getElementById("scrollToBottomBtn");
+        if (btn) btn.classList.add("visible");
+    }
+
+    setupMediaViewportObserver();
+}
+
+// INFINITE SCROLL PAGINATION (LOAD 50 PESAN LAMA BERIKUTNYA)
 async function loadOlderMessages() {
     if (isLoadingMore || !hasMoreMessages || !activeMember || oldestMsgId === 0) return;
-    
+
     isLoadingMore = true;
     const chatMessages = document.getElementById("chatMessages");
     const previousScrollHeight = chatMessages.scrollHeight;
+    const previousScrollTop = chatMessages.scrollTop;
 
-    const loaderDiv = document.createElement("div");
-    loaderDiv.id = "scrollLoader";
-    loaderDiv.style.textAlign = "center";
-    loaderDiv.style.color = "var(--text-sub)";
-    loaderDiv.style.padding = "10px";
-    loaderDiv.style.fontSize = "12px";
-    loaderDiv.innerText = "⏳ Memuat 600 pesan lama berikutnya...";
-    chatMessages.insertBefore(loaderDiv, chatMessages.firstChild);
+    const loader = document.createElement("div");
+    loader.id = "scrollLoader";
+    loader.style.textAlign = "center";
+    loader.style.padding = "10px";
+    loader.style.color = "var(--text-sub)";
+    loader.style.fontSize = "12px";
+    loader.innerText = "⏳ Memuat pesan lama...";
+    chatMessages.insertBefore(loader, chatMessages.firstChild);
 
     const session = getCookie("user_session_pm");
     try {
@@ -598,17 +664,16 @@ async function loadOlderMessages() {
             body: JSON.stringify({
                 session_cookie: session,
                 folder_name: activeMember.name,
-                limit: 600,
+                limit: 50,
                 offset_id: oldestMsgId
             })
         });
         const data = await res.json();
-        const loader = document.getElementById("scrollLoader");
         if (loader) loader.remove();
 
         if (res.ok && data.ok && data.messages && data.messages.length > 0) {
             const olderMsgs = data.messages;
-            if (olderMsgs.length < 600) hasMoreMessages = false;
+            if (olderMsgs.length < 50) hasMoreMessages = false;
             oldestMsgId = olderMsgs[olderMsgs.length - 1].id;
             currentMemberAllMessages = currentMemberAllMessages.concat(olderMsgs);
 
@@ -626,7 +691,7 @@ async function loadOlderMessages() {
                     prependHtml += `<div class="date-divider"><span class="date-badge">${formattedDateStr}</span></div>`;
                     lastDate = currentDate;
                 }
-                prependHtml += buildMessageNode(msg);
+                prependHtml += buildMessageNode(msg, false);
             });
 
             tempDiv.innerHTML = prependHtml;
@@ -634,15 +699,13 @@ async function loadOlderMessages() {
                 chatMessages.insertBefore(tempDiv.firstChild, chatMessages.firstChild);
             }
 
-            // Jaga posisi scroll
-            const newScrollHeight = chatMessages.scrollHeight;
-            chatMessages.scrollTop = newScrollHeight - previousScrollHeight;
+            // PERTAHANKAN POSISI SCROLL TELEGRAM-LIKE PREPEND
+            chatMessages.scrollTop = chatMessages.scrollHeight - previousScrollHeight + previousScrollTop;
             renderMediaGrid();
         } else {
             hasMoreMessages = false;
         }
     } catch (e) {
-        const loader = document.getElementById("scrollLoader");
         if (loader) loader.remove();
     } finally {
         isLoadingMore = false;
@@ -650,10 +713,11 @@ async function loadOlderMessages() {
 }
 
 function toggleMediaPanel() {
-    document.getElementById("mediaPanel").classList.toggle("open");
+    const mediaPanel = document.getElementById("mediaPanel");
+    if (mediaPanel) mediaPanel.classList.toggle("open");
 }
 
-// --- CANVAS BINTANG OPTIMIZED 60FPS ---
+// CANVAS BINTANG OPTIMIZED (30 FPS, POWER SAVER & PAUSE SAAT SCROLL)
 function setupStarCanvas() {
     const canvas = document.getElementById('star-canvas');
     if (!canvas) return;
@@ -666,38 +730,54 @@ function setupStarCanvas() {
         height = canvas.height = window.innerHeight;
     });
 
-    const stars = [];
-    const numStars = 60;
+    const stars = Array.from({ length: 35 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.5 + 0.5,
+        alpha: Math.random(),
+        speed: Math.random() * 0.01 + 0.003
+    }));
 
-    for (let i = 0; i < numStars; i++) {
-        stars.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            radius: Math.random() * 1.5 + 0.5,
-            alpha: Math.random(),
-            speed: Math.random() * 0.01 + 0.003
+    let isScrolling = false;
+    let scrollTimeout;
+    
+    const chatMessages = document.getElementById("chatMessages");
+    if (chatMessages) {
+        chatMessages.addEventListener('scroll', () => {
+            isScrolling = true;
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => { isScrolling = false; }, 150);
         });
     }
 
-    function animate() {
+    let lastTime = 0;
+    const fps = 30;
+    const interval = 1000 / fps;
+
+    function animate(currentTime) {
+        requestAnimationFrame(animate);
+        if (document.hidden || isScrolling) return;
+
+        const delta = currentTime - lastTime;
+        if (delta < interval) return;
+        
+        lastTime = currentTime - (delta % interval);
         ctx.clearRect(0, 0, width, height);
+        
         stars.forEach(star => {
             star.alpha += star.speed;
-            if (star.alpha > 1 || star.alpha < 0) {
-                star.speed = -star.speed;
-            }
+            if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
             ctx.fillStyle = currentStarColor;
             ctx.globalAlpha = Math.max(0, Math.min(1, star.alpha));
             ctx.beginPath();
             ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
             ctx.fill();
         });
-        requestAnimationFrame(animate);
     }
-    animate();
+    requestAnimationFrame(animate);
 }
 
-// --- WEBSOCKET REAL-TIME BROADCAST LISTENER ---
+// WEBSOCKET REAL-TIME BROADCAST LISTENER
 function requestNotificationPermission() {
     if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
         Notification.requestPermission();
@@ -737,7 +817,16 @@ function setupWebSocket() {
                 if (data && data.folder_name) {
                     triggerWebNotification(data.folder_name, data.text);
                     if (activeMember && activeMember.name.toUpperCase() === data.folder_name.toUpperCase()) {
-                        selectMember(activeMember.id);
+                        // INCREMENTAL APPEND SINGLE MESSAGE (Telegram Web Behavior!)
+                        const newMsg = data.message || {
+                            id: data.id || Date.now(),
+                            text: data.text || "",
+                            timestamp: data.timestamp || new Date().toISOString(),
+                            has_media: data.has_media || false,
+                            media_type: data.media_type || null,
+                            sender_id: data.sender_id || 0
+                        };
+                        appendSingleMessage(newMsg);
                     }
                 }
             } catch (e) {}
@@ -759,11 +848,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatMessages = document.getElementById("chatMessages");
     if (chatMessages) {
         chatMessages.addEventListener("scroll", function() {
-            // Infinite scroll ke atas untuk load pesan lama
             if (this.scrollTop < 60) {
                 loadOlderMessages();
             }
-            // Tampilkan / sembunyikan tombol panah bawah
             const btn = document.getElementById("scrollToBottomBtn");
             if (btn) {
                 const isUp = (this.scrollHeight - this.scrollTop - this.clientHeight) > 250;
