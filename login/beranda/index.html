@@ -66,6 +66,21 @@
                 </div>
             </div>
 
+            <!-- CHAT COMPOSER TASKBAR (BALASAN / KOMENTAR) -->
+            <footer class="chat-composer-bar">
+                <div class="reply-preview-box" id="replyPreviewBox" style="display: none;">
+                    <div class="reply-preview-content">
+                        <span class="reply-preview-title" id="replyPreviewTitle">↩ Membalas pesan</span>
+                        <span class="reply-preview-text" id="replyPreviewText">...</span>
+                    </div>
+                    <button class="reply-cancel-btn" aria-label="Batal balas" onclick="cancelReply()">✕</button>
+                </div>
+                <div class="composer-input-row">
+                    <input type="text" id="commentInput" class="composer-input" placeholder="Tulis komentar / balasan..." aria-label="Tulis komentar" onkeydown="if(event.key==='Enter') sendComment()">
+                    <button id="sendCommentBtn" class="composer-send-btn" aria-label="Kirim balasan" onclick="sendComment()">➤</button>
+                </div>
+            </footer>
+
             <!-- TOMBOL FLOATING PANAH BAWAH KE CHAT TERBARU -->
             <button id="scrollToBottomBtn" class="scroll-bottom-btn" aria-label="Ke chat terbaru" onclick="scrollToLatestChat()" title="Ke chat terbaru">⬇</button>
         </main>

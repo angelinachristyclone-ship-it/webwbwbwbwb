@@ -317,6 +317,8 @@ function logout() {
 
 async function initPage() {
     AdaptiveEngine.init();
+    renderMemberList(); // Render list cards immediately (0ms) so sidebar is never blank
+
     const session = getCookie("user_session_pm");
     if (!session) {
         window.location.href = "../";
@@ -346,6 +348,72 @@ async function initPage() {
     } catch (e) {
         console.error("Init Error:", e);
         renderMemberList();
+    }
+}
+
+let currentReplyTargetMsgId = null;
+
+function replyToMessage(msgId, textSnippet) {
+    currentReplyTargetMsgId = msgId;
+    const box = document.getElementById("replyPreviewBox");
+    const textElem = document.getElementById("replyPreviewText");
+    if (box && textElem) {
+        textElem.innerText = textSnippet || `Pesan #${msgId}`;
+        box.style.display = "flex";
+    }
+    const input = document.getElementById("commentInput");
+    if (input) input.focus();
+}
+
+function cancelReply() {
+    currentReplyTargetMsgId = null;
+    const box = document.getElementById("replyPreviewBox");
+    if (box) box.style.display = "none";
+}
+
+async function sendComment() {
+    const input = document.getElementById("commentInput");
+    if (!input || !activeMember) {
+        showToast("Pilih member PM terlebih dahulu!");
+        return;
+    }
+    const commentText = input.value.trim();
+    if (!commentText) return;
+
+    const session = getCookie("user_session_pm");
+    const payload = {
+        session_cookie: session,
+        folder_name: activeMember.name,
+        target_archive_message_id: currentReplyTargetMsgId || (currentMemberAllMessages[0] ? currentMemberAllMessages[0].id : 0),
+        comment_text: commentText,
+        client_request_id: `req_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+    };
+
+    input.value = "";
+    cancelReply();
+
+    if (!navigator.onLine) {
+        queueOfflineComment(payload);
+        showToast("💬 Terhubung secara luring. Komentar akan dikirim otomatis.");
+        return;
+    }
+
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/comment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            showToast("✓ Komentar berhasil dikirim!");
+        } else {
+            queueOfflineComment(payload);
+            showToast("⏳ Komentar tersimpan di antrean pengiriman.");
+        }
+    } catch(e) {
+        queueOfflineComment(payload);
+        showToast("⏳ Komentar tersimpan di antrean offline.");
     }
 }
 
@@ -1081,7 +1149,7 @@ async function toggleSaveMessage(msgId) {
         });
         const data = await res.json();
         if (res.ok && data.ok) {
-            alert(data.is_saved ? "📌 Pesan berhasil disimpan ke Bookmark!" : "🗑️ Pesan dihapus dari Bookmark!");
+            showToast(data.is_saved ? "✓ Pesan disimpan ke Bookmark" : "Dihapus dari Bookmark");
         }
     } catch(e) {}
 }
