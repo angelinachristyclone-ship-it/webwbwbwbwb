@@ -32,7 +32,7 @@ html, body {
     position: relative;
 }
 
-/* --- CANVAS STAR ANIMATION --- */
+/* --- CANVAS STAR ANIMATION (ULTRA LIGHTWEIGHT 60FPS) --- */
 #star-canvas {
     position: fixed;
     top: 0;
@@ -44,13 +44,10 @@ html, body {
     opacity: 0.6;
 }
 
-/* --- APP SHELL MAIN CONTAINER --- */
-.app-shell {
+body {
     display: flex;
     width: 100vw;
     height: 100dvh;
-    position: relative;
-    z-index: 1;
 }
 
 /* --- SIDEBAR KIRI (TELEGRAM WEB DUAL COLUMN / 1-COLUMN MOBILE) --- */
@@ -96,10 +93,6 @@ html, body {
     border-radius: 12px;
     border: 1px solid rgba(123, 113, 198, 0.35);
     font-weight: 600;
-}
-
-.member-search {
-    width: 100%;
 }
 
 .member-search-input {
@@ -214,9 +207,6 @@ html, body {
 .member-info {
     flex: 1;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 .member-name {
@@ -296,11 +286,6 @@ html, body {
     flex-shrink: 0;
 }
 
-.header-text-group {
-    display: flex;
-    flex-direction: column;
-}
-
 .header-member-name {
     font-size: 15px;
     font-weight: 700;
@@ -312,31 +297,6 @@ html, body {
 .header-member-sub {
     font-size: 11px;
     color: var(--color-text-secondary);
-}
-
-.header-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.header-icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--color-borders);
-    color: #ffffff;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.header-icon-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
 }
 
 .chat-messages {
@@ -375,8 +335,6 @@ html, body {
     position: absolute;
     top: 18px;
     right: 22px;
-    background: none;
-    border: none;
     color: #ffffff;
     font-size: 30px;
     font-weight: bold;
@@ -390,13 +348,6 @@ html, body {
     align-items: center;
     max-width: 92vw;
     max-height: 85vh;
-}
-
-.lightbox-actions {
-    margin-top: 14px;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
 }
 
 /* --- PEMISAH TANGGAL (TELEGRAM STYLE) --- */
@@ -678,6 +629,10 @@ html, body {
 /* --- RESPONSIVE MOBILE LAYOUT (RESPONSIVE TELEGRAM WEB A) --- */
 /* ========================================================= */
 @media (max-width: 768px) {
+    body {
+        position: relative;
+    }
+
     .sidebar {
         width: 100vw;
         height: 100dvh;
@@ -719,166 +674,4 @@ html, body {
     .msg-row {
         max-width: 88%;
     }
-}
-
-/* ========================================================= */
-/* --- PHASE 11: ADAPTIVE RESPONSIVE UI & DEVICE ADAPTER --- */
-/* ========================================================= */
-
-/* Safe area insets support for Notch & Edge-to-Edge display */
-.app-shell {
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
-}
-
-/* Touch Target Minimum 44px for Touch Devices */
-.header-icon-btn, .close-panel-btn, .lightbox-close, .order-btn, .media-tab-btn {
-    min-width: 44px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Ultrawide Desktop Layout (1441px+): Centered Chat max ~820px */
-@media (min-width: 1441px) {
-    .app-shell {
-        justify-content: center;
-        background: #080808;
-    }
-
-    .chat-area {
-        max-width: 820px;
-        border-left: 1px solid var(--color-borders);
-        border-right: 1px solid var(--color-borders);
-    }
-}
-
-/* Small Phones (320px - 359px) */
-@media (max-width: 359px) {
-    .msg-row {
-        max-width: 95%;
-    }
-
-    .sidebar-title {
-        font-size: 14px;
-    }
-
-    .header-member-name {
-        font-size: 14px;
-    }
-}
-
-/* Responsive Media Display */
-.msg-photo, .msg-video {
-    max-width: 100%;
-    max-height: min(75dvh, 600px);
-    object-fit: contain;
-    border-radius: 10px;
-}
-
-/* Prefers Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-    *, ::before, ::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-}
-
-/* --- CHAT COMPOSER TASKBAR (BOTTOM INPUT BAR) --- */
-.chat-composer-bar {
-    padding: 10px 16px;
-    background: var(--color-background-sidebar);
-    border-top: 1px solid var(--color-borders);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    position: relative;
-    z-index: 10;
-}
-
-.reply-preview-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(42, 171, 238, 0.12);
-    border-left: 3px solid var(--accent-blue);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-}
-
-.reply-preview-title {
-    font-weight: 700;
-    color: var(--accent-blue);
-    display: block;
-}
-
-.reply-preview-text {
-    color: var(--color-text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 80vw;
-}
-
-.reply-cancel-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-    padding: 2px 6px;
-}
-
-.composer-input-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.composer-input {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid var(--color-borders);
-    color: #ffffff;
-    padding: 10px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.composer-input:focus {
-    border-color: var(--accent-blue);
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.composer-send-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--accent-blue);
-    color: #ffffff;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.15s ease, background 0.15s ease;
-    flex-shrink: 0;
-}
-
-.composer-send-btn:hover {
-    transform: scale(1.05);
-    background: #1a9bdc;
-}
-
-.composer-send-btn:active {
-    transform: scale(0.95);
 }
