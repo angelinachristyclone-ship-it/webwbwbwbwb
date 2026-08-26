@@ -2,57 +2,755 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Convenant VIP — Archive PM JKT48</title>
-    <link rel="stylesheet" href="style.css?v=21.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Convenant VIP â€” Beranda Archive PM</title>
+    <style>
+        :root {
+            --bg-color: #05070d;
+            --sidebar-bg: rgba(18, 23, 34, 0.85);
+            --chat-bg: transparent;
+            --panel-bg: rgba(17, 21, 32, 0.9);
+            --text-main: #ffffff;
+            --text-sub: #8a96a3;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-blue: #2aabee;
+            --msg-bubble-bg: rgba(24, 34, 45, 0.85);
+            --msg-bubble-text: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            user-select: none;
+            position: relative;
+        }
+
+        /* --- CANVAS STAR ANIMATION BACKGROUND --- */
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- SIDEBAR KIRI (61 MEMBER PM) --- */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .user-badge {
+            font-size: 12px;
+            color: var(--accent-blue);
+            background: rgba(42, 171, 238, 0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .member-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            position: relative;
+        }
+
+        .member-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .member-item.active {
+            background: rgba(42, 171, 238, 0.18);
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .member-avatar-wrap {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .member-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #202736;
+        }
+
+        .member-avatar.grey {
+            filter: grayscale(100%);
+            opacity: 0.55;
+        }
+
+        .lock-icon-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: #111520;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .member-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .member-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .member-status {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .member-status.active-sub {
+            color: #00c993;
+            font-weight: 600;
+        }
+
+        /* --- CHAT CONTAINER MAIN --- */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+            position: relative;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        .chat-header {
+            height: 64px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 2;
+        }
+
+        .header-member-info {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .header-member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+            object-fit: cover;
+        }
+
+        .header-member-name {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .header-member-sub {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* --- PEMISAH TANGGAL (DATE DIVIDER STICKER TELEGRAM STYLE) --- */
+        .date-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .date-badge {
+            background: rgba(0, 0, 0, 0.55);
+            color: #a0aab5;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.5px;
+        }
+
+        /* BUBBLE CHAT TELEGRAM STYLE */
+        .msg-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            margin-bottom: 6px;
+        }
+
+        .msg-bubble {
+            background: var(--msg-bubble-bg);
+            color: var(--msg-bubble-text);
+            padding: 10px 14px;
+            border-radius: 14px;
+            border-bottom-left-radius: 4px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            position: relative;
+            backdrop-filter: blur(8px);
+        }
+
+        .msg-media {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        .msg-timestamp {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 4px;
+            align-self: flex-start;
+        }
+
+        .unsubscribed-notice {
+            margin: auto;
+            text-align: center;
+            max-width: 380px;
+            padding: 30px;
+            background: rgba(20, 25, 35, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+        }
+
+        .unsubscribed-notice h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #ff4d4d;
+        }
+
+        .unsubscribed-notice p {
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .order-btn {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        /* --- PANEL MEDIA SUB TAB (KANAN) --- */
+        .media-panel {
+            width: 340px;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .media-panel-header {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .media-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .media-grid-item {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .media-grid-item:hover {
+            transform: scale(1.05);
+        }
+
+        /* RESPONSIVE UNTUK HP */
+        @media (max-width: 768px) {
+            .media-panel {
+                position: fixed;
+                right: 0;
+                top: 0;
+                z-index: 100;
+                transform: translateX(100%);
+            }
+            .media-panel.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="app-shell">
-        <!-- SIDEBAR KIRI: DAFTAR MEMBER -->
-        <aside class="sidebar">
-            <header class="sidebar-header">
-                <div class="sidebar-title-wrap">
-                    <h1 class="sidebar-title">Archive PM JKT48</h1>
-                    <span id="userBadge" class="user-badge">Convenant VIP</span>
-                </div>
-                <div class="member-search">
-                    <input type="text" id="memberSearchInput" class="member-search-input" placeholder="🔍 Cari oshi kamu..." oninput="filterMemberList()">
-                </div>
-            </header>
-            <div id="memberList" class="member-list">
-                <!-- Member cards rendered dynamically via JS -->
-            </div>
-        </aside>
+    <!-- CANVAS BINTANG BERGERAK BACKGROUND -->
+    <canvas id="star-canvas"></canvas>
 
-        <!-- MAIN CHAT AREA -->
-        <main class="chat-area">
-            <header class="chat-header">
-                <button id="backToSidebarBtn" class="back-sidebar-btn" onclick="showSidebarMobile()" title="Kembali">←</button>
-                <div class="header-member-info">
-                    <img id="headerAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231f293d'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-size='40' fill='%237b71c6'%3E👤%3C/text%3E%3C/svg%3E" class="header-member-avatar" alt="Avatar">
-                    <div class="header-text-group">
-                        <div id="headerName" class="header-member-name">Memuat PM...</div>
-                        <div id="headerSub" class="header-member-sub">Convenant VIP Archive</div>
-                    </div>
-                </div>
-            </header>
-
-            <div id="chatMessages" class="chat-messages">
-                <div class="unsubscribed-notice">
-                    <h3>⏳ Memuat Halaman...</h3>
-                </div>
-            </div>
-
-            <!-- CHAT COMPOSER -->
-            <footer class="chat-composer-bar">
-                <div class="composer-input-row">
-                    <input type="text" id="commentInput" class="composer-input" placeholder="Tulis komentar / balasan..." onkeydown="if(event.key==='Enter') sendComment()">
-                    <button id="sendCommentBtn" class="composer-send-btn" onclick="sendComment()">➤</button>
-                </div>
-            </footer>
-        </main>
+    <!-- SIDEBAR KIRI (DAFTAR 61 MEMBER PM) -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Archive PM JKT48</div>
+            <div id="userBadge" class="user-badge">Convenant VIP</div>
+        </div>
+        <div id="memberList" class="member-list">
+            <!-- Member items rendered via JS -->
+        </div>
     </div>
 
-    <script src="app.js?v=21.0"></script>
+    <!-- MAIN CHAT AREA -->
+    <div class="chat-area">
+        <div class="chat-header">
+            <div class="header-member-info" onclick="toggleMediaPanel()">
+                <img id="headerAvatar" src="../../logo.png" class="header-member-avatar" alt="Avatar">
+                <div>
+                    <div id="headerName" class="header-member-name">Pilih Member PM</div>
+                    <div id="headerSub" class="header-member-sub">Convenant VIP Archive</div>
+                </div>
+            </div>
+            <button class="order-btn" style="padding: 8px 16px; font-size: 12px;" onclick="logout()">Logout</button>
+        </div>
+
+        <link rel="stylesheet" href="style.css?v=23.0">
+        <script defer src="app.js?v=23.0"></script>
+
+        <div id="chatMessages" class="chat-messages">
+            <div class="unsubscribed-notice">
+                <h3>ðŸ’¬ Selamat Datang di Convenant PM</h3>
+                <p>Silakan pilih member PM dari daftar di sebelah kiri untuk melihat pesan arsip real-time Telegram.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL MEDIA (POP MEDIA SUB TAB KANAN) -->
+    <div id="mediaPanel" class="media-panel">
+        <div class="media-panel-header">ðŸ“· Media Tersimpan (Shared Media)</div>
+        <div id="mediaGrid" class="media-grid">
+            <!-- Shared media rendered via JS -->
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "https://shinezzzz-iddiletele.hf.space";
+        
+        // DAFTAR 61 MEMBER PM LENGKAP
+        const MEMBER_PM_LIST = [
+            { id: "Delynn", name: "PM Delynn", file: "ADELINE_WIJAYA" },
+            { id: "Cynthia", name: "PM Cynthia", file: "CYNTHIA_YAPUTERA" },
+            { id: "Aralie", name: "PM Aralie", file: "ABIGAIL_RACHEL" },
+            { id: "Freya", name: "PM Freya", file: "FREYA_JAYAWARDANA" },
+            { id: "Levi", name: "PM Levi", file: "MICHELLE_LEVIA" },
+            { id: "Lyn", name: "PM Lyn", file: "JESSLYN_ELLY" },
+            { id: "Oniel", name: "PM Oniel", file: "CORNELIA_VANISA" },
+            { id: "Virgi", name: "PM Virgi", file: "ASTRELLA_VIRGIANANDA" },
+            { id: "Feni", name: "PM Feni", file: "FENI_FITRIYANTI" },
+            { id: "Fera", name: "PM Fera", file: "AFERA_THALIA" },
+            { id: "Jazzy", name: "PM Jazzy", file: "JAZZLYN_TRISHA" },
+            { id: "Eli", name: "PM Eli", file: "HELISMA_PUTRI" },
+            { id: "Oline", name: "PM Oline", file: "OLINE_MANUEL" },
+            { id: "Raisha", name: "PM Raisha", file: "RAISHA_SYIFA" },
+            { id: "Gita", name: "PM Gita", file: "GITA_SEKAR" },
+            { id: "Intan", name: "PM Intan", file: "NUR_INTAN" },
+            { id: "Lily", name: "PM Lily", file: "MICHELLE_ALEXANDRA" },
+            { id: "Danella", name: "PM Danella", file: "DANELLA_PIAWAHAN" },
+            { id: "Erine", name: "PM Erine", file: "CATHERINA_VALLENCIA" },
+            { id: "Fritzy", name: "PM Fritzy", file: "FRITZY_ROSMERIAN" },
+            { id: "Lana", name: "PM Lana", file: "AURHEL_ALANA" },
+            { id: "Lulu", name: "PM Lulu", file: "LULU_SALSABILA" },
+            { id: "Jemima", name: "PM Jemima", file: "JEMIMA_EVODIE" },
+            { id: "Ella", name: "PM Ella", file: "GABRIELA_ABIGAIL" },
+            { id: "Alya", name: "PM Alya", file: "ALYA_AMANDA" },
+            { id: "Kimmy", name: "PM Kimmy", file: "VICTORIA_KIMBERLY" },
+            { id: "Daisy", name: "PM Daisy", file: "DESY_NATALIA" },
+            { id: "Maira", name: "PM Maira", file: "HUMAIRA_RAMADHANI" },
+            { id: "Ekin", name: "PM Ekin", file: "MIKAELA_KUSJANTO" },
+            { id: "Fiony", name: "PM Fiony", file: "FIONY_ALVERIA" },
+            { id: "Giaa", name: "PM Giaa", file: "HAGIA_SOPIA" },
+            { id: "Muthe", name: "PM Muthe", file: "MUTIARA_AZZAHRA" },
+            { id: "Lia", name: "PM Lia", file: "AURELLIA_LIA" },
+            { id: "Michie", name: "PM Michie", file: "MICHELLE_ALEXANDRA" },
+            { id: "Trisha", name: "PM Trisha", file: "JAZZLYN_TRISHA" },
+            { id: "Chelsea", name: "PM Chelsea", file: "CHELSEA_DEVINA" },
+            { id: "Elin", name: "PM Elin", file: "CELLINE_THEFANI" },
+            { id: "Anindya", name: "PM Anindya", file: "ANINDYA_RAMADHANI" },
+            { id: "Heidi", name: "PM Heidi", file: "HEIDA_SUYANGGA" },
+            { id: "Christy", name: "PM Christy", file: "ANGELINA_CHRISTY" },
+            { id: "Gendis", name: "PM Gendis", file: "GENDIS_MAYRANNISA" },
+            { id: "Kathrina", name: "PM Kathrina", file: "KATHRINA_IRENE" },
+            { id: "Nala", name: "PM Nala", file: "SHABILQIS_NAILA" },
+            { id: "Cathy", name: "PM Cathy", file: "CATHLEEN_NIXIE" },
+            { id: "Ribka", name: "PM Ribka", file: "RIBKA_BUDIMAN" },
+            { id: "Greesel", name: "PM Greesel", file: "GREESELA_ADHALIA" },
+            { id: "Nachia", name: "PM Nachia", file: "NINA_TUTACHIA" },
+            { id: "Olla", name: "PM Olla", file: "FEBRIOLA_SINAMBELLA" },
+            { id: "Gracie", name: "PM Gracie", file: "GRACE_OCTAVIANI" },
+            { id: "Indah", name: "PM Indah", file: "INDAH_CAHYA" },
+            { id: "Rara", name: "PM Rara", file: "AULIA_RIZA" },
+            { id: "Sona", name: "PM Sona", file: "SONA_KALYANA" },
+            { id: "Rilly", name: "PM Rilly", file: "CARISSA_DINI" },
+            { id: "Mikaela", name: "PM Mikaela", file: "MIKAELA_KUSJANTO" },
+            { id: "Jessi", name: "PM Jessi", file: "JESSICA_CHANDRA" },
+            { id: "Carissa", name: "PM Carissa", file: "CARISSA_DINI" },
+            { id: "Marsha", name: "PM Marsha", file: "MARSHA_LENATHEA" },
+            { id: "Fahira", name: "PM Fahira", file: "FAHIRA_PUTRI" },
+            { id: "Ralyne", name: "PM Ralyne", file: "RALYNE_VAN" },
+            { id: "Bella", name: "PM Bella", file: "CHRISTABELLA_BONITA" },
+            { id: "Nayla", name: "PM Nayla", file: "NAYLA_SUJI" },
+            { id: "Auwia", name: "PM Auwia", file: "AUREL_MAYORI" },
+            { id: "Maxine", name: "PM Maxine", file: "MAXINE_FAYE" }
+        ];
+
+        let subscribedFolders = [];
+        let activeMember = null;
+
+        function getCookie(name) {
+            let nameEQ = name + "="; let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i]; while (c.charAt(0) === ' ') c = c.substring(1);
+                if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+            }
+            return null;
+        }
+
+        function logout() {
+            document.cookie = "user_session_pm=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "../";
+        }
+
+        async function initPage() {
+            const session = getCookie("user_session_pm");
+            if (!session) {
+                window.location.href = "../";
+                return;
+            }
+
+            try {
+                const res = await fetch(BACKEND_URL + "/pm/userpmstat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ session_cookie: session })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.ok) {
+                    subscribedFolders = (data.subscriptions || []).map(s => s.folder_name.toUpperCase());
+                    document.getElementById("userBadge").innerText = data.nama || "Convenant VIP";
+                    renderMemberList();
+                } else {
+                    logout();
+                }
+            } catch (e) {
+                console.error("Init Error:", e);
+                renderMemberList();
+            }
+        }
+
+        function renderMemberList() {
+            const listContainer = document.getElementById("memberList");
+            let html = "";
+
+            MEMBER_PM_LIST.forEach(mem => {
+                const isSubbed = subscribedFolders.includes(mem.name.toUpperCase()) || subscribedFolders.includes(mem.id.toUpperCase());
+                const imgClass = isSubbed ? "member-avatar" : "member-avatar grey";
+                const imgSrc = "../../skin/" + mem.file + "_UNCOMMON.jpg";
+                const fallbackSrc = "../../skin/" + mem.file + "_UNCOMMON_grey.jpg";
+
+                html += `
+                    <div class="member-item ${activeMember && activeMember.id === mem.id ? 'active' : ''}" onclick="selectMember('${mem.id}')">
+                        <div class="member-avatar-wrap">
+                            <img src="${imgSrc}" class="${imgClass}" alt="${mem.name}" onerror="this.onerror=null;this.src='${fallbackSrc}';">
+                            ${!isSubbed ? '<div class="lock-icon-badge">ðŸ”’</div>' : ''}
+                        </div>
+                        <div class="member-info">
+                            <div class="member-name">${mem.name}</div>
+                            <div class="member-status ${isSubbed ? 'active-sub' : ''}">
+                                ${isSubbed ? 'âœ“ Berlangganan' : 'ðŸ”’ Belum Berlangganan'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        async function selectMember(memberId) {
+            activeMember = MEMBER_PM_LIST.find(m => m.id === memberId);
+            renderMemberList();
+
+            const isSubbed = subscribedFolders.includes(activeMember.name.toUpperCase()) || subscribedFolders.includes(activeMember.id.toUpperCase());
+            
+            document.getElementById("headerName").innerText = activeMember.name;
+            document.getElementById("headerAvatar").src = "../../skin/" + activeMember.file + "_UNCOMMON.jpg";
+            document.getElementById("headerSub").innerText = isSubbed ? "Aktif Berlangganan" : "ðŸ”’ Belum Berlangganan";
+
+            const chatMessages = document.getElementById("chatMessages");
+            chatMessages.innerHTML = `<div style="margin:auto; color:var(--text-sub);">â³ Memuat riwayat pesan PM ${activeMember.name}...</div>`;
+
+            if (!isSubbed) {
+                chatMessages.innerHTML = `
+                    <div class="unsubscribed-notice">
+                        <h3>ðŸ”’ Belum Berlangganan ${activeMember.name}</h3>
+                        <p>Anda belum berlangganan ${activeMember.name}. Silakan order paket langganan di <b>convenant.my.id</b> sekarang untuk melihat arsip pesan!</p>
+                        <a href="https://convenant.my.id" target="_blank" class="order-btn">ORDER SEKARANG</a>
+                    </div>
+                `;
+                document.getElementById("mediaGrid").innerHTML = `<div style="grid-column: span 3; text-align:center; color:var(--text-sub); padding:20px;">Shared media terkunci</div>`;
+                return;
+            }
+
+            // Fetch pesan real-time Telegram dari backend /pm/getpmmessages
+            const session = getCookie("user_session_pm");
+            try {
+                const res = await fetch(BACKEND_URL + "/pm/getpmmessages", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ session_cookie: session, folder_name: activeMember.name })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.ok) {
+                    renderMessages(data.messages || []);
+                } else {
+                    chatMessages.innerHTML = `<div class="unsubscribed-notice"><h3>âš ï¸ Notice</h3><p>${data.msg}</p></div>`;
+                }
+            } catch (e) {
+                chatMessages.innerHTML = `<div style="margin:auto; color:#ff4d4d;">âŒ Gagal memuat pesan dari Telegram.</div>`;
+            }
+        }
+
+        // --- RENDER CHAT DENGAN PEMISAH TANGGAL & HARI ---
+        function formatDateHeader(dateStr) {
+            if (!dateStr) return "";
+            const d = new Date(dateStr.replace(/-/g, '/'));
+            if (isNaN(d.getTime())) return dateStr;
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return d.toLocaleDateString('id-ID', options);
+        }
+
+        function renderMessages(messages) {
+            const chatMessages = document.getElementById("chatMessages");
+            const mediaGrid = document.getElementById("mediaGrid");
+            
+            if (messages.length === 0) {
+                chatMessages.innerHTML = `<div style="margin:auto; color:var(--text-sub);">Belum ada riwayat pesan PM.</div>`;
+                mediaGrid.innerHTML = ``;
+                return;
+            }
+
+            let msgHtml = "";
+            let mediaHtml = "";
+            let lastDate = "";
+
+            // Render pesan (terlama di atas, terbaru di bawah)
+            messages.reverse().forEach(msg => {
+                let timeOnly = msg.timestamp;
+                let currentDate = "";
+
+                // Parsing timestamp YYYY-MM-DD HH:MM:SS
+                if (msg.timestamp && msg.timestamp.includes(" ")) {
+                    const parts = msg.timestamp.split(" ");
+                    currentDate = parts[0];
+                    timeOnly = parts[1] || msg.timestamp;
+                }
+
+                // Sisipkan Pemisah Tanggal jika berganti hari
+                if (currentDate && currentDate !== lastDate) {
+                    const formattedDateStr = formatDateHeader(currentDate);
+                    msgHtml += `
+                        <div class="date-divider">
+                            <span class="date-badge">${formattedDateStr}</span>
+                        </div>
+                    `;
+                    lastDate = currentDate;
+                }
+
+                let mediaTag = "";
+                if (msg.has_media) {
+                    const mediaSrc = BACKEND_URL + "/pm/media/" + msg.id;
+                    if (msg.media_type === 'photo') {
+                        mediaTag = `<img src="${mediaSrc}" class="msg-media" alt="Foto PM">`;
+                        mediaHtml += `<a href="${mediaSrc}" target="_blank"><img src="${mediaSrc}" class="media-grid-item" alt="Media"></a>`;
+                    } else if (msg.media_type === 'video') {
+                        mediaTag = `<video src="${mediaSrc}" class="msg-media" controls></video>`;
+                    } else if (msg.media_type === 'audio') {
+                        mediaTag = `<audio src="${mediaSrc}" controls style="width:100%; margin-bottom:6px;"></audio>`;
+                    }
+                }
+
+                msgHtml += `
+                    <div class="msg-row">
+                        <div class="msg-bubble">
+                            ${mediaTag}
+                            <div>${msg.text.replace(/\n/g, '<br>')}</div>
+                        </div>
+                        <div class="msg-timestamp">[${timeOnly}]</div>
+                    </div>
+                `;
+            });
+
+            chatMessages.innerHTML = msgHtml;
+            mediaGrid.innerHTML = mediaHtml || `<div style="grid-column: span 3; text-align:center; color:var(--text-sub); padding:20px;">Tidak ada media foto</div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function toggleMediaPanel() {
+            document.getElementById("mediaPanel").classList.toggle("open");
+        }
+
+        window.addEventListener("DOMContentLoaded", initPage);
+
+        // --- ANIMASI BINTANG STAR-CANVAS BACKGROUND ---
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+
+        class Star {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.alpha = Math.random();
+                this.speed = Math.random() * 0.01 + 0.005;
+            }
+            update() {
+                this.alpha += this.speed;
+                if (this.alpha > 1 || this.alpha < 0) this.speed = -this.speed;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(this.alpha)})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initStars() {
+            resize();
+            stars = [];
+            const count = Math.floor((width * height) / 3000);
+            for (let i = 0; i < count; i++) stars.push(new Star());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', initStars);
+        initStars();
+        animate();
+    </script>
 </body>
 </html>
