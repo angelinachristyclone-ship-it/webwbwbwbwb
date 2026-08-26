@@ -317,19 +317,23 @@ function logout() {
 
 async function initPage() {
     AdaptiveEngine.init();
-    renderMemberList(); // Render list cards immediately (0ms) so sidebar is never blank
+
+    // 1. Guaranteed fallback for activeMember
+    if (!activeMember && Array.isArray(MEMBER_PM_LIST) && MEMBER_PM_LIST.length > 0) {
+        activeMember = MEMBER_PM_LIST.find(m => m.id.toLowerCase() === "fiony") || MEMBER_PM_LIST[0];
+    }
+
+    // 2. Render 61 member cards immediately (0ms guaranteed)
+    renderMemberList();
+
+    // 3. Auto-select room immediately to render chat & header
+    if (activeMember) {
+        selectMember(activeMember.id);
+    }
 
     requestNotificationPermission();
     setupWebSocket();
     setupStarCanvas();
-
-    // Auto-select first member (Fiony) on load so chat is never empty
-    if (!activeMember && MEMBER_PM_LIST.length > 0) {
-        const defaultMember = MEMBER_PM_LIST.find(m => m.id === "Fiony") || MEMBER_PM_LIST[0];
-        if (defaultMember) {
-            selectMember(defaultMember.id);
-        }
-    }
 
     const session = getCookie("user_session_pm");
     if (!session) {
@@ -526,7 +530,7 @@ async function selectMember(memberId) {
         return;
     }
 
-    activeMember = MEMBER_PM_LIST.find(m => m.id === memberId);
+    activeMember = MEMBER_PM_LIST.find(m => m.id.toLowerCase() === String(memberId).toLowerCase() || m.name.toLowerCase() === String(memberId).toLowerCase()) || MEMBER_PM_LIST[0];
     renderMemberList();
 
     // Restore Draft for new active member
