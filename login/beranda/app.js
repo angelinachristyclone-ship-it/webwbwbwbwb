@@ -576,7 +576,6 @@ async function selectMember(memberId) {
     headerAvatar.className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
     document.getElementById("headerSub").innerText = isSubbed ? "Convenant VIP Archive" : "🔒 Belum Berlangganan";
 
-    const chatMessages = document.getElementById("chatMessages");
     chatMessages.innerHTML = renderSkeletonLoader();
 
     if (!isSubbed && subscribedFolders.length > 0) {
