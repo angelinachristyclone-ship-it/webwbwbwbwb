@@ -1371,7 +1371,7 @@ function appendSingleMessage(newMsg) {
     setupMediaViewportObserver();
 }
 
-// INFINITE SCROLL PAGINATION (LOAD 50 PESAN LAMA BERIKUTNYA)
+// INFINITE SCROLL PAGINATION (LOAD 200 PESAN LAMA BERIKUTNYA)
 async function loadOlderMessages() {
     if (isLoadingMore || !hasMoreMessages || !activeMember || oldestMsgId === 0) return;
 
@@ -1386,7 +1386,7 @@ async function loadOlderMessages() {
     loader.style.padding = "10px";
     loader.style.color = "var(--text-sub)";
     loader.style.fontSize = "12px";
-    loader.innerText = "⏳ Memuat 200 pesan lama...";
+    loader.innerText = "⏳ Memuat pesan lama...";
     chatMessages.insertBefore(loader, chatMessages.firstChild);
 
     const session = getCookie("user_session_pm");
@@ -1437,9 +1437,11 @@ async function loadOlderMessages() {
             });
 
             tempDiv.innerHTML = prependHtml;
+            const fragment = document.createDocumentFragment();
             while (tempDiv.firstChild) {
-                chatMessages.insertBefore(tempDiv.firstChild, chatMessages.firstChild);
+                fragment.appendChild(tempDiv.firstChild);
             }
+            chatMessages.insertBefore(fragment, chatMessages.firstChild);
 
             // PERTAHANKAN POSISI SCROLL TELEGRAM-LIKE PREPEND
             chatMessages.scrollTop = chatMessages.scrollHeight - previousScrollHeight + previousScrollTop;
