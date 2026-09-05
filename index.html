@@ -10,53 +10,32 @@
             --bg-color: #05070d;
             --text-main: #ffffff;
             --text-sub: #a0aab5;
-            --card-bg: rgba(20, 25, 35, 0.45);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-shadow: rgba(0, 0, 0, 0.5);
-            --card-hover-bg: rgba(30, 35, 45, 0.55);
-            --card-hover-border: rgba(255, 255, 255, 0.3);
+            --card-bg: rgba(18, 24, 38, 0.72);
+            --card-border: rgba(255, 255, 255, 0.16);
+            --card-shadow: rgba(0, 0, 0, 0.6);
+            --card-hover-bg: rgba(26, 34, 52, 0.88);
+            --card-hover-border: rgba(42, 171, 238, 0.6);
             --btn-primary-bg: #ffffff;
             --btn-primary-text: #05070d;
-            --btn-secondary-bg: rgba(255,255,255,0.06);
+            --btn-secondary-bg: rgba(255,255,255,0.08);
             --btn-secondary-border: rgba(255,255,255,0.3);
-            --divider-color: rgba(255, 255, 255, 0.15);
+            --divider-color: rgba(255, 255, 255, 0.25);
             --glow-color: rgba(255, 255, 255, 0.8);
             --glow-accent: rgba(42, 171, 238, 0.8);
             --admin-card-border: rgba(0, 201, 147, 0.4);
-            --tab-bg: rgba(20, 25, 35, 0.6);
         }
 
-        /* --- TEMA PUTIH (MALL) --- */
-        body.light-theme {
-            --bg-color: #f4f7fa;
-            --text-main: #111827;
-            --text-sub: #4b5563;
-            --card-bg: rgba(255, 255, 255, 0.7);
-            --card-border: rgba(0, 0, 0, 0.1);
-            --card-shadow: rgba(0, 0, 0, 0.06);
-            --card-hover-bg: rgba(255, 255, 255, 0.95);
-            --card-hover-border: rgba(0, 0, 0, 0.2);
-            --btn-primary-bg: #111827;
-            --btn-primary-text: #ffffff;
-            --btn-secondary-bg: rgba(0,0,0,0.05);
-            --btn-secondary-border: rgba(0,0,0,0.2);
-            --divider-color: rgba(0, 0, 0, 0.1);
-            --glow-color: rgba(0, 0, 0, 0.5);
-            --glow-accent: rgba(42, 171, 238, 0.5);
-            --admin-card-border: rgba(0, 160, 110, 0.4);
-            --tab-bg: rgba(255, 255, 255, 0.8);
-        }
-
-        /* --- STYLING DASAR --- */
-        body {
+        /* --- STYLING DASAR (DARK BASE GUARANTEE) --- */
+        html, body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            background-color: #05070d !important;
+            background: #05070d !important;
             color: var(--text-main);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: color 0.3s ease;
             user-select: none;
         }
 
@@ -66,37 +45,38 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .container {
-            max-width: 500px;
+            max-width: 520px;
             margin: 0 auto;
-            padding: 40px 20px 20px;
+            padding: 30px 16px 40px;
             text-align: center;
             position: relative;
-            z-index: 1;
+            z-index: 5;
         }
 
         /* Judul Utama */
         .header-title {
             font-size: 34px;
             font-weight: 900;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             letter-spacing: 3px;
             text-transform: uppercase;
-            text-shadow: 0 0 15px var(--glow-color);
+            text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 15px var(--glow-color);
             animation: glowPulse 2s infinite alternate;
         }
 
         .header-motto {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-sub);
-            letter-spacing: 1.5px;
-            margin-bottom: 30px;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
             font-style: italic;
-            line-height: 1.6;
-            transition: color 0.8s ease;
+            line-height: 1.5;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
         @keyframes glowPulse {
@@ -104,117 +84,116 @@
             to { text-shadow: 0 0 25px var(--glow-color), 0 0 10px var(--glow-accent); }
         }
 
-        /* --- TAB NAVIGATION (SWAP BUTTONS) --- */
-        .tab-container {
+        /* --- HEADER QUICK ACTION PILL BUTTONS --- */
+        .header-nav-pills {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 30px;
-            background: var(--tab-bg);
-            padding: 8px;
-            border-radius: 50px;
+            flex-wrap: wrap;
+        }
+
+        .nav-pill {
+            padding: 9px 15px;
+            border-radius: 25px;
             border: 1px solid var(--card-border);
+            background: rgba(18, 24, 38, 0.82);
             backdrop-filter: blur(12px);
-            transition: all 0.8s ease;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px 20px;
-            border-radius: 40px;
-            border: none;
-            background: transparent;
-            color: var(--text-sub);
-            font-weight: bold;
-            font-size: 15px;
+            -webkit-backdrop-filter: blur(12px);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            text-decoration: none;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
-        .tab-btn.active {
-            background: var(--btn-primary-bg);
-            color: var(--btn-primary-text);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        .nav-pill:hover {
+            transform: translateY(-2px);
+            border-color: rgba(42, 171, 238, 0.8);
+            box-shadow: 0 6px 18px rgba(42, 171, 238, 0.4);
+            background: rgba(30, 38, 55, 0.95);
         }
 
-        .swipe-hint {
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-sub);
-            margin-bottom: 20px;
-            opacity: 0.6;
+        .pill-login {
+            background: linear-gradient(135deg, rgba(26, 92, 255, 0.5), rgba(42, 171, 238, 0.4));
+            border-color: rgba(26, 92, 255, 0.7);
         }
-
-        /* --- CAROUSEL SLIDER WRAPPER (SWIPE SYSTEM) --- */
-        .carousel-outer {
-            width: 100%;
-            overflow: hidden;
-            touch-action: pan-y; /* Supaya scroll vertical tetap natural di HP */
-            cursor: grab;
+        .pill-testi {
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.35), rgba(255, 140, 0, 0.3));
+            border-color: rgba(255, 184, 0, 0.6);
         }
-
-        .carousel-outer:active {
-            cursor: grabbing;
-        }
-
-        .carousel-track {
-            display: flex;
-            width: 200%;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .view-slide {
-            width: 50%;
-            flex-shrink: 0;
-            box-sizing: border-box;
-            padding: 0 4px;
+        .pill-admin {
+            background: linear-gradient(135deg, rgba(0, 201, 147, 0.35), rgba(0, 160, 110, 0.3));
+            border-color: rgba(0, 201, 147, 0.6);
         }
 
         /* --- PEMISAH KATEGORI (DIVIDER) --- */
         .section-divider {
-            margin: 40px 0 30px;
+            margin: 35px 0 25px;
             display: flex;
             align-items: center;
             text-align: center;
             color: var(--text-sub);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2.5px;
-            transition: color 0.8s ease;
+            letter-spacing: 2px;
+            transition: color 0.3s ease;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
         .section-divider::before, .section-divider::after {
             content: '';
             flex: 1;
             border-bottom: 1px solid var(--divider-color);
-            transition: border-color 0.8s ease;
         }
-        .section-divider::before { margin-right: 15px; }
-        .section-divider::after { margin-left: 15px; }
+        .section-divider::before { margin-right: 12px; }
+        .section-divider::after { margin-left: 12px; }
 
-        /* --- DESAIN KARTU MENU --- */
+        /* --- DESAIN KARTU MENU (PREMIUM GLASSMORPHISM) --- */
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
         .card {
             background: var(--card-bg); 
             border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 18px;
-            margin-bottom: 25px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            border-radius: 22px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             text-align: left;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.8s ease, border-color 0.8s ease;
-            box-shadow: 0 10px 30px var(--card-shadow);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 14px 35px var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 8%;
+            right: 8%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            pointer-events: none;
         }
 
         .card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
             border-color: var(--card-hover-border);
-            box-shadow: 0 15px 35px rgba(42, 171, 238, 0.15);
+            box-shadow: 0 18px 45px rgba(42, 171, 238, 0.25);
             background: var(--card-hover-bg);
         }
 
-        /* --- STYLING GAMBAR (BLUR BG + SHARP FRONT) --- */
+        /* --- STYLING GAMBAR (BLUR BG + SHARP FRONT) & SLIDER --- */
         .img-preview {
             width: 100%;
             aspect-ratio: 16/9;
@@ -226,6 +205,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            user-select: none;
+        }
+
+        .slider-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 1;
+        }
+
+        .slide-item {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            flex: 0 0 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #000;
         }
 
         .img-bg {
@@ -256,100 +259,146 @@
             transform: scale(1.08); 
         }
 
+        /* Controls Slider (Arrows & Dots) */
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            background: rgba(18, 24, 38, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .img-preview:hover .slider-arrow {
+            opacity: 1;
+        }
+
+        .slider-arrow.prev { left: 8px; }
+        .slider-arrow.next { right: 8px; }
+
+        .slider-arrow:hover {
+            background: rgba(42, 171, 238, 0.85);
+            border-color: rgba(255, 255, 255, 0.7);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            width: 18px;
+            border-radius: 6px;
+            background: #2AABEE;
+            box-shadow: 0 0 8px rgba(42, 171, 238, 0.8);
+        }
+
         .tier-title {
-            font-size: 21px;
+            font-size: 20px;
             font-weight: 800;
             margin-bottom: 8px;
             color: var(--text-main);
             letter-spacing: 0.5px;
-            transition: color 0.8s ease;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
         .tier-desc {
-            font-size: 14px;
+            font-size: 13.5px;
             color: var(--text-sub);
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             line-height: 1.6;
-            transition: color 0.8s ease;
         }
 
         .tier-desc strong {
             color: var(--text-main);
-            transition: color 0.8s ease;
         }
 
         /* --- TOMBOL --- */
         .btn-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .btn {
             flex: 1;
-            min-width: 120px;
-            padding: 15px;
+            min-width: 130px;
+            padding: 13px;
             border-radius: 12px;
             border: none;
             font-weight: 800;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s ease, background 0.8s ease, color 0.8s ease;
+            font-size: 13px;
+            transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             display: block; 
             box-sizing: border-box;
         }
 
-        .btn:active { transform: scale(0.95); }
+        .btn:active { transform: scale(0.96); }
 
         .btn-primary { 
             background: var(--btn-primary-bg); 
             color: var(--btn-primary-text); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .btn-primary:hover { 
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-        }
-        
-        .btn-secondary { 
-            background: var(--btn-secondary-bg); 
-            color: var(--text-main); 
-            border: 1px solid var(--btn-secondary-border); 
-        }
-        .btn-secondary:hover { 
-            background: var(--btn-secondary-border); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
-        .btn-tele { 
-            background: linear-gradient(135deg, #2AABEE, #1a87bf); 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(42, 171, 238, 0.3);
-            border: 1px solid rgba(42, 171, 238, 0.5);
+        .btn-secondary-option {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
-        .btn-tele:hover { 
-            box-shadow: 0 6px 25px rgba(42, 171, 238, 0.6);
-            background: linear-gradient(135deg, #3bb5f2, #229ED9);
-        }
-
-        .btn-admin {
-            background: rgba(0, 201, 147, 0.1); 
-            color: #00C993; 
-            border: 1px solid #00C993;
-        }
-        .btn-admin:hover {
-            background: rgba(0, 201, 147, 0.2); 
-            box-shadow: 0 0 15px rgba(0, 201, 147, 0.4);
+        .btn-secondary-option:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
-        /* --- FOOTER ANIMASI HILANG MUNCUL --- */
+        /* --- FOOTER --- */
         .footer {
-            margin-top: 60px;
+            margin-top: 50px;
             padding-bottom: 30px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -359,7 +408,7 @@
 
         @keyframes glowingWave {
             0%, 100% {
-                opacity: 0.3;
+                opacity: 0.4;
                 text-shadow: 0 0 5px rgba(255, 255, 255, 0);
             }
             50% {
@@ -381,281 +430,317 @@
         <div class="header-title">Convenant VIP</div>
         <div class="header-motto">"Money for Value, grup bisa keban tapi jarang sekitar 1-2 tahun sekali! Privasi terjaga kualitas atas"</div>
 
-        <!-- TAB SWAPPER -->
-        <div class="tab-container">
-            <button class="tab-btn active" id="btn-store" onclick="switchTab(0)">Convenant Store</button>
-            <button class="tab-btn" id="btn-mall" onclick="switchTab(1)">Convenant Mall</button>
+        <!-- RECTANGULAR HEADER ACTION PILL BUTTONS -->
+        <div class="header-nav-pills">
+            <a href="./login/" class="nav-pill pill-login">🔐 Login PM</a>
+            <a href="https://t.me/+xcx7bcofVfplM2I1" target="_blank" class="nav-pill pill-testi">⭐ Testimoni</a>
+            <a href="https://t.me/chokoretoangelina" target="_blank" class="nav-pill pill-admin">💬 Hubungi Admin</a>
         </div>
 
-        <div class="swipe-hint">👈 Geser / Swipe untuk ganti menu 👉</div>
-
-        <!-- ================= CAROUSEL SWIPE AREA ================= -->
-        <div class="carousel-outer" id="carouselOuter">
-            <div class="carousel-track" id="carouselTrack">
-                
-                <!-- ================= SLIDE 1: CONVENANT STORE ================= -->
-                <div class="view-slide" id="view-store">
+        <!-- ================= MAIN SINGLE-COLUMN CATALOG LIST ================= -->
+        <div class="card-list">
                     
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/take-all-in.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/take-all-in.jpg" alt="Take All In">
-                        </div>
-                        <div class="tier-title">Convenant Take All in #VVIP</div>
-                        <div class="tier-desc">
-                            [gratis pm 5 member bebas pilih] Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! Selain paket take all in NO GARANSI).
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20In%20VVIP%20(210k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 210.000</a>
-                        </div>
-                    </div>
+            <!-- 1. TAKE ALL IN (Rp 250.000 / Rp 215.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/take-all-in.jpg">
+                    <img class="img-bg" src="assets/take-all-in.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/take-all-in.jpg" alt="Take All In">
+                </div>
+                <div class="tier-title">Convenant Take All in #VVIP</div>
+                <div class="tier-desc">
+                    [gratis pm 5 member bebas pilih] Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! Selain paket take all in NO GARANSI).<br><br>
+                    <strong>Pilihan Bundle:</strong><br>
+                    • <strong>Bundle 3 Grup:</strong> VIP, Premium, Standart + Bonus Next Gen AI (<strong>Rp 215.000</strong>)<br>
+                    • <strong>Bundle All Grup:</strong> Semua Convenant kecuali Inter (<strong>Rp 250.000</strong>)
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%203%20Grup%20VVIP%20(215k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option" target="_blank">Bundle 3 Grup - Rp 215.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%20All%20Grup%20Convenant%20(250k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Bundle All Grup - Rp 250.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/vip.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/vip.jpg" alt="VIP Tier">
-                        </div>
-                        <div class="tier-title">Convenant VIP Tier (include next gen ai grup)</div>
-                        <div class="tier-desc">
-                            [gratis pm 3 member bebas milih] VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 197.592 foto, 62.698 video</strong> (include cersex order atau req 2x free) (include next gen ai grup).
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20(160k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 160.000</a>
-                        </div>
-                    </div>
+            <!-- 2. VIP TIER (Rp 170.000 / Rp 150.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/vip.jpg">
+                    <img class="img-bg" src="assets/vip.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/vip.jpg" alt="VIP Tier">
+                </div>
+                <div class="tier-title">Convenant VIP Tier</div>
+                <div class="tier-desc">
+                    [gratis pm 3 member bebas milih] VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 197.592 foto, 62.698 video</strong> (include cersex order atau req 2x free).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Tanpa%20Next%20Gen%20(150k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option" target="_blank">Tanpa Next Gen - Rp 150.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Include%20Next%20Gen%20(170k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Include Next Gen - Rp 170.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/premium.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/premium.jpg" alt="Premium Tier">
-                        </div>
-                        <div class="tier-title">Convenant Premium Tier (include next gen ai grup)</div>
-                        <div class="tier-desc">
-                            [gratis pm 1 member bebas milih] Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap gen 1, 6, 7, 8 ,9 ,10 ,11 ,12. <strong>Media: 32.526 foto, 5.043 video</strong> (include cersex) (include next gen ai grup).
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20(40k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 40.000</a>
-                        </div>
-                    </div>
+            <!-- 3. PREMIUM TIER (Rp 50.000 / Rp 35.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/premium.jpg">
+                    <img class="img-bg" src="assets/premium.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/premium.jpg" alt="Premium Tier">
+                </div>
+                <div class="tier-title">Convenant Premium Tier</div>
+                <div class="tier-desc">
+                    [gratis pm 1 member bebas milih] Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap gen 1, 6, 7, 8 ,9 ,10 ,11 ,12. <strong>Media: 32.526 foto, 5.043 video</strong> (include cersex).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Tanpa%20Next%20Gen%20(35k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option" target="_blank">Tanpa Next Gen - Rp 35.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Include%20Next%20Gen%20(50k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Include Next Gen - Rp 50.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/standart.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/standart.jpg" alt="Standart Tier">
-                        </div>
-                        <div class="tier-title">Convenant Standart Tier</div>
-                        <div class="tier-desc">
-                            [gratis pm 1 member gacha(acak)] Standart: free saver, sudah ada beberapa topik gen 7 sampai 12. <strong>Media: 19.772 foto, 5.895 video</strong> (sudah include Cersex).
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Standart%20(15k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 15.000</a>
-                        </div>
-                    </div>
+            <!-- 4. NEXT GEN AI (Rp 30.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/nextgen.jpg" data-fallback="assets/free.jpg">
+                    <img class="img-bg" src="assets/nextgen.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                    <img class="img-front" src="assets/nextgen.jpg" alt="Next Gen AI" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                </div>
+                <div class="tier-title">Next Gen AI</div>
+                <div class="tier-desc">
+                    Isi media total sekitar 18rb media full video dan update (new version ai).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Grup%20Next%20Gen%20AI%20(30k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 30.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview" style="position: relative;">
-                            <img class="img-bg" src="assets/free.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/free.jpg" alt="Next Gen AI">
-                            <div style="position: absolute; z-index: 3; color: #ffffff; font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0,0,0,0.8), 0 0 20px rgba(42, 171, 238, 0.8); background: rgba(0, 0, 0, 0.55); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);">(Coming Soon)</div>
-                        </div>
-                        <div class="tier-title">Next Gen AI</div>
-                        <div class="tier-desc">
-                            Isi media total sekitar 5000an (new version ai).
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20Pre%20Order%20Grup%20Next%20Gen%20AI%20(20k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 20.000 (pre order)</a>
-                        </div>
-                    </div>
+            <!-- 5. STANDART TIER (Rp 17.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/standart.jpg">
+                    <img class="img-bg" src="assets/standart.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/standart.jpg" alt="Standart Tier">
+                </div>
+                <div class="tier-title">Convenant Standart Tier</div>
+                <div class="tier-desc">
+                    [gratis pm 1 member gacha(acak)] Standart: free saver, sudah ada beberapa topik gen 7 sampai 12. <strong>Media: 19.772 foto, 5.895 video</strong> (sudah include Cersex).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Standart%20(17k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 17.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/free.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/free.jpg" alt="Free Tier">
-                        </div>
-                        <div class="tier-title">Convenant Free Tier (JKT48)</div>
-                        <div class="tier-desc">
-                            Grup Deliberasi JKT48 (<strong>2.426 anggota</strong>). Grup Keban 2-3 hari, No garansi, Gabisa di save, No rush (tunggu grup di buat lagi kalo keban).
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/+Z1fvS2ymaIY1MjE1" class="btn btn-primary" target="_blank">Join</a>
-                        </div>
-                    </div>
+            <!-- 6. MIDPAY TIER (Rp 12.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/midpay.jpg" data-fallback="assets/inter-premium.jpg">
+                    <img class="img-bg" src="assets/midpay.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/inter-premium.jpg';">
+                    <img class="img-front" src="assets/midpay.jpg" alt="Midpay Tier" onerror="this.onerror=null; this.src='assets/inter-premium.jpg';">
+                </div>
+                <div class="tier-title">Convenant Midpay Tier</div>
+                <div class="tier-desc">
+                    Midpay tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap. random gak di sortir total media sekitar 13k foto video.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Midpay%20Tier%20(12k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 12.000</a>
+                </div>
+            </div>
 
-                    <div class="section-divider">Katalog Inter Grup (No Luar)</div>
+            <!-- 7. EUREKA TIER (Rp 10.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/eureka.jpg" data-fallback="assets/premium.jpg">
+                    <img class="img-bg" src="assets/eureka.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/premium.jpg';">
+                    <img class="img-front" src="assets/eureka.jpg" alt="Eureka Tier" onerror="this.onerror=null; this.src='assets/premium.jpg';">
+                </div>
+                <div class="tier-title">Convenant Eureka</div>
+                <div class="tier-desc">
+                    ba export, seleb, dll media 3k+
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Eureka%20(10k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 10.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/inter-take-all.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/inter-take-all.jpg" alt="Inter Take All">
-                        </div>
-                        <div class="tier-title">Take All Inter</div>
-                        <div class="tier-desc">
-                            Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! (Bekas grup chat bebas).
-                        </div>
-                        <div class="btn-group">
-                            <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20Inter%20(60k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 60.000</a>
-                        </div>
-                    </div>
+            <!-- 8. START TIER (Rp 7.000) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/start.jpg" data-fallback="assets/standart.jpg">
+                    <img class="img-bg" src="assets/start.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/standart.jpg';">
+                    <img class="img-front" src="assets/start.jpg" alt="Start Tier" onerror="this.onerror=null; this.src='assets/standart.jpg';">
+                </div>
+                <div class="tier-title">Convenant Start Tier</div>
+                <div class="tier-desc">
+                    Start tier: 10.000 media (persis sama inter start), no update no bonus pm.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Start%20Tier%20(7k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 7.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/inter-vip.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/inter-vip.jpg" alt="Inter VIP">
-                        </div>
-                        <div class="tier-title">Inter VIP</div>
-                        <div class="tier-desc">
-                            VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 95.441 foto, 17.862 video</strong> (include cersex order atau req 2x free). Bekas grup chat bebas.
-                        </div>
-                        <div class="btn-group">
-                            <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20VIP%20(50k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 50.000</a>
-                        </div>
-                    </div>
+            <!-- 9. SALKUS GRUP (JKT48) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/salkus.jpg" data-fallback="assets/free.jpg">
+                    <img class="img-bg" src="assets/salkus.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                    <img class="img-front" src="assets/salkus.jpg" alt="Salkus Grup" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                </div>
+                <div class="tier-title">Convenant Salkus Grup (JKT48)</div>
+                <div class="tier-desc">
+                    Grup Deliberasi JKT48 (<strong>2.426 anggota</strong>). Grup Keban 2-3 hari, No garansi, Gabisa di save, No rush (tunggu grup di buat lagi kalo keban).
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/+Z1fvS2ymaIY1MjE1" class="btn btn-primary" target="_blank">Join</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/inter-premium.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/inter-premium.jpg" alt="Inter Premium">
-                        </div>
-                        <div class="tier-title">Inter Premium</div>
-                        <div class="tier-desc">
-                            Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap. <strong>Media: 24.824 foto, 5.416 video</strong>. Bekas grup chat bebas.
-                        </div>
-                        <div class="btn-group">
-                            <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Premium%20(15k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 15.000</a>
-                        </div>
-                    </div>
+            <!-- 10. PUBLIC GRUP (INFO) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/public.jpg" data-fallback="assets/free.jpg">
+                    <img class="img-bg" src="assets/public.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                    <img class="img-front" src="assets/public.jpg" alt="Public Grup Info" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                </div>
+                <div class="tier-title">Public Grup (Info)</div>
+                <div class="tier-desc">
+                    Grup publik official info & update seputar JKT48 dan Convenant.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/aijkt48share" class="btn btn-primary" target="_blank">Join</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/inter-start.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/inter-start.jpg" alt="Inter Start">
-                        </div>
-                        <div class="tier-title">Inter Start</div>
-                        <div class="tier-desc">
-                            Standart tier, free saver, sudah ada beberapa topik. <strong>Media: 8.259 foto, 2.477 video</strong> (sudah include Cersex). Bekas grup chat bebas.
-                        </div>
-                        <div class="btn-group">
-                            <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Start%20(5k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 5.000</a>
-                        </div>
-                    </div>
+            <!-- 11. CONVENANT HUB FREE TIER -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/hub.jpg" data-fallback="assets/free.jpg">
+                    <img class="img-bg" src="assets/hub.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                    <img class="img-front" src="assets/hub.jpg" alt="Convenant Hub Free Tier" onerror="this.onerror=null; this.src='assets/free.jpg';">
+                </div>
+                <div class="tier-title">Convenant Hub Free Tier</div>
+                <div class="tier-desc">
+                    Hub komunitas utama free tier Convenant VIP untuk diskusi & info terkini.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/+_smha9Eiju4xNTY1" class="btn btn-primary" target="_blank">Join</a>
+                </div>
+            </div>
 
-                    <!-- MENU TESTIMONI (STORE) -->
-                    <div class="card" style="border-color: rgba(42, 171, 238, 0.4); margin-top: 30px;">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/testi.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/testi.jpg" alt="Testimoni">
-                        </div>
-                        <div class="tier-title">Testimoni</div>
-                        <div class="tier-desc">
-                            Cek testimoni for trust. Kumpulan bukti transaksi dan kepuasan pelanggan Convenant VIP.
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/+xcx7bcofVfplM2I1" class="btn btn-tele" target="_blank">Cek Testimoni</a>
-                        </div>
-                    </div>
+            <!-- KATALOG INTER GRUP -->
+            <div class="section-divider">Katalog Inter Grup (No Luar)</div>
 
-                    <!-- MENU BANTUAN ADMIN (STORE) -->
-                    <div class="card" style="border-color: var(--admin-card-border); text-align: center;">
-                        <div class="tier-title" style="margin-bottom: 12px;">Bantuan Admin</div>
-                        <div class="tier-desc" style="text-align: center; margin-bottom: 20px;">
-                            Hubungi admin untuk bantuan payment, info, atau bertanya.
-                        </div>
-                        <div class="btn-group" style="justify-content: center;">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20Admin,%20gw%20butuh%20bantuan%20atau%20mau%20tanya-tanya%20nih." class="btn btn-admin" target="_blank">Hubungi Admin</a>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="img-preview" data-base="assets/inter-take-all.jpg">
+                    <img class="img-bg" src="assets/inter-take-all.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-take-all.jpg" alt="Inter Take All">
+                </div>
+                <div class="tier-title">Take All Inter</div>
+                <div class="tier-desc">
+                    Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! (Bekas grup chat bebas).
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20Inter%20(60k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 60.000</a>
+                </div>
+            </div>
 
-                    </div> <!-- END OF SLIDE 1 -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/inter-vip.jpg">
+                    <img class="img-bg" src="assets/inter-vip.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-vip.jpg" alt="Inter VIP">
+                </div>
+                <div class="tier-title">Inter VIP</div>
+                <div class="tier-desc">
+                    VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 95.441 foto, 17.862 video</strong> (include cersex order atau req 2x free). Bekas grup chat bebas.
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20VIP%20(50k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 50.000</a>
+                </div>
+            </div>
 
-                <!-- ================= SLIDE 2: CONVENANT MALL ================= -->
-                <div class="view-slide" id="view-mall">
-                    
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/pm.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/pm.jpg" alt="PM All Member">
-                        </div>
-                        <div class="tier-title">PM All Member</div>
-                        <div class="tier-desc">
-                            Req member, pm udh ada semua member bisa milih. Berlangganan pesan eksklusif member JKT48 selama 1 bulan.
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20pm%20member." class="btn btn-primary" target="_blank">Rp 7.000 / Bulan</a>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="img-preview" data-base="assets/inter-premium.jpg">
+                    <img class="img-bg" src="assets/inter-premium.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-premium.jpg" alt="Inter Premium">
+                </div>
+                <div class="tier-title">Inter Premium</div>
+                <div class="tier-desc">
+                    Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap. <strong>Media: 24.824 foto, 5.416 video</strong>. Bekas grup chat bebas.
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Premium%20(15k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 15.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/exc.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/exc.jpg" alt="Exc Member">
-                        </div>
-                        <div class="tier-title">Exc Member</div>
-                        <div class="tier-desc">
-                            Bisa tanya list di tele ya udh exc member. Akses eksklusif konten member terpilih selama 1 bulan.
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20beli%20exc%20member." class="btn btn-primary" target="_blank">Rp 12.000 / Bulan</a>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="img-preview" data-base="assets/inter-start.jpg">
+                    <img class="img-bg" src="assets/inter-start.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/inter-start.jpg" alt="Inter Start">
+                </div>
+                <div class="tier-title">Inter Start</div>
+                <div class="tier-desc">
+                    Standart tier, free saver, sudah ada beberapa topik. <strong>Media: 8.259 foto, 2.477 video</strong> (sudah include Cersex). Bekas grup chat bebas.
+                </div>
+                <div class="btn-group">
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Start%20(5k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 5.000</a>
+                </div>
+            </div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/telegram.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/telegram.jpg" alt="Telegram Need">
-                        </div>
-                        <div class="tier-title">Premium Need</div>
-                        <div class="tier-desc">
-                            Perlu apk premium atau telegram need? Here. Sedia berbagai kebutuhan aplikasi premium.
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20APK%20Premium%20/%20Telegram%20Need." class="btn btn-primary" target="_blank">Order via Telegram</a>
-                        </div>
-                    </div>
+            <!-- CONVENANT MALL SECTION AT THE VERY BOTTOM -->
+            <div class="section-divider">Convenant Mall & Layanan Tambahan</div>
 
-                    <div class="card">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/show.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/show.jpg" alt="Live Show JKT48">
-                        </div>
-                        <div class="tier-title">Live Show JKT48</div>
-                        <div class="tier-desc">
-                            Pre order wajib pas pre order sblm show. Dapatkan akses live show teater JKT48.
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Live%20Show%20JKT48." class="btn btn-primary" target="_blank">Rp 10.000 / Show</a>
-                        </div>
-                    </div>
+            <!-- PM MEMBER JKT48 (UPDATED PRICING & CUSTOM CALCULATOR) -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/pm.jpg">
+                    <img class="img-bg" src="assets/pm.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/pm.jpg" alt="PM All Member">
+                </div>
+                <div class="tier-title">PM Member JKT48</div>
+                <div class="tier-desc">
+                    Berlangganan pesan eksklusif member JKT48 selama 1 bulan. Bebas pilih member mana saja yang kamu mau!<br><br>
+                    <strong>Daftar Paket Member:</strong><br>
+                    • 1 Member: <strong>Rp 3.000</strong> / Bulan<br>
+                    • 2 Member: <strong>Rp 5.000</strong> / Bulan<br>
+                    • 3 Member: <strong>Rp 8.000</strong> / Bulan<br>
+                    • 4 Member: <strong>Rp 11.000</strong> / Bulan<br>
+                    • 5 Member: <strong>Rp 13.000</strong> / Bulan<br>
+                    • 6 Member: <strong>Rp 15.000</strong> / Bulan<br>
+                    • 🏆 <strong>All In (62 Member): Rp 40.000 / Bulan</strong>
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%201%20PM%20member%20(3k)." class="btn btn-secondary-option" target="_blank">1 Member (3k)</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Take%20All%20PM%20Member%2062%20Member%20(40k)." class="btn btn-primary" target="_blank">All In 62 Member (40k)</a>
+                    <button onclick="showPmCustomModal()" class="btn" style="background: linear-gradient(135deg, rgba(0, 201, 147, 0.45), rgba(42, 171, 238, 0.4)); border: 1px solid rgba(0, 201, 147, 0.7); color: #fff; flex: 100%; margin-top: 6px; font-weight: 800;">🧮 Custom Pilih Jumlah Member</button>
+                </div>
+            </div>
 
-                    <!-- MENU TESTIMONI (MALL) -->
-                    <div class="card" style="border-color: rgba(42, 171, 238, 0.4); margin-top: 30px;">
-                        <div class="img-preview">
-                            <img class="img-bg" src="assets/testi.jpg" alt="Blur BG">
-                            <img class="img-front" src="assets/testi.jpg" alt="Testimoni">
-                        </div>
-                        <div class="tier-title">Testimoni</div>
-                        <div class="tier-desc">
-                            Cek testimoni for trust. Kumpulan bukti transaksi dan kepuasan pelanggan Convenant.
-                        </div>
-                        <div class="btn-group">
-                            <a href="https://t.me/+xcx7bcofVfplM2I1" class="btn btn-tele" target="_blank">Cek Testimoni</a>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="img-preview" data-base="assets/exc.jpg">
+                    <img class="img-bg" src="assets/exc.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/exc.jpg" alt="Exc Member">
+                </div>
+                <div class="tier-title">Exc Member</div>
+                <div class="tier-desc">
+                    Bisa tanya list di tele ya udh exc member. Akses eksklusif konten member terpilih selama 1 bulan.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20beli%20exc%20member." class="btn btn-primary" target="_blank">Rp 12.000 / Bulan</a>
+                </div>
+            </div>
 
-                    <!-- MENU BANTUAN ADMIN (MALL) -->
-                    <div class="card" style="border-color: var(--admin-card-border); text-align: center;">
-                        <div class="tier-title" style="margin-bottom: 12px;">Bantuan Admin</div>
-                        <div class="tier-desc" style="text-align: center; margin-bottom: 20px;">
-                            Hubungi admin untuk bantuan payment, info, atau bertanya.
-                        </div>
-                        <div class="btn-group" style="justify-content: center;">
-                            <a href="https://t.me/chokoretoangelina?text=Halo%20Admin,%20gw%20butuh%20bantuan%20atau%20mau%20tanya-tanya%20nih." class="btn btn-admin" target="_blank">Hubungi Admin</a>
-                        </div>
-                    </div>
+            <div class="card">
+                <div class="img-preview" data-base="assets/telegram.jpg">
+                    <img class="img-bg" src="assets/telegram.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/telegram.jpg" alt="Telegram Need">
+                </div>
+                <div class="tier-title">Premium Need</div>
+                <div class="tier-desc">
+                    Perlu apk premium atau telegram need? Here. Sedia berbagai kebutuhan aplikasi premium.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20APK%20Premium%20/%20Telegram%20Need." class="btn btn-primary" target="_blank">Order via Telegram</a>
+                </div>
+            </div>
 
-                </div> <!-- END OF SLIDE 2 -->
+            <div class="card">
+                <div class="img-preview" data-base="assets/show.jpg">
+                    <img class="img-bg" src="assets/show.jpg" alt="Blur BG">
+                    <img class="img-front" src="assets/show.jpg" alt="Live Show JKT48">
+                </div>
+                <div class="tier-title">Live Show JKT48</div>
+                <div class="tier-desc">
+                    Pre order wajib pas pre order sblm show. Dapatkan akses live show teater full 1 bulan dari JKT48.
+                </div>
+                <div class="btn-group">
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Live%20Show%20JKT48." class="btn btn-primary" target="_blank">Rp 30.000 / Bulan</a>
+                </div>
+            </div>
 
-            </div> <!-- END OF CAROUSEL TRACK -->
-        </div> <!-- END OF CAROUSEL OUTER -->
+        </div> <!-- END OF CARD LIST -->
 
         <!-- FOOTER -->
         <div class="footer">
@@ -663,34 +748,8 @@
         </div>
     </div>
 
-    <!-- SCRIPT JAVASCRIPT: TRANSISI WARNA HALUS & GESTURE SWIPE -->
+    <!-- SCRIPT JAVASCRIPT: REFERRAL SYSTEM, PM CUSTOM CALCULATOR & MAGHRIB CELESTIAL CANVAS -->
     <script>
-        let currentTab = 0; // 0: Store, 1: Mall
-        const track = document.getElementById('carouselTrack');
-        const btnStore = document.getElementById('btn-store');
-        const btnMall = document.getElementById('btn-mall');
-
-        // Target Warna Canvas Interpolation
-        let currentThemeProgress = 0; // 0 = Gelap murni, 1 = Terang murni
-        let targetThemeProgress = 0;
-
-        function switchTab(index) {
-            currentTab = index;
-            if (currentTab === 0) {
-                track.style.transform = 'translateX(0%)';
-                btnStore.classList.add('active');
-                btnMall.classList.remove('active');
-                document.body.classList.remove('light-theme');
-                targetThemeProgress = 0; // Transisi ke gelap
-            } else {
-                track.style.transform = 'translateX(-50%)';
-                btnMall.classList.add('active');
-                btnStore.classList.remove('active');
-                document.body.classList.add('light-theme');
-                targetThemeProgress = 1; // Transisi ke terang
-            }
-        }
-
         // ================= REFERRAL / AFFILIATE TRACKING SYSTEM =================
         const VALID_REF_MAP = {
             '4TEX': '4tex',
@@ -731,15 +790,25 @@
                 let currentUrl = link.getAttribute('href');
                 if (currentUrl && !currentUrl.includes('%5BRef:')) {
                     const separator = currentUrl.includes('text=') ? '%20' : (currentUrl.includes('?') ? '&text=' : '?text=');
-                    link.setAttribute('href', currentUrl + separator + `%5BRef:%20${currentRefCode}%5D`);
+                    currentUrl = currentUrl + separator + `%5BRef:%20${currentRefCode}%5D`;
+                    link.setAttribute('href', currentUrl);
                 }
+                
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    showChatSelectionModal(link.getAttribute('href'), false);
+                };
             });
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', applyRefToLinks);
+            document.addEventListener('DOMContentLoaded', () => {
+                applyRefToLinks();
+                initCardCarousels();
+            });
         } else {
             applyRefToLinks();
+            initCardCarousels();
         }
 
         function confirmInter(url) {
@@ -748,158 +817,544 @@
                 const separator = finalUrl.includes('text=') ? '%20' : (finalUrl.includes('?') ? '&text=' : '?text=');
                 finalUrl += separator + `%5BRef:%20${currentRefCode}%5D`;
             }
-            const isConfirmed = confirm("Pastikan nomor telegram anda adalah international (+1) atau lainnya untuk membuka grup.");
-            if (isConfirmed) {
-                window.open(finalUrl, '_blank');
-            }
+            showChatSelectionModal(finalUrl, true);
         }
 
-        // ================= GESTURE SWIPE / DRAG (HP & PC) =================
-        const carousel = document.getElementById('carouselOuter');
-        let startX = 0;
-        let startY = 0;
-        let isDragging = false;
+        // ================= CARD PREVIEW AUTO MULTI-SLIDE CAROUSEL SYSTEM =================
+        function initCardCarousels() {
+            document.querySelectorAll('.img-preview').forEach(preview => {
+                const baseSrc = preview.getAttribute('data-base') || preview.querySelector('.img-front')?.getAttribute('src');
+                if (!baseSrc) return;
 
-        // Touch Events (HP)
-        carousel.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        }, { passive: true });
+                const fallbackSrc = preview.getAttribute('data-fallback') || baseSrc;
+                const extMatch = baseSrc.match(/\.(jpg|jpeg|png|webp)$/i);
+                const ext = extMatch ? extMatch[0] : '.jpg';
+                const baseWithoutExt = baseSrc.substring(0, baseSrc.length - ext.length);
 
-        carousel.addEventListener('touchend', (e) => {
-            const endX = e.changedTouches[0].clientX;
-            const endY = e.changedTouches[0].clientY;
-            handleGesture(startX, startY, endX, endY);
-        }, { passive: true });
+                const slideCandidates = [
+                    baseSrc,
+                    baseWithoutExt + '2' + ext,
+                    baseWithoutExt + '3' + ext
+                ];
 
-        // Mouse Drag Events (Laptop / PC)
-        carousel.addEventListener('mousedown', (e) => {
-            startX = e.clientX;
-            startY = e.clientY;
-            isDragging = true;
-        });
+                preview.innerHTML = '';
 
-        window.addEventListener('mouseup', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            const endX = e.clientX;
-            const endY = e.clientY;
-            handleGesture(startX, startY, endX, endY);
-        });
+                const sliderTrack = document.createElement('div');
+                sliderTrack.className = 'slider-track';
+                preview.appendChild(sliderTrack);
 
-        function handleGesture(sX, sY, eX, eY) {
-            const diffX = eX - sX;
-            const diffY = eY - sY;
+                const dotsContainer = document.createElement('div');
+                dotsContainer.className = 'slider-dots';
+                dotsContainer.style.display = 'none';
+                preview.appendChild(dotsContainer);
 
-            // Jika swipe horizontal lebih dominan daripada vertical scroll
-            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
-                if (diffX < 0 && currentTab === 0) {
-                    // Geser ke Kiri -> Masuk ke Mall
-                    switchTab(1);
-                } else if (diffX > 0 && currentTab === 1) {
-                    // Geser ke Kanan -> Balik ke Store
-                    switchTab(0);
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'slider-arrow prev';
+                prevBtn.innerHTML = '‹';
+                prevBtn.style.display = 'none';
+                preview.appendChild(prevBtn);
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'slider-arrow next';
+                nextBtn.innerHTML = '›';
+                nextBtn.style.display = 'none';
+                preview.appendChild(nextBtn);
+
+                let validSlides = [];
+                let currentIndex = 0;
+                let autoSlideTimer = null;
+
+                slideCandidates.forEach((url, idx) => {
+                    const slideItem = document.createElement('div');
+                    slideItem.className = 'slide-item';
+                    
+                    const bgImg = document.createElement('img');
+                    bgImg.className = 'img-bg';
+                    bgImg.src = url;
+                    bgImg.alt = 'Blur BG';
+
+                    const frontImg = document.createElement('img');
+                    frontImg.className = 'img-front';
+                    frontImg.src = url;
+                    frontImg.alt = 'Preview ' + (idx + 1);
+
+                    function removeSlide() {
+                        if (slideItem.parentNode === sliderTrack) {
+                            sliderTrack.removeChild(slideItem);
+                        }
+                        validSlides = validSlides.filter(s => s !== slideItem);
+                        updateControls();
+                    }
+
+                    frontImg.onerror = function() {
+                        if (idx === 0 && fallbackSrc !== baseSrc) {
+                            this.onerror = function() { removeSlide(); };
+                            this.src = fallbackSrc;
+                            bgImg.src = fallbackSrc;
+                        } else {
+                            removeSlide();
+                        }
+                    };
+
+                    slideItem.appendChild(bgImg);
+                    slideItem.appendChild(frontImg);
+                    sliderTrack.appendChild(slideItem);
+                    validSlides.push(slideItem);
+                });
+
+                function updateControls() {
+                    dotsContainer.innerHTML = '';
+                    if (validSlides.length <= 1) {
+                        dotsContainer.style.display = 'none';
+                        prevBtn.style.display = 'none';
+                        nextBtn.style.display = 'none';
+                        if (autoSlideTimer) clearInterval(autoSlideTimer);
+                        return;
+                    }
+
+                    dotsContainer.style.display = 'flex';
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
+
+                    validSlides.forEach((_, i) => {
+                        const dot = document.createElement('span');
+                        dot.className = 'dot' + (i === currentIndex ? ' active' : '');
+                        dot.onclick = (e) => {
+                            e.stopPropagation();
+                            goToSlide(i);
+                        };
+                        dotsContainer.appendChild(dot);
+                    });
                 }
+
+                function goToSlide(index) {
+                    if (validSlides.length === 0) return;
+                    currentIndex = (index + validSlides.length) % validSlides.length;
+                    sliderTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    
+                    const dots = dotsContainer.querySelectorAll('.dot');
+                    dots.forEach((d, i) => {
+                        d.classList.toggle('active', i === currentIndex);
+                    });
+                }
+
+                function startAutoSlide() {
+                    if (autoSlideTimer) clearInterval(autoSlideTimer);
+                    autoSlideTimer = setInterval(() => {
+                        if (validSlides.length > 1) {
+                            goToSlide(currentIndex + 1);
+                        }
+                    }, 2500);
+                }
+
+                prevBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    goToSlide(currentIndex - 1);
+                    startAutoSlide();
+                };
+
+                nextBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    goToSlide(currentIndex + 1);
+                    startAutoSlide();
+                };
+
+                let startX = 0;
+                preview.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                }, { passive: true });
+
+                preview.addEventListener('touchend', (e) => {
+                    const endX = e.changedTouches[0].clientX;
+                    const diffX = startX - endX;
+                    if (Math.abs(diffX) > 30) {
+                        if (diffX > 0) goToSlide(currentIndex + 1);
+                        else goToSlide(currentIndex - 1);
+                        startAutoSlide();
+                    }
+                }, { passive: true });
+
+                updateControls();
+                if (validSlides.length > 1) startAutoSlide();
+            });
+        }
+
+        // ================= CHAT SELECTION MODAL SYSTEM (TRANSPARENT GLASSMORPHISM) =================
+        function showChatSelectionModal(adminUrl, isInter = false) {
+            let overlay = document.getElementById('chat-modal-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'chat-modal-overlay';
+                overlay.style.cssText = `
+                    position: fixed; inset: 0; background: rgba(3, 7, 18, 0.68);
+                    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+                    z-index: 999999; display: flex; align-items: center; justify-content: center;
+                    padding: 20px; box-sizing: border-box;
+                `;
+                document.body.appendChild(overlay);
+            }
+
+            let rawText = "Halo Admin, gw butuh bantuan atau mau tanya-tanya nih.";
+            try {
+                const parsed = new URL(adminUrl);
+                rawText = parsed.searchParams.get("text") || rawText;
+            } catch(e) {}
+
+            const botUrl = `https://t.me/convenantstorebot?text=` + encodeURIComponent(`/start ${rawText}`);
+
+            overlay.innerHTML = `
+                <div style="background: rgba(18, 24, 38, 0.75); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border-radius: 24px; padding: 28px 24px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.75), 0 0 35px rgba(42, 171, 238, 0.15); color: #fff; box-sizing: border-box; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(42, 171, 238, 0.8), transparent);"></div>
+                    
+                    <div style="font-size: 38px; margin-bottom: 8px;">💬</div>
+                    <h3 style="margin: 0 0 8px; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">Pilih Jalur Chat Admin</h3>
+                    <p style="margin: 0 0 22px; font-size: 13.5px; color: #a0aab5; line-height: 1.5;">
+                        Apakah kamu mau chat <strong>Admin Langsung</strong> (fast res) atau <strong>Bot Admin</strong> (jika akun kamu sedang limit/spambot)?
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px;">
+                        <button onclick="handleModalChoice('${encodeURIComponent(adminUrl)}', ${isInter})" style="padding: 14px; border-radius: 14px; border: 1px solid rgba(42, 171, 238, 0.6); background: linear-gradient(135deg, rgba(42, 171, 238, 0.85), rgba(26, 92, 255, 0.85)); color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(42,171,238,0.4); transition: all 0.3s ease;">
+                            👤 Admin Langsung (Fast Res)
+                        </button>
+                        <button onclick="handleModalChoice('${encodeURIComponent(botUrl)}', ${isInter})" style="padding: 14px; border-radius: 14px; border: 1px solid rgba(0, 201, 147, 0.6); background: rgba(0, 201, 147, 0.18); backdrop-filter: blur(10px); color: #00C993; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;">
+                            🤖 Bot Admin (Jika Limit Telegram)
+                        </button>
+                    </div>
+                    <button onclick="closeChatModal()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aab5; font-size: 13px; cursor: pointer; padding: 8px 18px; border-radius: 20px; font-weight: 700; transition: all 0.3s ease;">
+                        ✕ Batal
+                    </button>
+                </div>
+            `;
+            overlay.style.display = 'flex';
+        }
+
+        function closeChatModal() {
+            const overlay = document.getElementById('chat-modal-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function handleModalChoice(targetUrlEncoded, isInter) {
+            const targetUrl = decodeURIComponent(targetUrlEncoded);
+            closeChatModal();
+            if (isInter) {
+                const isConfirmed = confirm("Pastikan nomor telegram anda meupakan international (+1) atau lainnya untuk membuka grup.");
+                if (isConfirmed) {
+                    window.open(targetUrl, '_blank');
+                }
+            } else {
+                window.open(targetUrl, '_blank');
             }
         }
 
-        // ================= ANIMASI BINTANG DENGAN TRANSISI WARNA HALUS =================
+        // ================= PM MEMBER CUSTOM CALCULATOR MODAL (TRANSPARENT GLASSMORPHISM) =================
+        function calculatePmPrice(count) {
+            if (count <= 1) return 3000;
+            if (count === 2) return 5000;
+            if (count === 3) return 8000;
+            if (count === 4) return 11000;
+            if (count === 5) return 13000;
+            if (count === 6) return 15000;
+            if (count >= 62) return 40000;
+            const step = (40000 - 15000) / (62 - 6);
+            return Math.min(40000, Math.round(15000 + (count - 6) * step));
+        }
+
+        let currentPmCount = 1;
+
+        function showPmCustomModal() {
+            let overlay = document.getElementById('pm-custom-modal-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'pm-custom-modal-overlay';
+                overlay.style.cssText = `
+                    position: fixed; inset: 0; background: rgba(3, 7, 18, 0.68);
+                    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+                    z-index: 999999; display: flex; align-items: center; justify-content: center;
+                    padding: 20px; box-sizing: border-box;
+                `;
+                document.body.appendChild(overlay);
+            }
+            updatePmModalContent();
+            overlay.style.display = 'flex';
+        }
+
+        function closePmCustomModal() {
+            const overlay = document.getElementById('pm-custom-modal-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function setPmCount(val) {
+            currentPmCount = Math.min(62, Math.max(1, parseInt(val) || 1));
+            updatePmModalContent();
+        }
+
+        function updatePmModalContent() {
+            const overlay = document.getElementById('pm-custom-modal-overlay');
+            if (!overlay) return;
+            const price = calculatePmPrice(currentPmCount);
+            const formattedPrice = "Rp " + price.toLocaleString('id-ID');
+            const labelText = currentPmCount >= 62 ? "🏆 ALL IN ALL MEMBER (62 Member)" : `${currentPmCount} Member Bebas Pilih`;
+
+            overlay.innerHTML = `
+                <div style="background: rgba(18, 24, 38, 0.75); border: 1px solid rgba(0, 201, 147, 0.45); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border-radius: 24px; padding: 28px 24px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.75), 0 0 35px rgba(0, 201, 147, 0.15); color: #fff; box-sizing: border-box; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(0, 201, 147, 0.8), transparent);"></div>
+                    
+                    <div style="font-size: 38px; margin-bottom: 4px;">🧮</div>
+                    <h3 style="margin: 0 0 6px; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 0.5px;">Custom Pilih PM Member</h3>
+                    <p style="margin: 0 0 18px; font-size: 13px; color: #a0aab5; line-height: 1.5;">
+                        Pilih jumlah member JKT48 yang ingin kamu langgani selama 1 bulan.
+                    </p>
+                    
+                    <!-- QUANTITY DISPLAY & COUNTER -->
+                    <div style="background: rgba(10, 15, 25, 0.55); border: 1px solid rgba(255, 255, 255, 0.18); backdrop-filter: blur(12px); border-radius: 18px; padding: 18px; margin-bottom: 20px;">
+                        <div style="font-size: 14px; font-weight: 800; color: #2AABEE; margin-bottom: 10px;">${labelText}</div>
+                        
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;">
+                            <button onclick="setPmCount(${currentPmCount - 1})" style="width: 42px; height: 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); color: #fff; font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s ease;">-</button>
+                            <input type="number" min="1" max="62" value="${currentPmCount}" onchange="setPmCount(this.value)" style="width: 70px; height: 42px; text-align: center; font-size: 20px; font-weight: 900; background: rgba(0,0,0,0.45); border: 1px solid rgba(42,171,238,0.6); color: #fff; border-radius: 10px; outline: none;">
+                            <button onclick="setPmCount(${currentPmCount + 1})" style="width: 42px; height: 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); color: #fff; font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s ease;">+</button>
+                        </div>
+                        
+                        <input type="range" min="1" max="62" value="${currentPmCount}" oninput="setPmCount(this.value)" style="width: 100%; accent-color: #2AABEE; cursor: pointer; margin-bottom: 10px;">
+                        
+                        <div style="font-size: 26px; font-weight: 900; color: #00C993; text-shadow: 0 0 12px rgba(0,201,147,0.4);">${formattedPrice}</div>
+                    </div>
+
+                    <!-- PRESET BUTTONS -->
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
+                        <button onclick="setPmCount(1)" style="padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">1 Member (3k)</button>
+                        <button onclick="setPmCount(3)" style="padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">3 Member (8k)</button>
+                        <button onclick="setPmCount(6)" style="padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">6 Member (15k)</button>
+                        <button onclick="setPmCount(62)" style="padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(0,201,147,0.6); background: rgba(0,201,147,0.25); color: #00C993; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s ease;">🏆 All In (40k)</button>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button onclick="submitPmCustomOrder()" style="padding: 14px; border-radius: 14px; border: none; background: linear-gradient(135deg, #00C993, #00966b); color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,201,147,0.4); transition: all 0.3s ease;">
+                            🚀 Order Sekarang (${formattedPrice})
+                        </button>
+                        <button onclick="closePmCustomModal()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #a0aab5; font-size: 13px; cursor: pointer; padding: 8px 18px; border-radius: 20px; font-weight: 700; transition: all 0.3s ease;">
+                            ✕ Batal
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitPmCustomOrder() {
+            const price = calculatePmPrice(currentPmCount);
+            const formattedPrice = "Rp " + price.toLocaleString('id-ID');
+            const labelText = currentPmCount >= 62 ? "Take All Member 62 Member (40k)" : `${currentPmCount} Member (${formattedPrice})`;
+            const targetUrl = `https://t.me/chokoretoangelina?text=` + encodeURIComponent(`Halo bos, gw mau order PM Member JKT48 sebanyak ${labelText}. Minta instruksi bayarnya dong!`);
+            closePmCustomModal();
+            showChatSelectionModal(targetUrl, false);
+        }
+
+        // ================= MAGHRIB TWILIGHT CELESTIAL CANVAS =================
         const canvas = document.getElementById('star-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height, stars = [];
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        let scrollRatio = 0;
 
-        function resize() {
-            const dpr = window.devicePixelRatio || 1;
+        function resizeCanvas() {
             width = window.innerWidth;
             height = window.innerHeight;
-            canvas.width = width * dpr;
-            canvas.height = height * dpr;
-            ctx.scale(dpr, dpr);
+            canvas.width = width;
+            canvas.height = height;
         }
 
+        function getScrollRatio() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            const scrollHeight = Math.max(
+                document.body.scrollHeight, document.documentElement.scrollHeight,
+                document.body.offsetHeight, document.documentElement.offsetHeight
+            ) || 1;
+            const clientHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+            const maxScroll = Math.max(1, scrollHeight - clientHeight);
+            return Math.min(1.0, Math.max(0, scrollTop / maxScroll));
+        }
+
+        // Star Particles
         class Star {
-            constructor() {
-                this.reset();
-            }
+            constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.size = Math.random() * 1.8 + 0.2; 
-                this.speedY = (Math.random() * 0.4) + 0.1;
-                this.speedX = (Math.random() - 0.5) * 0.2;
-                this.opacity = Math.random();
-                this.fadeDir = Math.random() > 0.5 ? 1 : -1;
-                this.fadeSpeed = Math.random() * 0.015 + 0.005;
+                this.radius = Math.random() * 2.2 + 0.8;
+                this.speed = Math.random() * 0.015 + 0.005;
+                this.alpha = Math.random();
+                this.dir = Math.random() > 0.5 ? 1 : -1;
             }
             update() {
-                this.y -= this.speedY;
-                this.x -= this.speedX;
-                if (this.y < 0) {
-                    this.y = height;
-                    this.x = Math.random() * width;
-                }
-                this.opacity += this.fadeSpeed * this.fadeDir;
-                if (this.opacity >= 1) {
-                    this.opacity = 1;
-                    this.fadeDir = -1; 
-                } else if (this.opacity <= 0.1) {
-                    this.opacity = 0.1;
-                    this.fadeDir = 1; 
-                }
+                this.alpha += this.speed * this.dir;
+                if (this.alpha >= 1) { this.alpha = 1; this.dir = -1; }
+                else if (this.alpha <= 0.2) { this.alpha = 0.2; this.dir = 1; }
             }
-            draw(starColor) {
+            draw(fade) {
+                if (fade <= 0.01) return;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${starColor}, ${this.opacity})`;
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * fade})`;
                 ctx.fill();
             }
         }
 
-        function initStars() {
-            stars = [];
-            const numStars = window.innerWidth < 600 ? 500 : 1200; 
-            for (let i = 0; i < numStars; i++) {
-                stars.push(new Star());
+        // Dusk / Maghrib Cloud Silhouette Particles
+        class Cloud {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * (width + 400) - 200;
+                this.y = Math.random() * (height * 0.65);
+                this.radius = Math.random() * 95 + 60;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.opacity = Math.random() * 0.4 + 0.25;
+            }
+            update() {
+                this.x += this.speed;
+                if (this.x - this.radius > width) {
+                    this.x = -this.radius;
+                    this.y = Math.random() * (height * 0.65);
+                }
+            }
+            draw(fade, isMaghrib) {
+                if (fade <= 0.01) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                if (isMaghrib) {
+                    g.addColorStop(0, `rgba(70, 30, 45, ${this.opacity * fade * 0.8})`);
+                    g.addColorStop(0.65, `rgba(180, 70, 30, ${this.opacity * fade * 0.4})`);
+                    g.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                } else {
+                    g.addColorStop(0, `rgba(255, 255, 255, ${this.opacity * fade})`);
+                    g.addColorStop(0.7, `rgba(240, 248, 255, ${this.opacity * 0.5 * fade})`);
+                    g.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                }
+                ctx.fillStyle = g;
+                ctx.fill();
             }
         }
 
-        // Helper fungsi interpolasi warna (Lerp)
-        function lerp(start, end, amt) {
-            return (1 - amt) * start + amt * end;
+        let starList = [];
+        let cloudList = [];
+
+        function initParticles() {
+            starList = [];
+            cloudList = [];
+            for (let i = 0; i < 350; i++) starList.push(new Star());
+            for (let i = 0; i < 35; i++) cloudList.push(new Cloud());
         }
 
-        function animate() {
-            // Animasi transisi warna background & bintang (kecepatan transisi 0.05 per frame)
-            currentThemeProgress = lerp(currentThemeProgress, targetThemeProgress, 0.05);
+        function lerpColor(r1, g1, b1, r2, g2, b2, t) {
+            const r = Math.round(r1 + (r2 - r1) * t);
+            const g = Math.round(g1 + (g2 - g1) * t);
+            const b = Math.round(b1 + (b2 - b1) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
 
-            // Interpolasi warna background: Dari Dark (#05070d -> rgb(5, 7, 13)) ke Light (#f4f7fa -> rgb(244, 247, 250))
-            const bgR = Math.round(lerp(5, 244, currentThemeProgress));
-            const bgG = Math.round(lerp(7, 247, currentThemeProgress));
-            const bgB = Math.round(lerp(13, 250, currentThemeProgress));
+        function renderLoop() {
+            scrollRatio += (getScrollRatio() - scrollRatio) * 0.08;
 
-            ctx.fillStyle = `rgb(${bgR}, ${bgG}, ${bgB})`;
+            // 1. SKY COLOR GRADIENT INTERPOLATION (NIGHT -> MAGHRIB SUNSET -> SKY BLUE DAY)
+            let skyColor;
+            if (scrollRatio < 0.55) {
+                skyColor = lerpColor(5, 7, 13, 217, 59, 0, scrollRatio / 0.55);
+            } else {
+                skyColor = lerpColor(217, 59, 0, 2, 136, 209, (scrollRatio - 0.55) / 0.45);
+            }
+
+            ctx.fillStyle = skyColor;
             ctx.fillRect(0, 0, width, height);
 
-            // Interpolasi warna bintang: Dari Putih (255) ke Hitam (0)
-            const starRGBVal = Math.round(lerp(255, 0, currentThemeProgress));
-            const starColor = `${starRGBVal}, ${starRGBVal}, ${starRGBVal}`;
+            // Maghrib Horizon Glow Layer (During dusk transition 0.30 -> 0.75)
+            if (scrollRatio > 0.30 && scrollRatio < 0.75) {
+                const maghribAlpha = Math.sin((scrollRatio - 0.30) / 0.45 * Math.PI);
+                const horizGlow = ctx.createLinearGradient(0, height * 0.2, 0, height * 0.8);
+                horizGlow.addColorStop(0, `rgba(255, 90, 0, ${0.45 * maghribAlpha})`);
+                horizGlow.addColorStop(0.5, `rgba(180, 30, 60, ${0.3 * maghribAlpha})`);
+                horizGlow.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                ctx.fillStyle = horizGlow;
+                ctx.fillRect(0, 0, width, height);
+            }
 
-            stars.forEach(star => {
-                star.update();
-                star.draw(starColor);
-            });
+            // 2. CELESTIAL BODY POSITION (Header Area Above Cards)
+            const sunMoonX = width * 0.5;
+            const sunMoonY = 120 + scrollRatio * 40;
+            const bodyRadius = 60 + scrollRatio * 15;
 
-            requestAnimationFrame(animate);
+            // 3. DRAW FULL MOON (Night -> Sunset)
+            if (scrollRatio < 0.65) {
+                const moonFade = Math.max(0, 1.0 - (scrollRatio / 0.65));
+                if (moonFade > 0.01) {
+                    const moonGlow = ctx.createRadialGradient(sunMoonX, sunMoonY, 0, sunMoonX, sunMoonY, bodyRadius * 3.2);
+                    moonGlow.addColorStop(0, `rgba(220, 240, 255, ${0.6 * moonFade})`);
+                    moonGlow.addColorStop(1, `rgba(220, 240, 255, 0)`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius * 3.2, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGlow;
+                    ctx.fill();
+
+                    const moonGrad = ctx.createRadialGradient(sunMoonX - 15, sunMoonY - 15, 5, sunMoonX, sunMoonY, bodyRadius);
+                    moonGrad.addColorStop(0, `rgba(255, 255, 255, ${moonFade})`);
+                    moonGrad.addColorStop(0.7, `rgba(230, 240, 250, ${moonFade})`);
+                    moonGrad.addColorStop(1, `rgba(175, 195, 215, ${moonFade})`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGrad;
+                    ctx.fill();
+
+                    ctx.fillStyle = `rgba(150, 170, 190, ${0.4 * moonFade})`;
+                    ctx.beginPath(); ctx.arc(sunMoonX - 18, sunMoonY - 12, 12, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(sunMoonX + 16, sunMoonY + 16, 14, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(sunMoonX - 6, sunMoonY + 22, 10, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+
+            // 4. DRAW RISING SUN (Sunset -> Sky Blue Day)
+            if (scrollRatio > 0.45) {
+                const sunFade = Math.min(1.0, (scrollRatio - 0.45) / 0.55);
+                if (sunFade > 0.01) {
+                    const sunGlow = ctx.createRadialGradient(sunMoonX, sunMoonY, 0, sunMoonX, sunMoonY, bodyRadius * 3.8);
+                    sunGlow.addColorStop(0, `rgba(255, 240, 140, ${0.85 * sunFade})`);
+                    sunGlow.addColorStop(0.5, `rgba(255, 170, 40, ${0.5 * sunFade})`);
+                    sunGlow.addColorStop(1, `rgba(255, 120, 0, 0)`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius * 3.8, 0, Math.PI * 2);
+                    ctx.fillStyle = sunGlow;
+                    ctx.fill();
+
+                    const sunGrad = ctx.createRadialGradient(sunMoonX - 12, sunMoonY - 12, 2, sunMoonX, sunMoonY, bodyRadius);
+                    sunGrad.addColorStop(0, `rgba(255, 255, 255, ${sunFade})`);
+                    sunGrad.addColorStop(0.5, `rgba(255, 245, 140, ${sunFade})`);
+                    sunGrad.addColorStop(1, `rgba(255, 195, 20, ${sunFade})`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = sunGrad;
+                    ctx.fill();
+                }
+            }
+
+            // 5. DRAW TWINKLING STARS (Night)
+            const starFade = Math.max(0, 1.0 - (scrollRatio / 0.55));
+            if (starFade > 0.01) {
+                starList.forEach(s => { s.update(); s.draw(starFade); });
+            }
+
+            // 6. DRAW CLOUD PARTICLES (Dusk & Sky Blue Day)
+            const cloudFade = Math.min(1.0, Math.max(0, (scrollRatio - 0.35) / 0.65));
+            if (cloudFade > 0.01) {
+                const isMaghrib = scrollRatio >= 0.35 && scrollRatio <= 0.65;
+                cloudList.forEach(c => { c.update(); c.draw(cloudFade, isMaghrib); });
+            }
+
+            requestAnimationFrame(renderLoop);
         }
 
-        window.addEventListener('resize', () => {
-            resize();
-            initStars();
-        });
+        window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+        window.addEventListener('scroll', getScrollRatio, { passive: true });
 
-        resize();
-        initStars();
-        animate();
+        resizeCanvas();
+        initParticles();
+        renderLoop();
     </script>
 </body>
 </html>
