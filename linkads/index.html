@@ -162,11 +162,12 @@
 
         /* BUTTONS */
         .btn-action {
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             gap: 8px;
             width: 100%;
+            min-height: 48px;
             padding: 13px 18px;
             border-radius: 14px;
             font-weight: 800;
@@ -177,6 +178,7 @@
             outline: none;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin-top: 10px;
         }
 
         .btn-follow {
@@ -200,11 +202,11 @@
         }
 
         .btn-ads:disabled {
-            background: rgba(255, 255, 255, 0.08) !important;
-            color: rgba(255, 255, 255, 0.3) !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            color: rgba(255, 255, 255, 0.5) !important;
             cursor: not-allowed;
             box-shadow: none !important;
-            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border: 1px dashed rgba(255, 255, 255, 0.3) !important;
         }
 
         /* COUNTDOWN DISPLAY */
@@ -468,12 +470,20 @@
             const cardStep2 = document.getElementById('cardStep2');
             const statusStep2 = document.getElementById('statusStep2');
 
-            btnAds.disabled = false;
-            btnAds.innerHTML = '🚀 Buka Iklan Move2Link (Otomatis Token)';
-            cardStep2.classList.add('active');
-            cardStep2.classList.add('completed');
-            statusStep2.innerText = 'Terbuka ✅';
-            statusStep2.className = 'step-status done';
+            if (btnAds) {
+                btnAds.disabled = false;
+                btnAds.style.background = 'linear-gradient(135deg, #00c993, #00966d)';
+                btnAds.style.color = '#ffffff';
+                btnAds.innerHTML = '🚀 Buka Iklan Move2Link (Klik Di Sini)';
+            }
+            if (cardStep2) {
+                cardStep2.classList.add('active');
+                cardStep2.classList.add('completed');
+            }
+            if (statusStep2) {
+                statusStep2.innerText = 'Terbuka ✅';
+                statusStep2.className = 'step-status done';
+            }
         }
 
         async function handleOpenMove2Link() {
