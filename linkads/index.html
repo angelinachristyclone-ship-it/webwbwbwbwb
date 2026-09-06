@@ -434,6 +434,9 @@
             }
         }
 
+        let activeShortlink = "";
+        let isFetchingShortlink = false;
+
         function startCountdown() {
             const timerBox = document.getElementById('timerBox');
             const countdownVal = document.getElementById('countdownVal');
@@ -456,68 +459,78 @@
                 if (remaining <= 0) {
                     clearInterval(countdownTimer);
                     isTimerFinished = true;
-                    timerStatusLabel.innerText = '✅ Waktu Selesai! Link Terbuka!';
+                    timerStatusLabel.innerText = '✅ Waktu Selesai! Menghubungi Backend...';
                     timerStatusLabel.style.color = '#00c993';
-                    unlockAdsButton();
+                    
+                    // PAS WAKTU SELESAI -> LANGSUNG MINTA KE BACKEND!
+                    fetchShortlinkFromBackend();
                 } else {
                     timerStatusLabel.innerText = `Menunggu Hitung Mundur (${remaining}s)...`;
                 }
             }, 1000);
         }
 
-        function unlockAdsButton() {
+        async function fetchShortlinkFromBackend() {
+            if (isFetchingShortlink) return;
+            isFetchingShortlink = true;
+
             const btnAds = document.getElementById('btnAds');
             const cardStep2 = document.getElementById('cardStep2');
             const statusStep2 = document.getElementById('statusStep2');
 
-            if (btnAds) {
-                btnAds.disabled = false;
-                btnAds.style.background = 'linear-gradient(135deg, #00c993, #00966d)';
-                btnAds.style.color = '#ffffff';
-                btnAds.innerHTML = '🚀 Buka Iklan Move2Link (Klik Di Sini)';
-            }
             if (cardStep2) {
                 cardStep2.classList.add('active');
-                cardStep2.classList.add('completed');
             }
-            if (statusStep2) {
-                statusStep2.innerText = 'Terbuka ✅';
-                statusStep2.className = 'step-status done';
-            }
-        }
-
-        async function handleOpenMove2Link() {
-            if (!isFollowed || !isTimerFinished) {
-                alert("Harap ikuti langkah 1 (Follow X) dan tunggu 20 detik terlebih dahulu!");
-                return;
+            if (btnAds) {
+                btnAds.disabled = true;
+                btnAds.innerText = "⏳ Meminta Link Iklan ke Backend...";
             }
 
-            const btnAds = document.getElementById('btnAds');
-            btnAds.innerText = "⏳ Memanggil Move2Link API & Generasi Token...";
-            btnAds.disabled = true;
-
-            let shortlink = "";
             for (const baseUrl of BACKEND_ENDPOINTS) {
                 try {
                     const endpoint = baseUrl ? `${baseUrl.replace(/\/$/, '')}/generate_move2link` : '/generate_move2link';
+                    console.log("[BACKEND FETCH] Calling endpoint:", endpoint);
                     const resp = await fetch(endpoint, { method: 'POST' });
                     const data = await resp.json();
                     if (data && data.ok && data.shortlink) {
-                        shortlink = data.shortlink;
-                        console.log("[MOVE2LINK] Shortlink obtained:", shortlink);
+                        activeShortlink = data.shortlink;
+                        console.log("[BACKEND FETCH SUCCESS] Shortlink received:", activeShortlink);
                         break;
                     }
                 } catch (e) {
-                    console.warn("[MOVE2LINK] Failed API generate:", baseUrl, e);
+                    console.warn("[BACKEND FETCH FAILED]", baseUrl, e);
                 }
             }
 
-            if (shortlink) {
-                window.location.href = shortlink;
+            if (activeShortlink) {
+                if (btnAds) {
+                    btnAds.disabled = false;
+                    btnAds.style.background = 'linear-gradient(135deg, #00c993, #00966d)';
+                    btnAds.style.color = '#ffffff';
+                    btnAds.innerHTML = '🚀 Buka Iklan Move2Link (Klik Di Sini)';
+                }
+                if (statusStep2) {
+                    statusStep2.innerText = 'Terbuka ✅';
+                    statusStep2.className = 'step-status done';
+                }
+                if (cardStep2) {
+                    cardStep2.classList.add('completed');
+                }
             } else {
-                btnAds.disabled = false;
-                btnAds.innerText = "⚠️ Gagal API, Coba Lagi";
-                alert("Gagal menghubungi API Move2Link. Silakan coba lagi!");
+                if (btnAds) {
+                    btnAds.disabled = false;
+                    btnAds.style.background = 'linear-gradient(135deg, #ff4757, #ff6b81)';
+                    btnAds.innerText = '⚠️ Gagal Ambil Link Backend, Coba Lagi';
+                }
+                isFetchingShortlink = false;
+            }
+        }
+
+        function handleOpenMove2Link() {
+            if (activeShortlink) {
+                window.location.href = activeShortlink;
+            } else {
+                fetchShortlinkFromBackend();
             }
         }
     </script>
