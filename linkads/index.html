@@ -307,6 +307,19 @@
             </button>
         </div>
 
+        <!-- STEP RETURN: CLAIM TOKEN AFTER MOVE2LINK -->
+        <div class="step-card active" id="cardClaimReturn" style="display: none; border-color: rgba(0, 201, 147, 0.6); background: rgba(0, 201, 147, 0.08);">
+            <div class="step-header">
+                <span class="step-number" style="color: #00c993;">Klaim Telegram</span>
+                <span class="step-status done" id="statusClaimReturn">Iklan Selesai ✅</span>
+            </div>
+            <div class="step-title" style="color: #00c993;">🎉 SELAMAT! IKLAN VERIFIKASI SUKSES</div>
+            <div class="step-desc">Kamu telah menyelesaikan iklan Move2Link. Klik tombol hijau di bawah untuk membuka Telegram Bot & mengklaim link join grup 1x pakai.</div>
+            <button class="btn-action btn-follow" id="btnClaimBot" style="background: linear-gradient(135deg, #00c993, #00966d);" onclick="handleClaimBot()">
+                👉 Dapatkan Link Join Telegram (Sekali Pakai)
+            </button>
+        </div>
+
         <div class="notice-box">
             💡 <strong>Sistem Otomatisasi Move2Link API:</strong><br>
             Setelah menyelesaikan iklan Move2Link, kamu akan otomatis diarahkan ke Telegram Bot dengan Token 1x Pakai untuk menerima <strong>Link Join 1x Pakai ke Grup Aktif Saat Ini</strong>!
@@ -357,7 +370,55 @@
         let isFollowed = false;
         let isTimerFinished = false;
         let countdownTimer = null;
+        let activeBotUrl = "";
         const COUNTDOWN_SECONDS = 20;
+
+        // --- CHECK RETURN MODE (?verify=...) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const verifyToken = urlParams.get('verify') || urlParams.get('code');
+
+        if (verifyToken) {
+            document.getElementById('cardStep1').style.display = 'none';
+            document.getElementById('cardStep2').style.display = 'none';
+            document.getElementById('cardClaimReturn').style.display = 'block';
+            fetchClaimToken(verifyToken);
+        }
+
+        async function fetchClaimToken(token) {
+            const btnClaim = document.getElementById('btnClaimBot');
+            btnClaim.innerText = "⏳ Menyiapkan Link Telegram...";
+            btnClaim.disabled = true;
+
+            for (const baseUrl of BACKEND_ENDPOINTS) {
+                try {
+                    const endpoint = baseUrl ? `${baseUrl.replace(/\/$/, '')}/claimtoken` : '/claimtoken';
+                    const resp = await fetch(`${endpoint}?verify=${encodeURIComponent(token)}`);
+                    const data = await resp.json();
+                    if (data && data.ok && data.bot_url) {
+                        activeBotUrl = data.bot_url;
+                        btnClaim.innerText = "👉 Dapatkan Link Join Telegram (Sekali Pakai)";
+                        btnClaim.disabled = false;
+                        console.log("[CLAIM] Bot URL ready:", activeBotUrl);
+                        break;
+                    }
+                } catch (e) {
+                    console.warn("[CLAIM] Failed fetch claim token:", baseUrl, e);
+                }
+            }
+
+            if (!activeBotUrl) {
+                btnClaim.innerText = "⚠️ Gagal Ambil Token, Coba Lagi";
+                btnClaim.disabled = false;
+            }
+        }
+
+        function handleClaimBot() {
+            if (activeBotUrl) {
+                window.location.href = activeBotUrl;
+            } else if (verifyToken) {
+                fetchClaimToken(verifyToken);
+            }
+        }
 
         function handleFollowX() {
             window.open('https://x.com/convenantvip', '_blank');
