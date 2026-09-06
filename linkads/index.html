@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Link Ads Move2Link - Convenant VIP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #05070d;
+            --text-main: #ffffff;
+            --text-sub: #a0aab5;
+            --card-bg: rgba(18, 24, 38, 0.78);
+            --card-border: rgba(255, 255, 255, 0.16);
+            --card-shadow: rgba(0, 0, 0, 0.6);
+            --glow-color: rgba(42, 171, 238, 0.8);
+            --accent-color: #2AABEE;
+            --success-color: #00c993;
+            --warning-color: #ffb800;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: #05070d !important;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 90%;
+            margin: 30px auto;
+            padding: 28px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 5;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            box-shadow: 0 12px 40px var(--card-shadow);
+        }
+
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-sub);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .back-nav:hover {
+            color: var(--text-main);
+            transform: translateX(-3px);
+        }
+
+        .header-title {
+            font-size: 25px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* STEP CARDS */
+        .step-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin-bottom: 18px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .step-card.active {
+            border-color: rgba(42, 171, 238, 0.5);
+            background: rgba(42, 171, 238, 0.06);
+        }
+
+        .step-card.completed {
+            border-color: rgba(0, 201, 147, 0.5);
+            background: rgba(0, 201, 147, 0.06);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .step-number {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            background: rgba(42, 171, 238, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .step-status {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .step-status.pending { color: var(--warning-color); }
+        .step-status.done { color: var(--success-color); }
+
+        .step-title {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: #ffffff;
+        }
+
+        .step-desc {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        /* BUTTONS */
+        .btn-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 18px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-follow {
+            background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+            color: #ffffff;
+        }
+
+        .btn-follow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29, 161, 242, 0.4);
+        }
+
+        .btn-ads {
+            background: linear-gradient(135deg, #2AABEE, #0088cc);
+            color: #ffffff;
+        }
+
+        .btn-ads:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(42, 171, 238, 0.5);
+        }
+
+        .btn-ads:disabled {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: rgba(255, 255, 255, 0.3) !important;
+            cursor: not-allowed;
+            box-shadow: none !important;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        /* COUNTDOWN DISPLAY */
+        .timer-container {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .timer-number {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--accent-color);
+            line-height: 1;
+            text-shadow: 0 0 10px rgba(42, 171, 238, 0.6);
+        }
+
+        .timer-label {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2AABEE, #00c993);
+            transition: width 1s linear;
+        }
+
+        .notice-box {
+            background: rgba(255, 184, 0, 0.08);
+            border: 1px solid rgba(255, 184, 0, 0.25);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #ffd875;
+            text-align: left;
+            line-height: 1.5;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="star-canvas"></canvas>
+
+    <div class="container">
+        <a href="../" class="back-nav">← Kembali ke Katalogue</a>
+
+        <div class="header-title">📢 Move2Link Ads System</div>
+        <div class="header-subtitle">Follow akun X resmi & tunggu 20 detik untuk membuka link iklan Move2Link!</div>
+
+        <!-- STEP 1: FOLLOW X -->
+        <div class="step-card active" id="cardStep1">
+            <div class="step-header">
+                <span class="step-number">Langkah 1</span>
+                <span class="step-status pending" id="statusStep1">Wajib ❌</span>
+            </div>
+            <div class="step-title">1. Follow X (Twitter) Resmi</div>
+            <div class="step-desc">Klik tombol di bawah untuk membuka & follow akun X kami. Timer 20 detik akan berjalan otomatis.</div>
+            <button class="btn-action btn-follow" id="btnFollowX" onclick="handleFollowX()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Follow X / Twitter @convenant
+            </button>
+
+            <div class="timer-container" id="timerBox" style="display: none;">
+                <div class="timer-number" id="countdownVal">20</div>
+                <div class="timer-label" id="timerStatusLabel">Menunggu Hitung Mundur...</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: GENERATE SHORTLINK VIA MOVE2LINK API -->
+        <div class="step-card" id="cardStep2">
+            <div class="step-header">
+                <span class="step-number">Langkah 2</span>
+                <span class="step-status pending" id="statusStep2">Terkunci 🔒</span>
+            </div>
+            <div class="step-title">2. Buka Link Iklan Move2Link</div>
+            <div class="step-desc">Setelah 20 detik berlalu dan sudah follow, tombol ini akan terbuka untuk menuju iklan Move2Link (Otomatis generate token sekali pakai).</div>
+            <button class="btn-action btn-ads" id="btnAds" disabled onclick="handleOpenMove2Link()">
+                🔒 Mengunci (Selesaikan Step 1 & 20s)
+            </button>
+        </div>
+
+        <div class="notice-box">
+            💡 <strong>Sistem Otomatisasi Move2Link API:</strong><br>
+            Setelah menyelesaikan iklan Move2Link, kamu akan otomatis diarahkan ke Telegram Bot dengan Token 1x Pakai untuk menerima <strong>Link Join 1x Pakai ke Grup Aktif Saat Ini</strong>!
+        </div>
+    </div>
+
+    <script>
+        // --- STAR CANVAS BACKGROUND ---
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const stars = Array.from({ length: 120 }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 1.5 + 0.5,
+            alpha: Math.random(),
+            speed: Math.random() * 0.02 + 0.005
+        }));
+
+        function drawStars() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(s => {
+                s.alpha += s.speed;
+                if (s.alpha > 1 || s.alpha < 0) s.speed = -s.speed;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(s.alpha)})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
+
+        // --- BACKEND URL DISCOVERY ---
+        const BACKEND_ENDPOINTS = [
+            "https://shinezzzz-iddiletele.hf.space",
+            "https://shinezzzz-gokgokgogkgokgok.hf.space",
+            ""
+        ];
+
+        let isFollowed = false;
+        let isTimerFinished = false;
+        let countdownTimer = null;
+        const COUNTDOWN_SECONDS = 20;
+
+        function handleFollowX() {
+            window.open('https://x.com/convenantvip', '_blank');
+
+            if (!isFollowed) {
+                isFollowed = true;
+                document.getElementById('statusStep1').innerText = 'Sudah Di-follow ✅';
+                document.getElementById('statusStep1').className = 'step-status done';
+                document.getElementById('cardStep1').classList.add('completed');
+                startCountdown();
+            }
+        }
+
+        function startCountdown() {
+            const timerBox = document.getElementById('timerBox');
+            const countdownVal = document.getElementById('countdownVal');
+            const timerStatusLabel = document.getElementById('timerStatusLabel');
+            const progressFill = document.getElementById('progressFill');
+
+            timerBox.style.display = 'block';
+            let remaining = COUNTDOWN_SECONDS;
+            countdownVal.innerText = remaining;
+            progressFill.style.width = '0%';
+
+            if (countdownTimer) clearInterval(countdownTimer);
+
+            countdownTimer = setInterval(() => {
+                remaining--;
+                countdownVal.innerText = remaining;
+                const percentage = ((COUNTDOWN_SECONDS - remaining) / COUNTDOWN_SECONDS) * 100;
+                progressFill.style.width = `${percentage}%`;
+
+                if (remaining <= 0) {
+                    clearInterval(countdownTimer);
+                    isTimerFinished = true;
+                    timerStatusLabel.innerText = '✅ Waktu Selesai! Link Terbuka!';
+                    timerStatusLabel.style.color = '#00c993';
+                    unlockAdsButton();
+                } else {
+                    timerStatusLabel.innerText = `Menunggu Hitung Mundur (${remaining}s)...`;
+                }
+            }, 1000);
+        }
+
+        function unlockAdsButton() {
+            const btnAds = document.getElementById('btnAds');
+            const cardStep2 = document.getElementById('cardStep2');
+            const statusStep2 = document.getElementById('statusStep2');
+
+            btnAds.disabled = false;
+            btnAds.innerHTML = '🚀 Buka Iklan Move2Link (Otomatis Token)';
+            cardStep2.classList.add('active');
+            cardStep2.classList.add('completed');
+            statusStep2.innerText = 'Terbuka ✅';
+            statusStep2.className = 'step-status done';
+        }
+
+        async function handleOpenMove2Link() {
+            if (!isFollowed || !isTimerFinished) {
+                alert("Harap ikuti langkah 1 (Follow X) dan tunggu 20 detik terlebih dahulu!");
+                return;
+            }
+
+            const btnAds = document.getElementById('btnAds');
+            btnAds.innerText = "⏳ Memanggil Move2Link API & Generasi Token...";
+            btnAds.disabled = true;
+
+            let shortlink = "";
+            for (const baseUrl of BACKEND_ENDPOINTS) {
+                try {
+                    const endpoint = baseUrl ? `${baseUrl.replace(/\/$/, '')}/generate_move2link` : '/generate_move2link';
+                    const resp = await fetch(endpoint, { method: 'POST' });
+                    const data = await resp.json();
+                    if (data && data.ok && data.shortlink) {
+                        shortlink = data.shortlink;
+                        console.log("[MOVE2LINK] Shortlink obtained:", shortlink);
+                        break;
+                    }
+                } catch (e) {
+                    console.warn("[MOVE2LINK] Failed API generate:", baseUrl, e);
+                }
+            }
+
+            if (shortlink) {
+                window.location.href = shortlink;
+            } else {
+                btnAds.disabled = false;
+                btnAds.innerText = "⚠️ Gagal API, Coba Lagi";
+                alert("Gagal menghubungi API Move2Link. Silakan coba lagi!");
+            }
+        }
+    </script>
+</body>
+</html>
