@@ -1331,16 +1331,7 @@ function renderMessages(messages) {
     });
 
     chatMessages.innerHTML = msgHtml;
-    try {
-        const savedPos = localStorage.getItem("scroll_pos_" + activeMember.name);
-        if (savedPos !== null && parseInt(savedPos, 10) > 0) {
-            chatMessages.scrollTop = parseInt(savedPos, 10);
-        } else {
-            forceScrollToBottom();
-        }
-    } catch(e) {
-        forceScrollToBottom();
-    }
+    forceScrollToBottom();
     attachChatScrollListener();
     setupReadStateObserver();
 }
