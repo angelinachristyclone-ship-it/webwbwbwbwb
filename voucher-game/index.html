@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TMMDZ0QC24"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-TMMDZ0QC24');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Top Up Voucher Game - Convenant VIP</title>
+    <style>
+        :root {
+            --bg-color: #05070d;
+            --text-main: #ffffff;
+            --text-sub: #a0aab5;
+            --card-bg: rgba(18, 24, 38, 0.75);
+            --card-border: rgba(255, 255, 255, 0.16);
+            --accent-blue: #1a5cff;
+            --accent-green: #00C993;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #05070d !important;
+            background: #05070d !important;
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+        }
+
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 24px 14px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 15px rgba(255, 184, 0, 0.8);
+        }
+
+        .stats-banner {
+            font-size: 12.5px;
+            color: #00ffb3;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            background: rgba(18, 24, 38, 0.85);
+            border: 1px solid rgba(0, 201, 147, 0.4);
+            padding: 10px 14px;
+            border-radius: 16px;
+        }
+
+        /* NAVIGATION BAR */
+        .nav-category-bar {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .nav-cat-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-cat-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #1a5cff;
+        }
+
+        .nav-cat-btn.active {
+            background: linear-gradient(135deg, #1a5cff, #0070f3);
+            border-color: #60a5fa;
+            box-shadow: 0 4px 14px rgba(26, 92, 255, 0.4);
+        }
+
+        .nav-cat-btn.home-btn {
+            grid-column: 1 / -1;
+            background: rgba(0, 201, 147, 0.15);
+            border-color: rgba(0, 201, 147, 0.5);
+            color: #00ffb3;
+        }
+
+        /* FOTO 5: VOUCHER LIST GRID (3 COLUMNS) */
+        .voucher-category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 400px) {
+            .voucher-category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .voucher-cat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 2px solid transparent;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voucher-cat-card:hover {
+            transform: translateY(-3px);
+            border-color: #1a5cff;
+        }
+
+        .voucher-cat-card.active {
+            border-color: #1a5cff;
+            background: #f0f7ff;
+            box-shadow: 0 4px 14px rgba(26, 92, 255, 0.3);
+        }
+
+        .voucher-cat-card .vcr-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* NOMINAL DETAIL BOX (FOTO 3 & 4 STYLE) */
+        .voucher-detail-box {
+            background: rgba(18, 24, 38, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 20px 14px;
+            text-align: left;
+        }
+
+        .box-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* 2-COLUMN ITEM GRID */
+        .item-2col-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .nominal-item-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .nominal-item-card:hover {
+            transform: translateY(-3px);
+            border-color: #1a5cff;
+            box-shadow: 0 8px 20px rgba(26, 92, 255, 0.3);
+        }
+
+        .nominal-item-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .nominal-item-price {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: #1a5cff;
+        }
+
+        /* DISCOUNT BADGES */
+        .discount-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #ff0055, #ff4757);
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 3px 7px;
+            border-radius: 8px;
+        }
+
+        .discount-timer {
+            position: absolute;
+            bottom: 6px;
+            left: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #d97706;
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .strike-price {
+            color: #8a96a3;
+            font-size: 11px;
+            text-decoration: line-through red 2px;
+            margin-right: 4px;
+        }
+
+        .discounted-price {
+            color: #059669;
+            font-weight: 900;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-bottom: 30px;
+            font-size: 12.5px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-sub);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="star-canvas"></canvas>
+
+    <div class="container">
+        
+        <!-- JUDUL -->
+        <div class="header-title">🎟️ Top Up Voucher Game</div>
+
+        <!-- STATISTIK BANNER -->
+        <div class="stats-banner">
+            450+ order sudah di proses, 9,6rb aksi web, 18,4rb view, inter tranksasi, qris dinamis(bisa kadaluarsa) terpercaya, all payment
+        </div>
+
+        <!-- NAVIGASI TAB ANTAR SUB-MENU -->
+        <div class="nav-category-bar">
+            <a href="../" class="nav-cat-btn home-btn">🏠 Kembali ke Beranda</a>
+            <a href="../top-up-game/" class="nav-cat-btn">🎮 Top Up Game</a>
+            <a href="./" class="nav-cat-btn active">🎟️ Voucher Game</a>
+            <a href="../lelang-kuota/" class="nav-cat-btn">🏷️ Lelang Kuota</a>
+            <a href="../convert-saldo/" class="nav-cat-btn">💸 Convert Saldo</a>
+        </div>
+
+        <!-- FOTO 5: 3-COLUMN VOUCHER BRAND SELECTOR -->
+        <div style="font-size: 16px; font-weight: 800; margin-bottom: 12px; text-align: left; color: #fff;">Pilih Brand Voucher:</div>
+        <div class="voucher-category-grid" id="voucher-brand-grid"></div>
+
+        <!-- DETAIL LIST VOUCHER NOMINAL (FOTO 3 & 4 STYLE) -->
+        <div class="voucher-detail-box">
+            <div class="box-title">
+                <span id="active-vcr-title">Pilihan Nominal Voucher:</span>
+                <span style="font-size: 11px; color: #00ffb3;">⚡ Proses Cepat & Otomatis</span>
+            </div>
+            <div class="item-2col-grid" id="voucher-items-container"></div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">Made with ❤ by Convenant</div>
+    </div>
+
+    <script>
+        const BACKEND_API = "https://shinezzzz-gokgokgogkgokgok.hf.space";
+        let botPricing = { discounts: {}, product_changes: {} };
+
+        // 100% EXCEL DATA VOUCHER GAME
+        const EXCEL_VOUCHERS_GROUPED = {
+            "Garena Shell": [
+                { name: "33 Shell", price: 10200 },
+                { name: "66 Shell", price: 19300 },
+                { name: "165 Shell", price: 47100 },
+                { name: "330 Shell", price: 98200 }
+            ],
+            "UniPin": [
+                { name: "Unipin 10.000", price: 10700 },
+                { name: "Unipin 20.000", price: 19700 },
+                { name: "Unipin 50.000", price: 48200 },
+                { name: "Unipin 100.000", price: 95200 },
+                { name: "Unipin 300.000", price: 294400 },
+                { name: "Unipin 500.000", price: 485600 }
+            ],
+            "Steam Wallet": [
+                { name: "Wallet 8.000", price: 11500 },
+                { name: "Wallet 12.000", price: 12900 },
+                { name: "Wallet 45.000", price: 46300 },
+                { name: "Wallet 60.000", price: 62100 },
+                { name: "Wallet 90.000", price: 92000 },
+                { name: "Wallet 120.000", price: 123400 },
+                { name: "Wallet 250.000", price: 253400 },
+                { name: "Wallet 400.000", price: 405100 },
+                { name: "Wallet 600.000", price: 609300 }
+            ],
+            "Google Play": [
+                { name: "GPC 10.000", price: 11000 },
+                { name: "GPC 20.000", price: 21200 },
+                { name: "GPC 50.000", price: 52900 },
+                { name: "GPC 100.000", price: 102300 },
+                { name: "GPC 150.000", price: 154100 },
+                { name: "GPC 300.000", price: 305700 }
+            ],
+            "Point Blank": [
+                { name: "[Vcr] 1.200 PB Cash", price: 10000 },
+                { name: "[Vcr] 2.400 PB Cash", price: 19000 },
+                { name: "[Vcr] 6.000 PB Cash", price: 46300 },
+                { name: "[Vcr] 12.000 PB Cash", price: 92100 },
+                { name: "[Vcr] 24.000 PB Cash", price: 183000 },
+                { name: "[Vcr] 36.000 PB Cash", price: 275000 },
+                { name: "[Vcr] 60.000 PB Cash", price: 454900 }
+            ]
+        };
+
+        let selectedBrand = "Garena Shell";
+
+        function initVoucherBrands() {
+            const container = document.getElementById('voucher-brand-grid');
+            container.innerHTML = '';
+            Object.keys(EXCEL_VOUCHERS_GROUPED).forEach(brand => {
+                const card = document.createElement('div');
+                card.className = 'voucher-cat-card' + (brand === selectedBrand ? ' active' : '');
+                card.onclick = () => selectBrand(brand, card);
+                card.innerHTML = `<div class="vcr-title">${brand}</div>`;
+                container.appendChild(card);
+            });
+            renderVoucherItems(selectedBrand);
+        }
+
+        function selectBrand(brand, el) {
+            selectedBrand = brand;
+            document.querySelectorAll('.voucher-cat-card').forEach(c => c.classList.remove('active'));
+            if (el) el.classList.add('active');
+            document.getElementById('active-vcr-title').innerText = `Pilihan Nominal ${brand}:`;
+            renderVoucherItems(brand);
+        }
+
+        function renderVoucherItems(brand) {
+            const container = document.getElementById('voucher-items-container');
+            container.innerHTML = '';
+            const items = EXCEL_VOUCHERS_GROUPED[brand] || [];
+            const disc = (botPricing.discounts && botPricing.discounts['3']) || 0;
+
+            items.forEach(item => {
+                let finalPrice = item.price;
+                let strikeHtml = '';
+
+                if (disc > 0) {
+                    finalPrice = Math.round(item.price * (1 - disc / 100));
+                    strikeHtml = `<span class="strike-price">Rp ${item.price.toLocaleString('id-ID')}</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'nominal-item-card';
+                card.onclick = () => redirectOrderTele('Voucher ' + brand, item.name, finalPrice);
+                card.innerHTML = `
+                    ${disc > 0 ? `<div class="discount-badge">-${disc}%</div><div class="discount-timer">⏱️ 01:59:45</div>` : ''}
+                    <div class="nominal-item-name">${item.name}</div>
+                    <div class="nominal-item-price">${strikeHtml}<span class="discounted-price">Rp ${finalPrice.toLocaleString('id-ID')}</span></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function redirectOrderTele(cat, itemName, price) {
+            const text = `Halo bos, gw mau order [${cat}] - [${itemName}] (Rp ${price.toLocaleString('id-ID')}). Minta instruksi bayar Qris dinamis dong!`;
+            window.open(`https://t.me/chokoretoangelina?text=` + encodeURIComponent(text), '_blank');
+        }
+
+        async function loadBotPricing() {
+            try {
+                const res = await fetch(BACKEND_API + "/get_pricing");
+                if (res.ok) {
+                    const json = await res.json();
+                    const data = json.data || json;
+                    botPricing.discounts = data.discounts || {};
+                    botPricing.price_changes = data.price_changes || {};
+
+                    const discData = botPricing.discounts['3'];
+                    const percent = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
+                    const ttl = typeof discData === 'object' ? (discData.ttl_seconds || 7200) : 7200;
+
+                    renderVoucherItems(selectedBrand);
+                    if (percent > 0) {
+                        startCountdownClock(ttl);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        let countdownInterval = null;
+        function startCountdownClock(initialSeconds) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let remaining = initialSeconds;
+
+            function updateDisplay() {
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                const hrs = String(Math.floor(remaining / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+                const secs = String(remaining % 60).padStart(2, '0');
+                document.querySelectorAll('.discount-timer').forEach(el => {
+                    el.innerText = `⏱️ ${hrs}:${mins}:${secs}`;
+                });
+                remaining--;
+            }
+
+            updateDisplay();
+            countdownInterval = setInterval(updateDisplay, 1000);
+        }
+
+        // ================= MAGHRIB TWILIGHT CELESTIAL CANVAS =================
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        let scrollRatio = 0;
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        function getScrollRatio() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            const scrollHeight = Math.max(
+                document.body.scrollHeight, document.documentElement.scrollHeight,
+                document.body.offsetHeight, document.documentElement.offsetHeight
+            ) || 1;
+            const clientHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+            const maxScroll = Math.max(1, scrollHeight - clientHeight);
+            return Math.min(1.0, Math.max(0, scrollTop / maxScroll));
+        }
+
+        class Star {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.radius = Math.random() * 2.2 + 0.8;
+                this.speed = Math.random() * 0.015 + 0.005;
+                this.alpha = Math.random();
+                this.dir = Math.random() > 0.5 ? 1 : -1;
+            }
+            update() {
+                this.alpha += this.speed * this.dir;
+                if (this.alpha >= 1) { this.alpha = 1; this.dir = -1; }
+                else if (this.alpha <= 0.2) { this.alpha = 0.2; this.dir = 1; }
+            }
+            draw(fade) {
+                if (fade <= 0.01) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * fade})`;
+                ctx.fill();
+            }
+        }
+
+        class Cloud {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * (width + 400) - 200;
+                this.y = Math.random() * (height * 0.65);
+                this.radius = Math.random() * 95 + 60;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.opacity = Math.random() * 0.4 + 0.25;
+            }
+            update() {
+                this.x += this.speed;
+                if (this.x - this.radius > width) {
+                    this.x = -this.radius;
+                    this.y = Math.random() * (height * 0.65);
+                }
+            }
+            draw(fade, isMaghrib) {
+                if (fade <= 0.01) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                if (isMaghrib) {
+                    g.addColorStop(0, `rgba(70, 30, 45, ${this.opacity * fade * 0.8})`);
+                    g.addColorStop(0.65, `rgba(180, 70, 30, ${this.opacity * fade * 0.4})`);
+                    g.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                } else {
+                    g.addColorStop(0, `rgba(255, 255, 255, ${this.opacity * fade})`);
+                    g.addColorStop(0.7, `rgba(240, 248, 255, ${this.opacity * 0.5 * fade})`);
+                    g.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                }
+                ctx.fillStyle = g;
+                ctx.fill();
+            }
+        }
+
+        let starList = [];
+        let cloudList = [];
+
+        function initParticles() {
+            starList = [];
+            cloudList = [];
+            for (let i = 0; i < 350; i++) starList.push(new Star());
+            for (let i = 0; i < 35; i++) cloudList.push(new Cloud());
+        }
+
+        function lerpColor(r1, g1, b1, r2, g2, b2, t) {
+            const r = Math.round(r1 + (r2 - r1) * t);
+            const g = Math.round(g1 + (g2 - g1) * t);
+            const b = Math.round(b1 + (b2 - b1) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function renderLoop() {
+            scrollRatio += (getScrollRatio() - scrollRatio) * 0.08;
+
+            let skyColor;
+            if (scrollRatio < 0.55) {
+                skyColor = lerpColor(5, 7, 13, 217, 59, 0, scrollRatio / 0.55);
+            } else {
+                skyColor = lerpColor(217, 59, 0, 2, 136, 209, (scrollRatio - 0.55) / 0.45);
+            }
+
+            ctx.fillStyle = skyColor;
+            ctx.fillRect(0, 0, width, height);
+
+            if (scrollRatio > 0.30 && scrollRatio < 0.75) {
+                const maghribAlpha = Math.sin((scrollRatio - 0.30) / 0.45 * Math.PI);
+                const horizGlow = ctx.createLinearGradient(0, height * 0.2, 0, height * 0.8);
+                horizGlow.addColorStop(0, `rgba(255, 90, 0, ${0.45 * maghribAlpha})`);
+                horizGlow.addColorStop(0.5, `rgba(180, 30, 60, ${0.3 * maghribAlpha})`);
+                horizGlow.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                ctx.fillStyle = horizGlow;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            const sunMoonX = width * 0.5;
+            const sunMoonY = 120 + scrollRatio * 40;
+            const bodyRadius = 60 + scrollRatio * 15;
+
+            if (scrollRatio < 0.65) {
+                const moonFade = Math.max(0, 1.0 - (scrollRatio / 0.65));
+                if (moonFade > 0.01) {
+                    const moonGlow = ctx.createRadialGradient(sunMoonX, sunMoonY, 0, sunMoonX, sunMoonY, bodyRadius * 3.2);
+                    moonGlow.addColorStop(0, `rgba(220, 240, 255, ${0.6 * moonFade})`);
+                    moonGlow.addColorStop(1, `rgba(220, 240, 255, 0)`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius * 3.2, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGlow;
+                    ctx.fill();
+
+                    const moonGrad = ctx.createRadialGradient(sunMoonX - 15, sunMoonY - 15, 5, sunMoonX, sunMoonY, bodyRadius);
+                    moonGrad.addColorStop(0, `rgba(255, 255, 255, ${moonFade})`);
+                    moonGrad.addColorStop(0.7, `rgba(230, 240, 250, ${moonFade})`);
+                    moonGrad.addColorStop(1, `rgba(175, 195, 215, ${moonFade})`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGrad;
+                    ctx.fill();
+                }
+            }
+
+            const starFade = Math.max(0, 1.0 - (scrollRatio / 0.55));
+            if (starFade > 0.01) {
+                starList.forEach(s => { s.update(); s.draw(starFade); });
+            }
+
+            const cloudFade = Math.min(1.0, Math.max(0, (scrollRatio - 0.35) / 0.65));
+            if (cloudFade > 0.01) {
+                const isMaghrib = scrollRatio >= 0.35 && scrollRatio <= 0.65;
+                cloudList.forEach(c => { c.update(); c.draw(cloudFade, isMaghrib); });
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+        window.addEventListener('scroll', getScrollRatio, { passive: true });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
+            initParticles();
+            renderLoop();
+            initVoucherBrands();
+            loadBotPricing();
+        });
+    </script>
+</body>
+</html>

@@ -98,7 +98,7 @@
             display: flex;
             justify-content: center;
             gap: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 18px;
             flex-wrap: wrap;
         }
 
@@ -143,6 +143,110 @@
         .pill-admin {
             background: linear-gradient(135deg, rgba(0, 201, 147, 0.35), rgba(0, 160, 110, 0.3));
             border-color: rgba(0, 201, 147, 0.6);
+        }
+
+        /* --- 4 JALUR TOMBOL MENU UTAMA (PINDAH TAB KE SUB FOLDER) --- */
+        .sub-portal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .portal-btn {
+            background: rgba(18, 24, 38, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 18px;
+            padding: 13px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #ffffff;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .portal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        }
+
+        .portal-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(42, 171, 238, 0.35);
+        }
+
+        .btn-portal-game:hover {
+            border-color: rgba(42, 171, 238, 0.85);
+            background: rgba(22, 38, 68, 0.95);
+        }
+
+        .btn-portal-voucher:hover {
+            border-color: rgba(255, 184, 0, 0.85);
+            background: rgba(50, 38, 18, 0.95);
+        }
+
+        .btn-portal-lelang:hover {
+            border-color: rgba(0, 201, 147, 0.85);
+            background: rgba(14, 48, 38, 0.95);
+        }
+
+        .btn-portal-convert:hover {
+            border-color: rgba(168, 85, 247, 0.85);
+            background: rgba(42, 22, 60, 0.95);
+        }
+
+        .portal-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .portal-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .portal-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .portal-desc {
+            font-size: 10px;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .portal-arrow {
+            font-size: 13px;
+            font-weight: 800;
+            color: #60a5fa;
+            opacity: 0.8;
+            transition: transform 0.25s ease;
+        }
+
+        .portal-btn:hover .portal-arrow {
+            transform: translate(2px, -2px);
+            opacity: 1;
         }
 
         /* --- PEMISAH KATEGORI (DIVIDER) --- */
@@ -206,7 +310,54 @@
             background: var(--card-hover-bg);
         }
 
-        /* --- STYLING GAMBAR (BLUR BG + SHARP FRONT) & SLIDER --- */
+        /* --- BADGE DISKON BOT & TIMER --- */
+        .discount-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: linear-gradient(135deg, #ff0055, #ff4757);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px rgba(255, 0, 85, 0.5);
+            z-index: 10;
+            animation: pulseBadge 1.8s infinite alternate;
+        }
+
+        @keyframes pulseBadge {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+
+        .discount-timer-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #ffb800;
+            background: rgba(255, 184, 0, 0.15);
+            border: 1px solid rgba(255, 184, 0, 0.4);
+            padding: 4px 10px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .strike-price {
+            color: #8a96a3;
+            font-size: 11.5px;
+            text-decoration: line-through red 2px;
+            margin-right: 5px;
+        }
+
+        .discount-price-highlight {
+            color: #00ffb3;
+            font-weight: 900;
+        }
+
+        /* --- STYLING GAMBAR & SLIDER --- */
         .img-preview {
             width: 100%;
             aspect-ratio: 16/9;
@@ -265,14 +416,14 @@
             object-fit: contain; 
             z-index: 2;
             transition: transform 0.4s ease;
-            pointer-events: none; /* Mencegah drag gambar native browser */
+            pointer-events: none;
         }
 
         .card:hover .img-front {
             transform: scale(1.08); 
         }
 
-        /* Controls Slider (Arrows & Dots) */
+        /* Controls Slider */
         .slider-arrow {
             position: absolute;
             top: 50%;
@@ -451,11 +602,47 @@
             <a href="https://t.me/chokoretoangelina" target="_blank" class="nav-pill pill-admin">💬 Hubungi Admin</a>
         </div>
 
+        <!-- 4 JALUR TOMBOL MENU UTAMA (PINDAH TAB KE MASING-MASING FOLDER) -->
+        <div class="sub-portal-grid">
+            <a href="./top-up-game/" target="_blank" class="portal-btn btn-portal-game">
+                <span class="portal-icon">🎮</span>
+                <div class="portal-info">
+                    <span class="portal-title">Top Up Game</span>
+                    <span class="portal-desc">ML, FF, PUBG & 20+ Game</span>
+                </div>
+                <span class="portal-arrow">↗</span>
+            </a>
+            <a href="./voucher-game/" target="_blank" class="portal-btn btn-portal-voucher">
+                <span class="portal-icon">🎟️</span>
+                <div class="portal-info">
+                    <span class="portal-title">Voucher Game</span>
+                    <span class="portal-desc">Steam, UniPin, Garena, Play</span>
+                </div>
+                <span class="portal-arrow">↗</span>
+            </a>
+            <a href="./lelang-kuota/" target="_blank" class="portal-btn btn-portal-lelang">
+                <span class="portal-icon">🏷️</span>
+                <div class="portal-info">
+                    <span class="portal-title">Lelang Kuota & SIM</span>
+                    <span class="portal-desc">Paket hemat 5k - 100k</span>
+                </div>
+                <span class="portal-arrow">↗</span>
+            </a>
+            <a href="./convert-saldo/" target="_blank" class="portal-btn btn-portal-convert">
+                <span class="portal-icon">💸</span>
+                <div class="portal-info">
+                    <span class="portal-title">Convert Saldo</span>
+                    <span class="portal-desc">PLN, DANA, OVO, ShopeePay</span>
+                </div>
+                <span class="portal-arrow">↗</span>
+            </a>
+        </div>
+
         <!-- ================= MAIN SINGLE-COLUMN CATALOG LIST ================= -->
-        <div class="card-list">
+        <div class="card-list" id="main-catalog-list">
                     
             <!-- 1. TAKE ALL IN (Rp 250.000 / Rp 215.000) -->
-            <div class="card">
+            <div class="card" data-product="Take All In" data-prices='{"btn1": 215000, "btn2": 250000}'>
                 <div class="img-preview" data-base="assets/take-all-in.jpg">
                     <img class="img-bg" src="assets/take-all-in.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/take-all-in.jpg" alt="Take All In">
@@ -464,17 +651,17 @@
                 <div class="tier-desc">
                     [gratis pm 5 member bebas pilih] Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! Selain paket take all in NO GARANSI).<br><br>
                     <strong>Pilihan Bundle:</strong><br>
-                    • <strong>Bundle 3 Grup:</strong> VIP, Premium, Standart + Bonus Next Gen AI (<strong>Rp 215.000</strong>)<br>
-                    • <strong>Bundle All Grup:</strong> Semua Convenant kecuali Inter (<strong>Rp 250.000</strong>)
+                    • <strong>Bundle 3 Grup:</strong> VIP, Premium, Standart + Bonus Next Gen AI (<strong class="price-val-1">Rp 215.000</strong>)<br>
+                    • <strong>Bundle All Grup:</strong> Semua Convenant kecuali Inter (<strong class="price-val-2">Rp 250.000</strong>)
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%203%20Grup%20VVIP%20(215k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option" target="_blank">Bundle 3 Grup - Rp 215.000</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%20All%20Grup%20Convenant%20(250k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Bundle All Grup - Rp 250.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%203%20Grup%20VVIP%20(215k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option action-btn-1" target="_blank">Bundle 3 Grup - Rp 215.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%20All%20Grup%20Convenant%20(250k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-2" target="_blank">Bundle All Grup - Rp 250.000</a>
                 </div>
             </div>
 
             <!-- 2. VIP TIER (Rp 170.000 / Rp 150.000) -->
-            <div class="card">
+            <div class="card" data-product="VIP Tier" data-prices='{"btn1": 150000, "btn2": 170000}'>
                 <div class="img-preview" data-base="assets/vip.jpg">
                     <img class="img-bg" src="assets/vip.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/vip.jpg" alt="VIP Tier">
@@ -484,13 +671,13 @@
                     [gratis pm 3 member bebas milih] VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 197.592 foto, 62.698 video</strong> (include cersex order atau req 2x free).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Tanpa%20Next%20Gen%20(150k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option" target="_blank">Tanpa Next Gen - Rp 150.000</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Include%20Next%20Gen%20(170k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Include Next Gen - Rp 170.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Tanpa%20Next%20Gen%20(150k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option action-btn-1" target="_blank">Tanpa Next Gen - Rp 150.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Include%20Next%20Gen%20(170k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-2" target="_blank">Include Next Gen - Rp 170.000</a>
                 </div>
             </div>
 
             <!-- 3. PREMIUM TIER (Rp 50.000 / Rp 35.000) -->
-            <div class="card">
+            <div class="card" data-product="Premium Tier" data-prices='{"btn1": 35000, "btn2": 50000}'>
                 <div class="img-preview" data-base="assets/premium.jpg">
                     <img class="img-bg" src="assets/premium.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/premium.jpg" alt="Premium Tier">
@@ -500,13 +687,13 @@
                     [gratis pm 1 member bebas milih] Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap gen 1, 6, 7, 8 ,9 ,10 ,11 ,12. <strong>Media: 32.526 foto, 5.043 video</strong> (include cersex).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Tanpa%20Next%20Gen%20(35k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option" target="_blank">Tanpa Next Gen - Rp 35.000</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Include%20Next%20Gen%20(50k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Include Next Gen - Rp 50.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Tanpa%20Next%20Gen%20(35k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option action-btn-1" target="_blank">Tanpa Next Gen - Rp 35.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Include%20Next%20Gen%20(50k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-2" target="_blank">Include Next Gen - Rp 50.000</a>
                 </div>
             </div>
 
             <!-- 4. NEXT GEN AI (Rp 30.000) -->
-            <div class="card">
+            <div class="card" data-product="Next Gen AI" data-prices='{"btn1": 30000}'>
                 <div class="img-preview" data-base="assets/nextgen.jpg" data-fallback="assets/free.jpg">
                     <img class="img-bg" src="assets/nextgen.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/free.jpg';">
                     <img class="img-front" src="assets/nextgen.jpg" alt="Next Gen AI" onerror="this.onerror=null; this.src='assets/free.jpg';">
@@ -516,12 +703,12 @@
                     Isi media total sekitar 18rb media full video dan update (new version ai).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Grup%20Next%20Gen%20AI%20(30k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 30.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Grup%20Next%20Gen%20AI%20(30k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 30.000</a>
                 </div>
             </div>
 
             <!-- 5. STANDART TIER (Rp 17.000) -->
-            <div class="card">
+            <div class="card" data-product="Standart Tier" data-prices='{"btn1": 17000}'>
                 <div class="img-preview" data-base="assets/standart.jpg">
                     <img class="img-bg" src="assets/standart.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/standart.jpg" alt="Standart Tier">
@@ -531,12 +718,12 @@
                     [gratis pm 1 member gacha(acak)] Standart: free saver, sudah ada beberapa topik gen 7 sampai 12. <strong>Media: 19.772 foto, 5.895 video</strong> (sudah include Cersex).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Standart%20(17k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 17.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Standart%20(17k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 17.000</a>
                 </div>
             </div>
 
             <!-- 6. MIDPAY TIER (Rp 12.000) -->
-            <div class="card">
+            <div class="card" data-product="Midpay Tier" data-prices='{"btn1": 12000}'>
                 <div class="img-preview" data-base="assets/midpay.jpg" data-fallback="assets/inter-premium.jpg">
                     <img class="img-bg" src="assets/midpay.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/inter-premium.jpg';">
                     <img class="img-front" src="assets/midpay.jpg" alt="Midpay Tier" onerror="this.onerror=null; this.src='assets/inter-premium.jpg';">
@@ -546,12 +733,12 @@
                     Midpay tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap. random gak di sortir total media sekitar 13k foto video.
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Midpay%20Tier%20(12k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 12.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Midpay%20Tier%20(12k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 12.000</a>
                 </div>
             </div>
 
             <!-- 7. EUREKA TIER (Rp 10.000) -->
-            <div class="card">
+            <div class="card" data-product="Eureka Tier" data-prices='{"btn1": 10000}'>
                 <div class="img-preview" data-base="assets/eureka.jpg" data-fallback="assets/premium.jpg">
                     <img class="img-bg" src="assets/eureka.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/premium.jpg';">
                     <img class="img-front" src="assets/eureka.jpg" alt="Eureka Tier" onerror="this.onerror=null; this.src='assets/premium.jpg';">
@@ -561,12 +748,12 @@
                     ba export, seleb, dll media 3k+
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Eureka%20(10k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 10.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Eureka%20(10k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 10.000</a>
                 </div>
             </div>
 
             <!-- 8. START TIER (Rp 7.000) -->
-            <div class="card">
+            <div class="card" data-product="Start Tier" data-prices='{"btn1": 7000}'>
                 <div class="img-preview" data-base="assets/start.jpg" data-fallback="assets/standart.jpg">
                     <img class="img-bg" src="assets/start.jpg" alt="Blur BG" onerror="this.onerror=null; this.src='assets/standart.jpg';">
                     <img class="img-front" src="assets/start.jpg" alt="Start Tier" onerror="this.onerror=null; this.src='assets/standart.jpg';">
@@ -576,7 +763,7 @@
                     Start tier: 10.000 media (persis sama inter start), no update no bonus pm.
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Start%20Tier%20(7k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary" target="_blank">Rp 7.000</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Start%20Tier%20(7k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 7.000</a>
                 </div>
             </div>
 
@@ -628,7 +815,7 @@
             <!-- KATALOG INTER GRUP -->
             <div class="section-divider">Katalog Inter Grup (No Luar)</div>
 
-            <div class="card">
+            <div class="card" data-product="Take All Inter" data-prices='{"btn1": 60000}'>
                 <div class="img-preview" data-base="assets/inter-take-all.jpg">
                     <img class="img-bg" src="assets/inter-take-all.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/inter-take-all.jpg" alt="Inter Take All">
@@ -638,11 +825,11 @@
                     Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! (Bekas grup chat bebas).
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20Inter%20(60k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 60.000</a>
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20Inter%20(60k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 60.000</a>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-product="Inter VIP" data-prices='{"btn1": 50000}'>
                 <div class="img-preview" data-base="assets/inter-vip.jpg">
                     <img class="img-bg" src="assets/inter-vip.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/inter-vip.jpg" alt="Inter VIP">
@@ -652,11 +839,11 @@
                     VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 95.441 foto, 17.862 video</strong> (include cersex order atau req 2x free). Bekas grup chat bebas.
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20VIP%20(50k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 50.000</a>
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20VIP%20(50k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 50.000</a>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-product="Inter Premium" data-prices='{"btn1": 15000}'>
                 <div class="img-preview" data-base="assets/inter-premium.jpg">
                     <img class="img-bg" src="assets/inter-premium.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/inter-premium.jpg" alt="Inter Premium">
@@ -666,11 +853,11 @@
                     Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap. <strong>Media: 24.824 foto, 5.416 video</strong>. Bekas grup chat bebas.
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Premium%20(15k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 15.000</a>
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Premium%20(15k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 15.000</a>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-product="Inter Start" data-prices='{"btn1": 5000}'>
                 <div class="img-preview" data-base="assets/inter-start.jpg">
                     <img class="img-bg" src="assets/inter-start.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/inter-start.jpg" alt="Inter Start">
@@ -680,7 +867,7 @@
                     Standart tier, free saver, sudah ada beberapa topik. <strong>Media: 8.259 foto, 2.477 video</strong> (sudah include Cersex). Bekas grup chat bebas.
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Start%20(5k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary">Rp 5.000</a>
+                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Start%20(5k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 5.000</a>
                 </div>
             </div>
 
@@ -688,7 +875,7 @@
             <div class="section-divider">Convenant Mall & Layanan Tambahan</div>
 
             <!-- PM MEMBER JKT48 (UPDATED PRICING & CUSTOM CALCULATOR) -->
-            <div class="card">
+            <div class="card" data-product="PM Member" data-prices='{"btn1": 3000, "btn2": 40000}'>
                 <div class="img-preview" data-base="assets/pm.jpg">
                     <img class="img-bg" src="assets/pm.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/pm.jpg" alt="PM All Member">
@@ -697,22 +884,22 @@
                 <div class="tier-desc">
                     Berlangganan pesan eksklusif member JKT48 selama 1 bulan. Bebas pilih member mana saja yang kamu mau!<br><br>
                     <strong>Daftar Paket Member:</strong><br>
-                    • 1 Member: <strong>Rp 3.000</strong> / Bulan<br>
+                    • 1 Member: <strong class="price-val-1">Rp 3.000</strong> / Bulan<br>
                     • 2 Member: <strong>Rp 5.000</strong> / Bulan<br>
                     • 3 Member: <strong>Rp 8.000</strong> / Bulan<br>
                     • 4 Member: <strong>Rp 11.000</strong> / Bulan<br>
                     • 5 Member: <strong>Rp 13.000</strong> / Bulan<br>
                     • 6 Member: <strong>Rp 15.000</strong> / Bulan<br>
-                    • 🏆 <strong>All In (62 Member): Rp 40.000 / Bulan</strong>
+                    • 🏆 <strong>All In (62 Member): <span class="price-val-2">Rp 40.000</span> / Bulan</strong>
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%201%20PM%20member%20(3k)." class="btn btn-secondary-option" target="_blank">1 Member (3k)</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Take%20All%20PM%20Member%2062%20Member%20(40k)." class="btn btn-primary" target="_blank">All In 62 Member (40k)</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%201%20PM%20member%20(3k)." class="btn btn-secondary-option action-btn-1" target="_blank">1 Member (3k)</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Take%20All%20PM%20Member%2062%20Member%20(40k)." class="btn btn-primary action-btn-2" target="_blank">All In 62 Member (40k)</a>
                     <button onclick="showPmCustomModal()" class="btn" style="background: linear-gradient(135deg, rgba(0, 201, 147, 0.45), rgba(42, 171, 238, 0.4)); border: 1px solid rgba(0, 201, 147, 0.7); color: #fff; flex: 100%; margin-top: 6px; font-weight: 800;">🧮 Custom Pilih Jumlah Member</button>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-product="Exc Member" data-prices='{"btn1": 12000}'>
                 <div class="img-preview" data-base="assets/exc.jpg">
                     <img class="img-bg" src="assets/exc.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/exc.jpg" alt="Exc Member">
@@ -722,11 +909,11 @@
                     Bisa tanya list di tele ya udh exc member. Akses eksklusif konten member terpilih selama 1 bulan.
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20beli%20exc%20member." class="btn btn-primary" target="_blank">Rp 12.000 / Bulan</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20beli%20exc%20member." class="btn btn-primary action-btn-1" target="_blank">Rp 12.000 / Bulan</a>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-product="Premium Need">
                 <div class="img-preview" data-base="assets/telegram.jpg">
                     <img class="img-bg" src="assets/telegram.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/telegram.jpg" alt="Telegram Need">
@@ -740,7 +927,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" data-product="Live Show" data-prices='{"btn1": 30000}'>
                 <div class="img-preview" data-base="assets/show.jpg">
                     <img class="img-bg" src="assets/show.jpg" alt="Blur BG">
                     <img class="img-front" src="assets/show.jpg" alt="Live Show JKT48">
@@ -750,7 +937,7 @@
                     Pre order wajib pas pre order sblm show. Dapatkan akses live show teater full 1 bulan dari JKT48.
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Live%20Show%20JKT48." class="btn btn-primary" target="_blank">Rp 30.000 / Bulan</a>
+                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Live%20Show%20JKT48." class="btn btn-primary action-btn-1" target="_blank">Rp 30.000 / Bulan</a>
                 </div>
             </div>
 
@@ -762,8 +949,127 @@
         </div>
     </div>
 
-    <!-- SCRIPT JAVASCRIPT: REFERRAL SYSTEM, PM CUSTOM CALCULATOR & MAGHRIB CELESTIAL CANVAS -->
+    <!-- SCRIPT JAVASCRIPT: BOT DISCOUNT INTEGRATION, REFERRAL SYSTEM, CAROUSEL & CELESTIAL CANVAS -->
     <script>
+        const BACKEND_API = "https://shinezzzz-gokgokgogkgokgok.hf.space";
+        let botPricing = { discounts: {}, price_changes: {} };
+        let countdownTimerInterval = null;
+
+        // ================= BOT PRICING & LIVE DISCOUNT (KATEGORI 1: CONVENANT VIP) =================
+        async function loadBotPricing() {
+            try {
+                const res = await fetch(BACKEND_API + "/get_pricing");
+                if (res.ok) {
+                    const json = await res.json();
+                    const data = json.data || json;
+                    botPricing.discounts = data.discounts || {};
+                    botPricing.price_changes = data.price_changes || {};
+                    applyCategory1Discounts();
+                }
+            } catch(e) {
+                console.warn("[PRICING] loadBotPricing error:", e);
+            }
+        }
+
+        function applyCategory1Discounts() {
+            const discData = botPricing.discounts && botPricing.discounts['1'];
+            const percent = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
+            let ttl = typeof discData === 'object' ? (discData.ttl_seconds || 7200) : 7200;
+
+            const cards = document.querySelectorAll('#main-catalog-list .card');
+
+            cards.forEach(card => {
+                const rawPrices = card.getAttribute('data-prices');
+                if (!rawPrices) return;
+
+                let prices = {};
+                try { prices = JSON.parse(rawPrices); } catch(e) {}
+
+                // Hapus badge lama jika ada
+                const oldBadge = card.querySelector('.discount-badge');
+                if (oldBadge) oldBadge.remove();
+                const oldTimer = card.querySelector('.discount-timer-pill');
+                if (oldTimer) oldTimer.remove();
+
+                if (percent > 0) {
+                    // Pasang Badge Diskon
+                    const badge = document.createElement('div');
+                    badge.className = 'discount-badge';
+                    badge.innerText = `-${percent}%`;
+                    card.appendChild(badge);
+
+                    // Pasang Timer Diskon
+                    const timerPill = document.createElement('div');
+                    timerPill.className = 'discount-timer-pill';
+                    timerPill.innerHTML = `⏱️ Flash Sale: <span class="countdown-clock" data-ttl="${ttl}">02:00:00</span>`;
+                    const titleEl = card.querySelector('.tier-title');
+                    if (titleEl) {
+                        titleEl.parentNode.insertBefore(timerPill, titleEl.nextSibling);
+                    }
+
+                    // Update Harga Tombol & Teks
+                    Object.keys(prices).forEach(key => {
+                        const originalPrice = prices[key];
+                        const discountedPrice = Math.round(originalPrice * (1 - percent / 100));
+                        const btnIndex = key.replace('btn', '');
+                        const btn = card.querySelector(`.action-btn-${btnIndex}`);
+                        
+                        if (btn) {
+                            const origText = btn.getAttribute('data-orig-text') || btn.innerText;
+                            if (!btn.getAttribute('data-orig-text')) {
+                                btn.setAttribute('data-orig-text', origText);
+                            }
+                            
+                            // Format teks tombol baru dengan harga diskon
+                            const prefix = origText.split('-')[0].trim();
+                            btn.innerHTML = `${prefix} - <span class="strike-price">Rp ${originalPrice.toLocaleString('id-ID')}</span> <b class="discount-price-highlight">Rp ${discountedPrice.toLocaleString('id-ID')}</b>`;
+
+                            // Update URL Telegram dengan harga diskon
+                            let href = btn.getAttribute('href');
+                            if (href && href.includes('t.me/')) {
+                                const kPrice = Math.round(discountedPrice / 1000) + 'k';
+                                href = href.replace(/\(\d+k\)/i, `(${kPrice})`);
+                                btn.setAttribute('href', href);
+                            }
+                        }
+
+                        // Update juga teks di tier-desc jika ada
+                        const descVal = card.querySelector(`.price-val-${btnIndex}`);
+                        if (descVal) {
+                            descVal.innerHTML = `<span class="strike-price">Rp ${originalPrice.toLocaleString('id-ID')}</span> <b class="discount-price-highlight">Rp ${discountedPrice.toLocaleString('id-ID')}</b>`;
+                        }
+                    });
+                }
+            });
+
+            if (percent > 0) {
+                startCountdownClocks(ttl);
+            }
+        }
+
+        function startCountdownClocks(initialSeconds) {
+            if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+            let remaining = initialSeconds;
+
+            function updateDisplay() {
+                if (remaining <= 0) {
+                    clearInterval(countdownTimerInterval);
+                    document.querySelectorAll('.countdown-clock').forEach(el => el.innerText = "00:00:00");
+                    return;
+                }
+                const hrs = String(Math.floor(remaining / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+                const secs = String(remaining % 60).padStart(2, '0');
+                document.querySelectorAll('.countdown-clock').forEach(el => {
+                    el.innerText = `${hrs}:${mins}:${secs}`;
+                });
+                remaining--;
+            }
+
+            updateDisplay();
+            countdownTimerInterval = setInterval(updateDisplay, 1000);
+        }
+
         // ================= REFERRAL / AFFILIATE TRACKING SYSTEM =================
         const VALID_REF_MAP = {
             '4TEX': '4tex',
@@ -813,16 +1119,6 @@
                     showChatSelectionModal(link.getAttribute('href'), false);
                 };
             });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                applyRefToLinks();
-                initCardCarousels();
-            });
-        } else {
-            applyRefToLinks();
-            initCardCarousels();
         }
 
         function confirmInter(url) {
@@ -993,7 +1289,7 @@
             });
         }
 
-        // ================= CHAT SELECTION MODAL SYSTEM (TRANSPARENT GLASSMORPHISM) =================
+        // ================= CHAT SELECTION MODAL SYSTEM =================
         function showChatSelectionModal(adminUrl, isInter = false) {
             let overlay = document.getElementById('chat-modal-overlay');
             if (!overlay) {
@@ -1050,7 +1346,7 @@
             const targetUrl = decodeURIComponent(targetUrlEncoded);
             closeChatModal();
             if (isInter) {
-                const isConfirmed = confirm("Pastikan nomor telegram anda meupakan international (+1) atau lainnya untuk membuka grup.");
+                const isConfirmed = confirm("Pastikan nomor telegram anda merupakan international (+1) atau lainnya untuk membuka grup.");
                 if (isConfirmed) {
                     window.open(targetUrl, '_blank');
                 }
@@ -1059,7 +1355,7 @@
             }
         }
 
-        // ================= PM MEMBER CUSTOM CALCULATOR MODAL (TRANSPARENT GLASSMORPHISM) =================
+        // ================= PM MEMBER CUSTOM CALCULATOR MODAL =================
         function calculatePmPrice(count) {
             if (count <= 1) return 3000;
             if (count === 2) return 5000;
@@ -1366,9 +1662,14 @@
         window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
         window.addEventListener('scroll', getScrollRatio, { passive: true });
 
-        resizeCanvas();
-        initParticles();
-        renderLoop();
+        document.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
+            initParticles();
+            renderLoop();
+            applyRefToLinks();
+            initCardCarousels();
+            loadBotPricing();
+        });
     </script>
 </body>
 </html>

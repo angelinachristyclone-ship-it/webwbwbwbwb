@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TMMDZ0QC24"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-TMMDZ0QC24');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Top Up Game - Convenant VIP</title>
+    <style>
+        :root {
+            --bg-color: #05070d;
+            --text-main: #ffffff;
+            --text-sub: #a0aab5;
+            --card-bg: rgba(18, 24, 38, 0.75);
+            --card-border: rgba(255, 255, 255, 0.16);
+            --accent-blue: #1a5cff;
+            --accent-green: #00C993;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #05070d !important;
+            background: #05070d !important;
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+        }
+
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 24px 14px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .header-title {
+            font-size: 30px;
+            font-weight: 900;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 15px rgba(42, 171, 238, 0.8);
+        }
+
+        .stats-banner {
+            font-size: 12.5px;
+            color: #00ffb3;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            background: rgba(18, 24, 38, 0.85);
+            border: 1px solid rgba(0, 201, 147, 0.4);
+            padding: 10px 14px;
+            border-radius: 16px;
+        }
+
+        /* NAVIGATION BAR */
+        .nav-category-bar {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .nav-cat-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-cat-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #1a5cff;
+        }
+
+        .nav-cat-btn.active {
+            background: linear-gradient(135deg, #1a5cff, #0070f3);
+            border-color: #60a5fa;
+            box-shadow: 0 4px 14px rgba(26, 92, 255, 0.4);
+        }
+
+        .nav-cat-btn.home-btn {
+            grid-column: 1 / -1;
+            background: rgba(0, 201, 147, 0.15);
+            border-color: rgba(0, 201, 147, 0.5);
+            color: #00ffb3;
+        }
+
+        /* 3 COLUMNS GAME SELECTION (FOTO 1 & 2) */
+        .game-text-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 400px) {
+            .game-text-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .game-text-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .game-text-card:hover {
+            transform: translateY(-3px);
+            border-color: #1a5cff;
+        }
+
+        .game-text-card .game-name {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* FOTO 3 & 4: DETAIL TOP UP */
+        .game-detail-box {
+            background: rgba(18, 24, 38, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 18px 14px;
+            text-align: left;
+        }
+
+        .detail-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-kembali {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1a5cff;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .subtab-switch-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 5px;
+            border-radius: 14px;
+        }
+
+        .subtab-pill {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .subtab-pill.active {
+            background: #1a5cff;
+            color: #ffffff;
+        }
+
+        .item-2col-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .nominal-item-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.25s ease;
+        }
+
+        .nominal-item-card:hover {
+            transform: translateY(-3px);
+            border-color: #1a5cff;
+        }
+
+        .nominal-item-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .nominal-item-price {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: #1a5cff;
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #ff0055, #ff4757);
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 3px 7px;
+            border-radius: 8px;
+        }
+
+        .discount-timer {
+            position: absolute;
+            bottom: 6px;
+            left: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #d97706;
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .strike-price {
+            color: #8a96a3;
+            font-size: 11px;
+            text-decoration: line-through red 2px;
+            margin-right: 4px;
+        }
+
+        .discounted-price { color: #059669; font-weight: 900; }
+        .footer { margin-top: 50px; padding-bottom: 30px; font-size: 12.5px; font-weight: 600; color: var(--text-sub); }
+    </style>
+</head>
+<body>
+    <canvas id="star-canvas"></canvas>
+    <div class="container">
+        <div class="header-title">🎮 Top Up Game</div>
+        <div class="stats-banner">
+            450+ order sudah di proses, 9,6rb aksi web, 18,4rb view, inter tranksasi, qris dinamis(bisa kadaluarsa) terpercaya, all payment
+        </div>
+
+        <!-- NAVIGASI TAB ANTAR SUB-MENU -->
+        <div class="nav-category-bar">
+            <a href="../" class="nav-cat-btn home-btn">🏠 Kembali ke Beranda</a>
+            <a href="./" class="nav-cat-btn active">🎮 Top Up Game</a>
+            <a href="../voucher-game/" class="nav-cat-btn">🎟️ Voucher Game</a>
+            <a href="../lelang-kuota/" class="nav-cat-btn">🏷️ Lelang Kuota</a>
+            <a href="../convert-saldo/" class="nav-cat-btn">💸 Convert Saldo</a>
+        </div>
+
+        <!-- FOTO 1 & 2 -->
+        <div id="view-game-list">
+            <div style="font-size: 16px; font-weight: 800; margin-bottom: 12px; text-align: left;">Game Mobile & PC (Pilih Game):</div>
+            <div class="game-text-grid" id="game-name-buttons-grid"></div>
+        </div>
+
+        <!-- FOTO 3 & 4 -->
+        <div id="view-game-detail" style="display: none;">
+            <div class="game-detail-box">
+                <div class="detail-top-bar">
+                    <button class="btn-kembali" onclick="backToGameList()">← Kembali</button>
+                    <div style="font-size: 18px; font-weight: 900; color: #fff;" id="active-game-name">Mobile Legends</div>
+                </div>
+
+                <div class="subtab-switch-bar" id="game-subtab-bar">
+                    <button class="subtab-pill active" id="pill-diamond" onclick="filterGameSubtab('diamond')">Diamond</button>
+                    <button class="subtab-pill" id="pill-membership" onclick="filterGameSubtab('membership')">Membership</button>
+                </div>
+
+                <div class="item-2col-grid" id="game-items-container"></div>
+            </div>
+        </div>
+
+        <div class="footer">Made with ❤ by Convenant</div>
+    </div>
+
+    <script>
+        const BACKEND_API = "https://shinezzzz-gokgokgogkgokgok.hf.space";
+        let botPricing = { discounts: {}, product_changes: {} };
+
+        // 100% EXCEL DATA
+        const EXCEL_GAME_DATA = {
+            "Mobile Legends": {
+                "diamond": [
+                    { name: "ML 12", price: 4600 }, { name: "ML 19 (17+2)", price: 6700 }, { name: "ML 28 (26+2)", price: 9200 },
+                    { name: "ML 36 (33+3)", price: 12200 }, { name: "ML 44 (40+4)", price: 13400 }, { name: "ML 59 (54+5)", price: 17900 },
+                    { name: "ML 86 (78+8)", price: 26300 }, { name: "ML 112 (102+10)", price: 34100 }, { name: "ML 140 (127+13)", price: 41900 },
+                    { name: "ML 170 (154+16)", price: 50100 }, { name: "ML 185 (169+16)", price: 55800 }, { name: "ML 222 (202+20)", price: 66500 },
+                    { name: "ML 257 (234+23)", price: 76400 }, { name: "ML 284 (254+30)", price: 82400 }, { name: "ML 296 (256+40)", price: 87000 },
+                    { name: "ML 344 (312+32)", price: 101200 }, { name: "ML 370 (333+37)", price: 109800 }, { name: "ML 408 (367+41)", price: 119800 },
+                    { name: "ML 429 (390+39)", price: 126200 }, { name: "ML 514 (468+46)", price: 152100 }, { name: "ML 568 (503+65)", price: 162500 },
+                    { name: "ML 600 (546+54)", price: 174000 }, { name: "ML 706 (625+81)", price: 203300 }, { name: "ML 875 (774+101)", price: 247700 },
+                    { name: "ML 963 (859+104)", price: 279700 }, { name: "ML 1050 (937+113)", price: 300100 }, { name: "ML 1159 (1003+156)", price: 331200 },
+                    { name: "ML 1220 (1093+127)", price: 348700 }, { name: "ML 1412 (1250+162)", price: 404000 }, { name: "ML 2010 (1708+302)", price: 541100 },
+                    { name: "ML 2195 (1860+335)", price: 595600 }, { name: "ML 2901 (2485+416)", price: 790500 }, { name: "ML 3073 (2641+432)", price: 840400 },
+                    { name: "ML 3688 (3099+589)", price: 1048500 }, { name: "ML 4394 (3724+670)", price: 1184800 }, { name: "ML 4830 (4003+827)", price: 1289900 },
+                    { name: "ML 5532 (4649+883)", price: 1488800 }
+                ],
+                "membership": [
+                    { name: "Weekly Diamond Pass x1", price: 31400 }, { name: "Weekly Diamond Pass x2", price: 63000 },
+                    { name: "Weekly Diamond Pass x3", price: 93300 }, { name: "Weekly Diamond Pass x4", price: 128300 },
+                    { name: "Weekly Diamond Pass x5", price: 155400 }, { name: "[ML] Starlight Member", price: 88500 },
+                    { name: "[ML] Starlight Member Plus", price: 226300 }, { name: "[ML] Twilight Pass", price: 162300 }
+                ]
+            },
+            "Free Fire": {
+                "diamond": [
+                    { name: "5 Diamond FF", price: 1400 }, { name: "20 Diamond FF", price: 4200 }, { name: "30 Diamond FF", price: 5900 },
+                    { name: "50 Diamond FF", price: 7600 }, { name: "70 Diamond FF", price: 9300 }, { name: "100 Diamond FF", price: 13600 },
+                    { name: "140 Diamond FF", price: 17900 }, { name: "210 Diamond FF", price: 26200 }, { name: "250 Diamond FF", price: 32300 },
+                    { name: "280 Diamond FF", price: 35600 }, { name: "355 Diamond FF", price: 43500 }, { name: "425 Diamond FF", price: 52900 },
+                    { name: "500 Diamond FF", price: 62900 }, { name: "510 Diamond FF", price: 65800 }, { name: "545 Diamond FF", price: 67500 },
+                    { name: "635 Diamond FF", price: 78200 }, { name: "720 Diamond FF", price: 90600 }, { name: "860 Diamond FF", price: 105700 },
+                    { name: "930 Diamond FF", price: 113000 }, { name: "1000 Diamond FF", price: 121700 }, { name: "1075 Diamond FF", price: 131400 },
+                    { name: "1450 Diamond FF", price: 172500 }, { name: "2000 Diamond FF", price: 238800 }, { name: "2140 Diamond FF", price: 257700 },
+                    { name: "2720 Diamond FF", price: 324700 }, { name: "3640 Diamond FF", price: 428600 }, { name: "4000 Diamond FF", price: 471800 },
+                    { name: "5600 Diamond FF", price: 664700 }, { name: "7290 Diamond FF", price: 865300 }, { name: "36500 Diamond FF", price: 4263200 }
+                ],
+                "membership": []
+            },
+            "PUBG Mobile": {
+                "diamond": [
+                    { name: "26 UC", price: 17200 }, { name: "UC 60", price: 17100 }, { name: "UC 100", price: 33700 },
+                    { name: "UC 150", price: 50500 }, { name: "UC 210", price: 67700 }, { name: "UC 325", price: 81600 },
+                    { name: "UC 500", price: 134700 }, { name: "UC 700", price: 186900 }, { name: "UC 1000", price: 270200 },
+                    { name: "UC 1250", price: 336300 }, { name: "UC 1500", price: 379900 }, { name: "UC 2500", price: 608100 },
+                    { name: "UC 3850", price: 801000 }, { name: "UC 4510", price: 1002300 }
+                ],
+                "membership": []
+            },
+            "Honor of Kings": {
+                "diamond": [
+                    { name: "16 + 1 Token", price: 3700 }, { name: "80 + 8 Token", price: 16100 }, { name: "240 + 17 Token", price: 46900 },
+                    { name: "400 + 32 Token", price: 74500 }, { name: "560 + 45 Token", price: 110100 }, { name: "800 + 95 Token", price: 147900 },
+                    { name: "1.200 + 153 Token", price: 230700 }, { name: "2.400 + 324 Token", price: 439700 }, { name: "4.000 + 580 Token", price: 734500 },
+                    { name: "8.000 + 1.160 Token", price: 1464000 }
+                ],
+                "membership": [
+                    { name: "HOK Weekly Card", price: 15800 }, { name: "HOK Weekly Card Plus", price: 44800 }
+                ]
+            },
+            "Valorant": {
+                "diamond": [
+                    { name: "357 Points", price: 42500 }, { name: "650 Points", price: 70800 }, { name: "1.350 Points", price: 139300 },
+                    { name: "2.050 Points", price: 212500 }, { name: "3.600 Points", price: 333300 }, { name: "7.500 Points", price: 685600 },
+                    { name: "8.150 Points", price: 754200 }
+                ],
+                "membership": []
+            },
+            "Genshin Impact": {
+                "diamond": [
+                    { name: "60 Crystal", price: 19500 }, { name: "330 Crystal", price: 92500 }, { name: "1.090 Crystal", price: 272500 },
+                    { name: "2.240 Crystal", price: 392100 }, { name: "3.880 Crystal", price: 898300 }, { name: "8.080 Crystal", price: 1700000 }
+                ],
+                "membership": [{ name: "Blessing of the Welkin Moon", price: 88700 }]
+            },
+            "Ace Racer": {
+                "diamond": [
+                    { name: "60 Crystal", price: 19500 }, { name: "330 Crystal", price: 92500 }, { name: "1.090 Crystal", price: 272500 },
+                    { name: "2.240 Crystal", price: 392100 }, { name: "3.880 Crystal", price: 898300 }, { name: "8.080 Crystal", price: 1700000 }
+                ],
+                "membership": [{ name: "Blessing", price: 88700 }]
+            },
+            "FC Mobile": {
+                "diamond": [
+                    { name: "40+8 Point", price: 7200 }, { name: "100+20 Point", price: 16200 }, { name: "520+104 Point", price: 76900 },
+                    { name: "1070+214 Point", price: 153500 }, { name: "2200+440 Point", price: 316300 }, { name: "5750+1150 Point", price: 765900 }
+                ],
+                "membership": []
+            },
+            "Undawn": {
+                "diamond": [
+                    { name: "[GU] 80 RC", price: 14000 }, { name: "[GU] 250 RC", price: 41300 }, { name: "[GU] 450 RC", price: 69300 },
+                    { name: "[GU] 920 RC", price: 136500 }, { name: "[GU] 1.850 RC", price: 271800 }, { name: "[GU] 2.800 RC", price: 405200 },
+                    { name: "[GU] 33.000 RC", price: 4650500 }
+                ],
+                "membership": [
+                    { name: "[GU] Mingguan", price: 26500 }, { name: "[GU] Bulanan", price: 43700 }, { name: "[GU] Glory Pass Premium", price: 132200 }
+                ]
+            },
+            "Eggy Party": {
+                "diamond": [
+                    { name: "10 Coins", price: 2400 }, { name: "60 + 3 Coins", price: 13400 }, { name: "120 + 6 Coins", price: 25300 },
+                    { name: "300 + 24 Coins", price: 58100 }, { name: "700 + 57 Coins", price: 131000 }, { name: "1380 + 144 Coins", price: 259900 },
+                    { name: "2080 + 216 Coins", price: 388700 }, { name: "3450 + 423 Coins", price: 650700 }
+                ],
+                "membership": []
+            },
+            "Metal Slug": {
+                "diamond": [
+                    { name: "60 Ruby", price: 13800 }, { name: "310 Ruby", price: 61800 }, { name: "630 Ruby", price: 126200 },
+                    { name: "1.300 Ruby", price: 232600 }, { name: "3.200 Ruby", price: 605300 }, { name: "6.500 Ruby", price: 1162900 }
+                ],
+                "membership": []
+            },
+            "Arena of Valor": {
+                "diamond": [
+                    { name: "AOV 40", price: 10500 }, { name: "AOV 90", price: 19000 }, { name: "AOV 230", price: 47700 },
+                    { name: "AOV 470", price: 94200 }, { name: "AOV 950", price: 187300 }, { name: "AOV 1.430", price: 281400 },
+                    { name: "AOV 2.390", price: 465600 }, { name: "AOV 4.800", price: 944600 }
+                ],
+                "membership": []
+            },
+            "Sausage Man": {
+                "diamond": [
+                    { name: "60 Candy", price: 13000 }, { name: "180 Candy", price: 37500 }, { name: "316 Candy", price: 63700 },
+                    { name: "718 Candy", price: 120400 }, { name: "1.368 Candy", price: 293200 }, { name: "2.118 Candy", price: 437500 }
+                ],
+                "membership": []
+            },
+            "Call of Duty Mobile": {
+                "diamond": [
+                    { name: "COD 31 CP", price: 5200 }, { name: "COD 53 CP", price: 10300 }, { name: "COD 106 CP", price: 18900 },
+                    { name: "COD 128 CP", price: 19000 }, { name: "COD 321 CP", price: 47100 }, { name: "COD 528 CP", price: 94200 },
+                    { name: "COD 645 CP", price: 88400 }, { name: "COD 800 CP", price: 115200 }, { name: "COD 1.056 CP", price: 187300 },
+                    { name: "COD 1.373 CP", price: 189900 }, { name: "COD 2.060 CP", price: 285300 }, { name: "COD 3.564 CP", price: 449700 },
+                    { name: "COD 5.618 CP", price: 691900 }, { name: "COD 7.656 CP", price: 899300 }
+                ],
+                "membership": []
+            },
+            "Super Sus": {
+                "diamond": [
+                    { name: "100 Golden", price: 11900 }, { name: "310 Golden", price: 35200 }, { name: "520 Golden", price: 58900 },
+                    { name: "1.060 Golden", price: 113500 }, { name: "2.180 Golden", price: 267700 }, { name: "5.600 Golden", price: 565100 }
+                ],
+                "membership": []
+            },
+            "Stumble Guys": {
+                "diamond": [
+                    { name: "250 Gems", price: 12100 }, { name: "800 Gems", price: 25300 }, { name: "120 Token", price: 32800 },
+                    { name: "1600 Gems + 75 Token", price: 42900 }, { name: "5000 Gems + 275 Token", price: 106300 }, { name: "1.300 Token", price: 259600 }
+                ],
+                "membership": []
+            },
+            "Lords Mobile": {
+                "diamond": [
+                    { name: "67 Diamond", price: 11100 }, { name: "134 Diamond", price: 21000 }, { name: "335 Diamond", price: 52700 },
+                    { name: "670 Diamond", price: 104000 }, { name: "2.011 Diamond", price: 307700 }, { name: "3.352 Diamond", price: 521500 }
+                ],
+                "membership": []
+            },
+            "Wild Rift": {
+                "diamond": [
+                    { name: "420 WC", price: 57800 }, { name: "700 WC", price: 96000 }, { name: "1.375 WC", price: 179300 },
+                    { name: "2.400 WC", price: 246500 }, { name: "4.000 WC", price: 394500 }, { name: "8.150 WC", price: 1008900 }
+                ],
+                "membership": []
+            },
+            "Clash of Clans": {
+                "diamond": [
+                    { name: "88 Gems", price: 13800 }, { name: "550 Gems", price: 65500 }, { name: "1.320 Gems", price: 130300 },
+                    { name: "2.750 Gems", price: 261200 }, { name: "7.150 Gems", price: 626400 }
+                ],
+                "membership": [{ name: "Gold Pass COC", price: 90700 }]
+            },
+            "Honkai Star Rail": {
+                "diamond": [
+                    { name: "60 OS", price: 13400 }, { name: "300 + 30 OS", price: 81200 }, { name: "980 + 110 OS", price: 239700 },
+                    { name: "1280 + 140 OS", price: 244500 }, { name: "1980 + 260 OS", price: 381600 }, { name: "3280 + 600 OS", price: 620800 },
+                    { name: "6480 + 1600 OS", price: 1590700 }
+                ],
+                "membership": [
+                    { name: "Supply Pass", price: 81200 }, { name: "Supply Pass 2x", price: 121700 }, { name: "Supply Pass 3x", price: 181000 }
+                ]
+            },
+            "Growtopia": {
+                "diamond": [
+                    { name: "[GP] Chest O Gems", price: 28100 }, { name: "[GP] Gem Fountain", price: 74700 }, { name: "[GP] Rainin Gems", price: 139300 },
+                    { name: "[GP] Gem Bounty", price: 413900 }, { name: "[GP] 1 Year Subscription Token", price: 691600 }, { name: "[GP] Gem Abundance", price: 691600 }
+                ],
+                "membership": [{ name: "[GP] Royal Grow Pass", price: 139300 }]
+            }
+        };
+
+        let selectedGameKey = "Mobile Legends";
+
+        function initGameGrid() {
+            const container = document.getElementById('game-name-buttons-grid');
+            container.innerHTML = '';
+            Object.keys(EXCEL_GAME_DATA).forEach(gameName => {
+                const card = document.createElement('div');
+                card.className = 'game-text-card';
+                card.onclick = () => openGameDetail(gameName);
+                card.innerHTML = `<div class="game-name">${gameName}</div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function openGameDetail(gameName) {
+            selectedGameKey = gameName;
+            document.getElementById('active-game-name').innerText = gameName;
+            document.getElementById('view-game-list').style.display = 'none';
+            document.getElementById('view-game-detail').style.display = 'block';
+
+            const hasMembership = EXCEL_GAME_DATA[gameName].membership && EXCEL_GAME_DATA[gameName].membership.length > 0;
+            const subtabBar = document.getElementById('game-subtab-bar');
+            if (hasMembership) {
+                subtabBar.style.display = 'flex';
+                filterGameSubtab('diamond');
+            } else {
+                subtabBar.style.display = 'none';
+                renderGameItemsList('diamond');
+            }
+        }
+
+        function backToGameList() {
+            document.getElementById('view-game-list').style.display = 'block';
+            document.getElementById('view-game-detail').style.display = 'none';
+        }
+
+        function filterGameSubtab(type) {
+            document.getElementById('pill-diamond').classList.toggle('active', type === 'diamond');
+            document.getElementById('pill-membership').classList.toggle('active', type === 'membership');
+            renderGameItemsList(type);
+        }
+
+        function renderGameItemsList(type) {
+            const container = document.getElementById('game-items-container');
+            container.innerHTML = '';
+
+            const items = (EXCEL_GAME_DATA[selectedGameKey] && EXCEL_GAME_DATA[selectedGameKey][type]) || [];
+            const disc = (botPricing.discounts && botPricing.discounts['2']) || 0;
+
+            items.forEach(item => {
+                let finalPrice = item.price;
+                let strikeHtml = '';
+
+                if (disc > 0) {
+                    finalPrice = Math.round(item.price * (1 - disc / 100));
+                    strikeHtml = `<span class="strike-price">Rp ${item.price.toLocaleString('id-ID')}</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'nominal-item-card';
+                card.onclick = () => redirectOrderTele(selectedGameKey, item.name, finalPrice);
+                card.innerHTML = `
+                    ${disc > 0 ? `<div class="discount-badge">-${disc}%</div><div class="discount-timer">⏱️ 01:59:45</div>` : ''}
+                    <div class="nominal-item-name">${item.name}</div>
+                    <div class="nominal-item-price">${strikeHtml}<span class="discounted-price">Rp ${finalPrice.toLocaleString('id-ID')}</span></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function redirectOrderTele(cat, itemName, price) {
+            const text = `Halo bos, gw mau order [${cat}] - [${itemName}] (Rp ${price.toLocaleString('id-ID')}). Minta instruksi bayar Qris dinamis dong!`;
+            window.open(`https://t.me/chokoretoangelina?text=` + encodeURIComponent(text), '_blank');
+        }
+
+        async function loadBotPricing() {
+            try {
+                const res = await fetch(BACKEND_API + "/get_pricing");
+                if (res.ok) {
+                    const json = await res.json();
+                    const data = json.data || json;
+                    botPricing.discounts = data.discounts || {};
+                    botPricing.price_changes = data.price_changes || {};
+                    
+                    const discData = botPricing.discounts['2'];
+                    const percent = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
+                    const ttl = typeof discData === 'object' ? (discData.ttl_seconds || 7200) : 7200;
+
+                    if (percent > 0) {
+                        renderGameItemsList(activeGameSubtab);
+                        startCountdownClock(ttl);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        let countdownInterval = null;
+        function startCountdownClock(initialSeconds) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let remaining = initialSeconds;
+
+            function updateDisplay() {
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                const hrs = String(Math.floor(remaining / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+                const secs = String(remaining % 60).padStart(2, '0');
+                document.querySelectorAll('.discount-timer').forEach(el => {
+                    el.innerText = `⏱️ ${hrs}:${mins}:${secs}`;
+                });
+                remaining--;
+            }
+
+            updateDisplay();
+            countdownInterval = setInterval(updateDisplay, 1000);
+        }
+
+        // ================= MAGHRIB TWILIGHT CELESTIAL CANVAS =================
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        let scrollRatio = 0;
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        function getScrollRatio() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            const scrollHeight = Math.max(
+                document.body.scrollHeight, document.documentElement.scrollHeight,
+                document.body.offsetHeight, document.documentElement.offsetHeight
+            ) || 1;
+            const clientHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+            const maxScroll = Math.max(1, scrollHeight - clientHeight);
+            return Math.min(1.0, Math.max(0, scrollTop / maxScroll));
+        }
+
+        class Star {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.radius = Math.random() * 2.2 + 0.8;
+                this.speed = Math.random() * 0.015 + 0.005;
+                this.alpha = Math.random();
+                this.dir = Math.random() > 0.5 ? 1 : -1;
+            }
+            update() {
+                this.alpha += this.speed * this.dir;
+                if (this.alpha >= 1) { this.alpha = 1; this.dir = -1; }
+                else if (this.alpha <= 0.2) { this.alpha = 0.2; this.dir = 1; }
+            }
+            draw(fade) {
+                if (fade <= 0.01) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * fade})`;
+                ctx.fill();
+            }
+        }
+
+        class Cloud {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * (width + 400) - 200;
+                this.y = Math.random() * (height * 0.65);
+                this.radius = Math.random() * 95 + 60;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.opacity = Math.random() * 0.4 + 0.25;
+            }
+            update() {
+                this.x += this.speed;
+                if (this.x - this.radius > width) {
+                    this.x = -this.radius;
+                    this.y = Math.random() * (height * 0.65);
+                }
+            }
+            draw(fade, isMaghrib) {
+                if (fade <= 0.01) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                if (isMaghrib) {
+                    g.addColorStop(0, `rgba(70, 30, 45, ${this.opacity * fade * 0.8})`);
+                    g.addColorStop(0.65, `rgba(180, 70, 30, ${this.opacity * fade * 0.4})`);
+                    g.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                } else {
+                    g.addColorStop(0, `rgba(255, 255, 255, ${this.opacity * fade})`);
+                    g.addColorStop(0.7, `rgba(240, 248, 255, ${this.opacity * 0.5 * fade})`);
+                    g.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                }
+                ctx.fillStyle = g;
+                ctx.fill();
+            }
+        }
+
+        let starList = [];
+        let cloudList = [];
+
+        function initParticles() {
+            starList = [];
+            cloudList = [];
+            for (let i = 0; i < 350; i++) starList.push(new Star());
+            for (let i = 0; i < 35; i++) cloudList.push(new Cloud());
+        }
+
+        function lerpColor(r1, g1, b1, r2, g2, b2, t) {
+            const r = Math.round(r1 + (r2 - r1) * t);
+            const g = Math.round(g1 + (g2 - g1) * t);
+            const b = Math.round(b1 + (b2 - b1) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function renderLoop() {
+            scrollRatio += (getScrollRatio() - scrollRatio) * 0.08;
+
+            let skyColor;
+            if (scrollRatio < 0.55) {
+                skyColor = lerpColor(5, 7, 13, 217, 59, 0, scrollRatio / 0.55);
+            } else {
+                skyColor = lerpColor(217, 59, 0, 2, 136, 209, (scrollRatio - 0.55) / 0.45);
+            }
+
+            ctx.fillStyle = skyColor;
+            ctx.fillRect(0, 0, width, height);
+
+            if (scrollRatio > 0.30 && scrollRatio < 0.75) {
+                const maghribAlpha = Math.sin((scrollRatio - 0.30) / 0.45 * Math.PI);
+                const horizGlow = ctx.createLinearGradient(0, height * 0.2, 0, height * 0.8);
+                horizGlow.addColorStop(0, `rgba(255, 90, 0, ${0.45 * maghribAlpha})`);
+                horizGlow.addColorStop(0.5, `rgba(180, 30, 60, ${0.3 * maghribAlpha})`);
+                horizGlow.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                ctx.fillStyle = horizGlow;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            const sunMoonX = width * 0.5;
+            const sunMoonY = 120 + scrollRatio * 40;
+            const bodyRadius = 60 + scrollRatio * 15;
+
+            if (scrollRatio < 0.65) {
+                const moonFade = Math.max(0, 1.0 - (scrollRatio / 0.65));
+                if (moonFade > 0.01) {
+                    const moonGlow = ctx.createRadialGradient(sunMoonX, sunMoonY, 0, sunMoonX, sunMoonY, bodyRadius * 3.2);
+                    moonGlow.addColorStop(0, `rgba(220, 240, 255, ${0.6 * moonFade})`);
+                    moonGlow.addColorStop(1, `rgba(220, 240, 255, 0)`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius * 3.2, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGlow;
+                    ctx.fill();
+
+                    const moonGrad = ctx.createRadialGradient(sunMoonX - 15, sunMoonY - 15, 5, sunMoonX, sunMoonY, bodyRadius);
+                    moonGrad.addColorStop(0, `rgba(255, 255, 255, ${moonFade})`);
+                    moonGrad.addColorStop(0.7, `rgba(230, 240, 250, ${moonFade})`);
+                    moonGrad.addColorStop(1, `rgba(175, 195, 215, ${moonFade})`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGrad;
+                    ctx.fill();
+                }
+            }
+
+            const starFade = Math.max(0, 1.0 - (scrollRatio / 0.55));
+            if (starFade > 0.01) {
+                starList.forEach(s => { s.update(); s.draw(starFade); });
+            }
+
+            const cloudFade = Math.min(1.0, Math.max(0, (scrollRatio - 0.35) / 0.65));
+            if (cloudFade > 0.01) {
+                const isMaghrib = scrollRatio >= 0.35 && scrollRatio <= 0.65;
+                cloudList.forEach(c => { c.update(); c.draw(cloudFade, isMaghrib); });
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+        window.addEventListener('scroll', getScrollRatio, { passive: true });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
+            initParticles();
+            renderLoop();
+            initGameGrid();
+            loadBotPricing();
+        });
+    </script>
+</body>
+</html>

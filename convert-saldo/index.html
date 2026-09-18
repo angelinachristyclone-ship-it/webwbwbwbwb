@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TMMDZ0QC24"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-TMMDZ0QC24');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Convert Saldo E-Wallet & Masa Aktif - Convenant VIP</title>
+    <style>
+        :root {
+            --bg-color: #05070d;
+            --text-main: #ffffff;
+            --text-sub: #a0aab5;
+            --card-bg: rgba(18, 24, 38, 0.75);
+            --card-border: rgba(255, 255, 255, 0.16);
+            --accent-blue: #1a5cff;
+            --accent-green: #00C993;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #05070d !important;
+            background: #05070d !important;
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+        }
+
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 540px;
+            margin: 0 auto;
+            padding: 24px 14px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .header-title {
+            font-size: 26px;
+            font-weight: 900;
+            margin-bottom: 6px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 15px rgba(168, 85, 247, 0.8);
+        }
+
+        .stats-banner {
+            font-size: 12.5px;
+            color: #00ffb3;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            background: rgba(18, 24, 38, 0.85);
+            border: 1px solid rgba(0, 201, 147, 0.4);
+            padding: 10px 14px;
+            border-radius: 16px;
+        }
+
+        /* NAVIGATION BAR */
+        .nav-category-bar {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .nav-cat-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-cat-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #1a5cff;
+        }
+
+        .nav-cat-btn.active {
+            background: linear-gradient(135deg, #1a5cff, #0070f3);
+            border-color: #60a5fa;
+            box-shadow: 0 4px 14px rgba(26, 92, 255, 0.4);
+        }
+
+        .nav-cat-btn.home-btn {
+            grid-column: 1 / -1;
+            background: rgba(0, 201, 147, 0.15);
+            border-color: rgba(0, 201, 147, 0.5);
+            color: #00ffb3;
+        }
+
+        /* SUBTAB SWITCHER (FOTO 3 & 4 STYLE) */
+        .subtab-switch-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 18px;
+            background: rgba(18, 24, 38, 0.9);
+            padding: 6px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        @media (max-width: 420px) {
+            .subtab-switch-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .subtab-pill {
+            padding: 10px 6px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .subtab-pill.active {
+            background: #1a5cff;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(26, 92, 255, 0.4);
+        }
+
+        /* 2-COLUMN ITEM GRID */
+        .item-2col-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .nominal-item-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .nominal-item-card:hover {
+            transform: translateY(-3px);
+            border-color: #1a5cff;
+            box-shadow: 0 8px 20px rgba(26, 92, 255, 0.3);
+        }
+
+        .nominal-item-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .nominal-item-price {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: #1a5cff;
+        }
+
+        /* DISCOUNT BADGES */
+        .discount-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #ff0055, #ff4757);
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 3px 7px;
+            border-radius: 8px;
+        }
+
+        .discount-timer {
+            position: absolute;
+            bottom: 6px;
+            left: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #d97706;
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .strike-price {
+            color: #8a96a3;
+            font-size: 11px;
+            text-decoration: line-through red 2px;
+            margin-right: 4px;
+        }
+
+        .discounted-price {
+            color: #059669;
+            font-weight: 900;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-bottom: 30px;
+            font-size: 12.5px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-sub);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="star-canvas"></canvas>
+
+    <div class="container">
+        
+        <!-- JUDUL -->
+        <div class="header-title">💸 Convert Saldo E-Wallet</div>
+
+        <!-- STATISTIK BANNER -->
+        <div class="stats-banner">
+            450+ order sudah di proses, 9,6rb aksi web, 18,4rb view, inter tranksasi, qris dinamis(bisa kadaluarsa) terpercaya, all payment
+        </div>
+
+        <!-- NAVIGASI TAB ANTAR SUB-MENU -->
+        <div class="nav-category-bar">
+            <a href="../" class="nav-cat-btn home-btn">🏠 Kembali ke Beranda</a>
+            <a href="../top-up-game/" class="nav-cat-btn">🎮 Top Up Game</a>
+            <a href="../voucher-game/" class="nav-cat-btn">🎟️ Voucher Game</a>
+            <a href="../lelang-kuota/" class="nav-cat-btn">🏷️ Lelang Kuota</a>
+            <a href="./" class="nav-cat-btn active">💸 Convert Saldo</a>
+        </div>
+
+        <!-- SUBTAB SWITCHER -->
+        <div class="subtab-switch-bar">
+            <button class="subtab-pill active" onclick="switchConvertSubtab('pulsa', this)">Masa Aktif & PLN</button>
+            <button class="subtab-pill" onclick="switchConvertSubtab('spay', this)">ShopeePay</button>
+            <button class="subtab-pill" onclick="switchConvertSubtab('ovo', this)">OVO</button>
+            <button class="subtab-pill" onclick="switchConvertSubtab('dana', this)">DANA</button>
+        </div>
+
+        <!-- 2-COLUMN ITEM GRID -->
+        <div class="item-2col-grid" id="convert-items-grid"></div>
+
+        <!-- FOOTER -->
+        <div class="footer">Made with ❤ by Convenant</div>
+    </div>
+
+    <script>
+        const BACKEND_API = "https://shinezzzz-gokgokgogkgokgok.hf.space";
+        let botPricing = { discounts: {}, product_changes: {} };
+
+        // 100% EXCEL DATA CONVERT SALDO & MASA AKTIF
+        const EXCEL_CONVERT_GROUPED = {
+            "pulsa": [
+                { name: "Masa Aktif Telkomsel + 5 Hari", price: 3400 },
+                { name: "Masa Aktif Telkomsel + 10 Hari", price: 4700 },
+                { name: "Masa Aktif Telkomsel + 15 Hari", price: 6900 },
+                { name: "Masa Aktif Telkomsel + 30 Hari", price: 12200 },
+                { name: "Masa Aktif Telkomsel + 90 Hari", price: 32600 },
+                { name: "Masa Aktif Telkomsel + 180 Hari", price: 62900 },
+                { name: "PLN 5.000", price: 7000 },
+                { name: "PLN 10.000", price: 12000 },
+                { name: "PLN 15.000", price: 17600 },
+                { name: "PLN 20.000", price: 22100 },
+                { name: "PLN 25.000", price: 27300 },
+                { name: "PLN 50.000", price: 54000 },
+                { name: "PLN 100.000", price: 105500 },
+                { name: "PLN 200.000", price: 206300 },
+                { name: "PLN 500.000", price: 515500 },
+                { name: "PLN 1.000.000", price: 1024100 }
+            ],
+            "spay": [
+                { name: "SPay 10.000", price: 11900 },
+                { name: "SPay 20.000", price: 22000 },
+                { name: "SPay 30.000", price: 32600 },
+                { name: "SPay 40.000", price: 42600 },
+                { name: "SPay 50.000", price: 53700 },
+                { name: "SPay 60.000", price: 63800 },
+                { name: "SPay 70.000", price: 73900 },
+                { name: "SPay 80.000", price: 83900 },
+                { name: "SPay 90.000", price: 94000 },
+                { name: "SPay 100.000", price: 105100 },
+                { name: "SPay 150.000", price: 155400 },
+                { name: "SPay 200.000", price: 205800 }
+            ],
+            "ovo": [
+                { name: "Ovo 10.000", price: 12300 },
+                { name: "Ovo 20.000", price: 22400 },
+                { name: "Ovo 30.000", price: 33000 },
+                { name: "Ovo 40.000", price: 43100 },
+                { name: "Ovo 50.000", price: 54200 },
+                { name: "Ovo 60.000", price: 64200 },
+                { name: "Ovo 70.000", price: 74300 },
+                { name: "Ovo 80.000", price: 84400 },
+                { name: "Ovo 90.000", price: 94400 },
+                { name: "Ovo 100.000", price: 105500 },
+                { name: "Ovo 150.000", price: 155900 },
+                { name: "Ovo 200.000", price: 206200 }
+            ],
+            "dana": [
+                { name: "DANA 1.000", price: 1900 },
+                { name: "DANA 2.000", price: 2900 },
+                { name: "DANA 3.000", price: 3900 },
+                { name: "DANA 4.000", price: 4900 },
+                { name: "DANA 5.000", price: 5900 },
+                { name: "DANA 10.000", price: 11000 },
+                { name: "DANA 20.000", price: 21100 },
+                { name: "DANA 30.000", price: 31700 },
+                { name: "DANA 40.000", price: 41800 },
+                { name: "DANA 50.000", price: 52900 },
+                { name: "DANA 60.000", price: 62900 },
+                { name: "DANA 70.000", price: 73000 },
+                { name: "DANA 80.000", price: 83100 },
+                { name: "DANA 90.000", price: 93200 },
+                { name: "DANA 100.000", price: 104200 },
+                { name: "DANA 150.000", price: 154600 },
+                { name: "DANA 200.000", price: 204900 }
+            ]
+        };
+
+        let currentSubtab = 'pulsa';
+
+        function switchConvertSubtab(key, btn) {
+            currentSubtab = key;
+            document.querySelectorAll('.subtab-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderItems(key);
+        }
+
+        function renderItems(key) {
+            const container = document.getElementById('convert-items-grid');
+            container.innerHTML = '';
+            const items = EXCEL_CONVERT_GROUPED[key] || [];
+            const disc = (botPricing.discounts && botPricing.discounts['5']) || 0;
+
+            items.forEach(item => {
+                let finalPrice = item.price;
+                let strikeHtml = '';
+
+                if (disc > 0) {
+                    finalPrice = Math.round(item.price * (1 - disc / 100));
+                    strikeHtml = `<span class="strike-price">Rp ${item.price.toLocaleString('id-ID')}</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'nominal-item-card';
+                card.onclick = () => redirectOrderTele('Convert Saldo', item.name, finalPrice);
+                card.innerHTML = `
+                    ${disc > 0 ? `<div class="discount-badge">-${disc}%</div><div class="discount-timer">⏱️ 01:59:45</div>` : ''}
+                    <div class="nominal-item-name">${item.name}</div>
+                    <div class="nominal-item-price">${strikeHtml}<span class="discounted-price">Rp ${finalPrice.toLocaleString('id-ID')}</span></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function redirectOrderTele(cat, itemName, price) {
+            const text = `Halo bos, gw mau order [${cat}] - [${itemName}] (Rp ${price.toLocaleString('id-ID')}). Minta instruksi bayar Qris dinamis dong!`;
+            window.open(`https://t.me/chokoretoangelina?text=` + encodeURIComponent(text), '_blank');
+        }
+
+        async function loadBotPricing() {
+            try {
+                const res = await fetch(BACKEND_API + "/get_pricing");
+                if (res.ok) {
+                    const json = await res.json();
+                    const data = json.data || json;
+                    botPricing.discounts = data.discounts || {};
+                    botPricing.price_changes = data.price_changes || {};
+
+                    const discData = botPricing.discounts['5'];
+                    const percent = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
+                    const ttl = typeof discData === 'object' ? (discData.ttl_seconds || 7200) : 7200;
+
+                    renderItems(currentSubtab);
+                    if (percent > 0) {
+                        startCountdownClock(ttl);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        let countdownInterval = null;
+        function startCountdownClock(initialSeconds) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let remaining = initialSeconds;
+
+            function updateDisplay() {
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                const hrs = String(Math.floor(remaining / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+                const secs = String(remaining % 60).padStart(2, '0');
+                document.querySelectorAll('.discount-timer').forEach(el => {
+                    el.innerText = `⏱️ ${hrs}:${mins}:${secs}`;
+                });
+                remaining--;
+            }
+
+            updateDisplay();
+            countdownInterval = setInterval(updateDisplay, 1000);
+        }
+
+        // ================= MAGHRIB TWILIGHT CELESTIAL CANVAS =================
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        let scrollRatio = 0;
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        function getScrollRatio() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            const scrollHeight = Math.max(
+                document.body.scrollHeight, document.documentElement.scrollHeight,
+                document.body.offsetHeight, document.documentElement.offsetHeight
+            ) || 1;
+            const clientHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+            const maxScroll = Math.max(1, scrollHeight - clientHeight);
+            return Math.min(1.0, Math.max(0, scrollTop / maxScroll));
+        }
+
+        class Star {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.radius = Math.random() * 2.2 + 0.8;
+                this.speed = Math.random() * 0.015 + 0.005;
+                this.alpha = Math.random();
+                this.dir = Math.random() > 0.5 ? 1 : -1;
+            }
+            update() {
+                this.alpha += this.speed * this.dir;
+                if (this.alpha >= 1) { this.alpha = 1; this.dir = -1; }
+                else if (this.alpha <= 0.2) { this.alpha = 0.2; this.dir = 1; }
+            }
+            draw(fade) {
+                if (fade <= 0.01) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * fade})`;
+                ctx.fill();
+            }
+        }
+
+        class Cloud {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * (width + 400) - 200;
+                this.y = Math.random() * (height * 0.65);
+                this.radius = Math.random() * 95 + 60;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.opacity = Math.random() * 0.4 + 0.25;
+            }
+            update() {
+                this.x += this.speed;
+                if (this.x - this.radius > width) {
+                    this.x = -this.radius;
+                    this.y = Math.random() * (height * 0.65);
+                }
+            }
+            draw(fade, isMaghrib) {
+                if (fade <= 0.01) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                if (isMaghrib) {
+                    g.addColorStop(0, `rgba(70, 30, 45, ${this.opacity * fade * 0.8})`);
+                    g.addColorStop(0.65, `rgba(180, 70, 30, ${this.opacity * fade * 0.4})`);
+                    g.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                } else {
+                    g.addColorStop(0, `rgba(255, 255, 255, ${this.opacity * fade})`);
+                    g.addColorStop(0.7, `rgba(240, 248, 255, ${this.opacity * 0.5 * fade})`);
+                    g.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                }
+                ctx.fillStyle = g;
+                ctx.fill();
+            }
+        }
+
+        let starList = [];
+        let cloudList = [];
+
+        function initParticles() {
+            starList = [];
+            cloudList = [];
+            for (let i = 0; i < 350; i++) starList.push(new Star());
+            for (let i = 0; i < 35; i++) cloudList.push(new Cloud());
+        }
+
+        function lerpColor(r1, g1, b1, r2, g2, b2, t) {
+            const r = Math.round(r1 + (r2 - r1) * t);
+            const g = Math.round(g1 + (g2 - g1) * t);
+            const b = Math.round(b1 + (b2 - b1) * t);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function renderLoop() {
+            scrollRatio += (getScrollRatio() - scrollRatio) * 0.08;
+
+            let skyColor;
+            if (scrollRatio < 0.55) {
+                skyColor = lerpColor(5, 7, 13, 217, 59, 0, scrollRatio / 0.55);
+            } else {
+                skyColor = lerpColor(217, 59, 0, 2, 136, 209, (scrollRatio - 0.55) / 0.45);
+            }
+
+            ctx.fillStyle = skyColor;
+            ctx.fillRect(0, 0, width, height);
+
+            if (scrollRatio > 0.30 && scrollRatio < 0.75) {
+                const maghribAlpha = Math.sin((scrollRatio - 0.30) / 0.45 * Math.PI);
+                const horizGlow = ctx.createLinearGradient(0, height * 0.2, 0, height * 0.8);
+                horizGlow.addColorStop(0, `rgba(255, 90, 0, ${0.45 * maghribAlpha})`);
+                horizGlow.addColorStop(0.5, `rgba(180, 30, 60, ${0.3 * maghribAlpha})`);
+                horizGlow.addColorStop(1, `rgba(0, 0, 0, 0)`);
+                ctx.fillStyle = horizGlow;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            const sunMoonX = width * 0.5;
+            const sunMoonY = 120 + scrollRatio * 40;
+            const bodyRadius = 60 + scrollRatio * 15;
+
+            if (scrollRatio < 0.65) {
+                const moonFade = Math.max(0, 1.0 - (scrollRatio / 0.65));
+                if (moonFade > 0.01) {
+                    const moonGlow = ctx.createRadialGradient(sunMoonX, sunMoonY, 0, sunMoonX, sunMoonY, bodyRadius * 3.2);
+                    moonGlow.addColorStop(0, `rgba(220, 240, 255, ${0.6 * moonFade})`);
+                    moonGlow.addColorStop(1, `rgba(220, 240, 255, 0)`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius * 3.2, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGlow;
+                    ctx.fill();
+
+                    const moonGrad = ctx.createRadialGradient(sunMoonX - 15, sunMoonY - 15, 5, sunMoonX, sunMoonY, bodyRadius);
+                    moonGrad.addColorStop(0, `rgba(255, 255, 255, ${moonFade})`);
+                    moonGrad.addColorStop(0.7, `rgba(230, 240, 250, ${moonFade})`);
+                    moonGrad.addColorStop(1, `rgba(175, 195, 215, ${moonFade})`);
+                    ctx.beginPath();
+                    ctx.arc(sunMoonX, sunMoonY, bodyRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = moonGrad;
+                    ctx.fill();
+                }
+            }
+
+            const starFade = Math.max(0, 1.0 - (scrollRatio / 0.55));
+            if (starFade > 0.01) {
+                starList.forEach(s => { s.update(); s.draw(starFade); });
+            }
+
+            const cloudFade = Math.min(1.0, Math.max(0, (scrollRatio - 0.35) / 0.65));
+            if (cloudFade > 0.01) {
+                const isMaghrib = scrollRatio >= 0.35 && scrollRatio <= 0.65;
+                cloudList.forEach(c => { c.update(); c.draw(cloudFade, isMaghrib); });
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+        window.addEventListener('scroll', getScrollRatio, { passive: true });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
+            initParticles();
+            renderLoop();
+            renderItems(currentSubtab);
+            loadBotPricing();
+        });
+    </script>
+</body>
+</html>
