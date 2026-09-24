@@ -31,6 +31,13 @@ const AdaptiveEngine = {
     }
 };
 
+// GLOBAL UNREAD MEMBERS TRACKER
+const unreadMemberMap = {};
+
+// REACTION & SAVED MESSAGES TRACKER
+const msgReactionsMap = {};
+let allSavedMessages = [];
+
 // DAFTAR 61 MEMBER PM LENGKAP
 const MEMBER_PM_LIST = [
     { id: "Delynn", name: "PM Delynn", file: "ADELINE_WIJAYA" },
@@ -370,6 +377,13 @@ async function initPage() {
 
         if (res.ok && data.ok) {
             subscribedFolders = (data.subscriptions || []).map(s => String(s.folder_name || "").trim().toUpperCase()).filter(Boolean);
+            if (data.unread_statuses) {
+                Object.keys(data.unread_statuses).forEach(key => {
+                    if (data.unread_statuses[key] && data.unread_statuses[key].has_unread) {
+                        unreadMemberMap[key.toUpperCase()] = true;
+                    }
+                });
+            }
             const userBadge = document.getElementById("userBadge");
             if (userBadge) userBadge.innerText = data.nama || "Convenant VIP";
             renderMemberList();
@@ -426,6 +440,10 @@ function renderMemberList() {
         const isSubB = isMemberSubscribed(b) === true;
         if (isSubA && !isSubB) return -1;
         if (!isSubA && isSubB) return 1;
+        const unreadA = Boolean(unreadMemberMap[a.name.toUpperCase()] || unreadMemberMap[a.id.toUpperCase()]);
+        const unreadB = Boolean(unreadMemberMap[b.name.toUpperCase()] || unreadMemberMap[b.id.toUpperCase()]);
+        if (unreadA && !unreadB) return -1;
+        if (!unreadA && unreadB) return 1;
         return 0;
     });
 
@@ -436,6 +454,9 @@ function renderMemberList() {
         const imgClass = isSubbed || isUnknown ? "member-avatar" : "member-avatar grey";
         const baseFile = mem.file;
         const mythSrc = getMemberAvatarSrc(mem, isSubbed || isUnknown);
+        const memberUpper = mem.name.toUpperCase();
+        const memberShort = mem.id.toUpperCase();
+        const hasUnread = Boolean(unreadMemberMap[memberUpper] || unreadMemberMap[memberShort]);
 
         let teamClass = "team-default";
         if (TEAM_DREAM.includes(mem.id)) teamClass = "team-dream";
@@ -447,6 +468,7 @@ function renderMemberList() {
                 <div class="member-avatar-wrap">
                     <img src="${mythSrc}" class="${imgClass}" alt="${mem.name}" 
                          onerror="handleAvatarError(this, '${baseFile}', ${isSubbed});">
+                    ${hasUnread ? '<span class="unread-dot" title="Ada pesan baru belum dibaca"></span>' : ''}
                     ${!isSubbed && !isUnknown ? '<div class="lock-icon-badge">🔒</div>' : ''}
                 </div>
                 <div class="member-info">
@@ -466,20 +488,22 @@ function showSidebarMobile() {
     document.body.classList.remove("mobile-chat-active");
 }
 
+let isInitialChatLoading = false;
+
 async function selectMember(memberId) {
     const chatMessages = document.getElementById("chatMessages");
-    if (activeMember) {
-        try {
-            if (chatMessages) localStorage.setItem("scroll_pos_" + activeMember.name, chatMessages.scrollTop);
-        } catch(e) {}
-    }
 
     if (activeMember && activeMember.id === memberId && currentMemberAllMessages.length > 0) {
         document.body.classList.add("mobile-chat-active");
+        forceScrollToBottom();
         return;
     }
 
     activeMember = MEMBER_PM_LIST.find(m => m.id === memberId);
+    if (activeMember) {
+        delete unreadMemberMap[activeMember.name.toUpperCase()];
+        delete unreadMemberMap[activeMember.id.toUpperCase()];
+    }
     renderMemberList();
 
     document.body.classList.add("mobile-chat-active");
@@ -493,6 +517,7 @@ async function selectMember(memberId) {
     isLoadingMore = false;
     hasMoreMessages = true;
     currentMemberAllMessages = [];
+    isInitialChatLoading = true;
 
     const chatArea = document.querySelector(".chat-area");
     const memId = activeMember.id;
@@ -511,8 +536,7 @@ async function selectMember(memberId) {
         currentStarColor = "#ffffff";
     }
 
-    // Backend is the authoritative subscription gate. The frontend must never
-    // block a member just because /userpmstat is still loading or has stale data.
+    // Backend is the authoritative subscription gate.
     const localSubscriptionState = isMemberSubscribed(activeMember);
     const isSubbed = localSubscriptionState !== false;
 
@@ -530,13 +554,7 @@ async function selectMember(memberId) {
 
     mediaPrefetcher.reset(activeMember.name);
 
-    // Resolve session locally inside selectMember().
-    // initPage() has its own block-scoped `session`; it is NOT visible here.
     const session = getCookie("user_session_pm") || "";
-
-    // Media manifest endpoint is intentionally not called from the browser.
-    // Inline media and the shared-media panel use direct media/thumb URLs instead,
-    // avoiding an unnecessary 401-prone background request.
 
     // Stage 1 Initial Load: Fetch 200 pesan pertama langsung agar instan & banyak
     try {
@@ -551,23 +569,24 @@ async function selectMember(memberId) {
         if (res.ok && data.ok) {
             const msgs = data.messages || [];
             currentMemberAllMessages = msgs;
+            const lastReadId = data.last_read_message_id || 0;
             if (msgs.length > 0) {
                 oldestMsgId = msgs[msgs.length - 1].id;
                 if (msgs.length < INITIAL_HISTORY_LIMIT) hasMoreMessages = false;
                 
-                msgs.forEach(m => {
+                // Only enqueue visible messages to prevent semaphore congestion
+                msgs.slice(0, 8).forEach(m => {
                     if (m.has_media) mediaPrefetcher.enqueue(m.id);
                 });
-
-                // IMPORTANT: do not silently advance oldestMsgId in the background.
-                // oldestMsgId must always point to the oldest message that is actually
-                // rendered, otherwise scroll-to-top pagination has nothing left to load.
             } else {
                 hasMoreMessages = false;
             }
-            renderMessages(msgs);
+            renderMessages(msgs, lastReadId);
             renderMediaGrid();
             fetchPinnedMessagesBanner();
+            setTimeout(() => {
+                isInitialChatLoading = false;
+            }, 2500);
         } else if (data && data.is_subscribed === false) {
             chatMessages.innerHTML = `
                 <div class="unsubscribed-notice">
@@ -582,7 +601,6 @@ async function selectMember(memberId) {
     } catch (e) {
         if (e.name !== "AbortError") {
             chatMessages.innerHTML = `<div style="margin:auto; color:#ff4d4d;">❌ Gagal memuat pesan dari Telegram.</div>`;
-        }
     }
 }
 
@@ -729,6 +747,40 @@ function switchMediaTab(tabType) {
     }
 }
 
+function handleVideoError(videoElem, mediaSrc) {
+    const parent = videoElem.parentElement;
+    if (parent && !parent.querySelector('.media-error-card')) {
+        videoElem.style.display = "none";
+        const card = document.createElement("div");
+        card.className = "media-error-card";
+        card.style.cssText = "padding: 18px; text-align: center; background: rgba(0,0,0,0.6); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.25); margin: 6px 0; cursor: pointer;";
+        card.onclick = function() {
+            videoElem.style.display = "block";
+            videoElem.src = mediaSrc + "&t=" + Date.now();
+            videoElem.load();
+            card.remove();
+        };
+        card.innerHTML = `<div style="font-size: 24px; margin-bottom: 4px;">🎬</div><div style="font-size: 12px; font-weight: 600; color: #fff;">Video PM Sedang Diproses</div><div style="font-size: 11px; color: #a0acba; margin-top: 4px;">Ketuk untuk mencoba memutar kembali</div>`;
+        parent.appendChild(card);
+    }
+}
+
+function handleAudioError(audioElem, mediaSrc) {
+    const parent = audioElem.parentElement;
+    if (parent && !parent.querySelector('.audio-error-hint')) {
+        const hint = document.createElement("div");
+        hint.className = "audio-error-hint";
+        hint.style.cssText = "font-size: 11px; color: #ff99aa; margin-top: 6px; cursor: pointer;";
+        hint.onclick = function() {
+            audioElem.src = mediaSrc + "&t=" + Date.now();
+            audioElem.load();
+            hint.remove();
+        };
+        hint.innerHTML = `⚠️ Gagal memutar audio. <u>Ketuk untuk coba lagi</u>`;
+        parent.appendChild(hint);
+    }
+}
+
 function renderMediaGrid() {
     const mediaGrid = document.getElementById("mediaGrid");
     if (!mediaGrid) return;
@@ -811,33 +863,46 @@ function buildMessageNode(msg, isRecent = false) {
         const thumbSrc = getThumbUrl(msg.id);
 
         if (msg.media_type === 'photo') {
+            const loadingAttr = isRecent ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
             mediaTag = `
                 <div class="msg-media-wrap">
-                    <img src="${mediaSrc}" data-thumb-src="${thumbSrc}" loading="lazy" decoding="async" class="msg-media msg-photo" alt="Foto PM" 
+                    <img src="${thumbSrc}" data-full-src="${mediaSrc}" ${loadingAttr} decoding="async" class="msg-media msg-photo" alt="Foto PM" 
+                         onload="onMediaLoaded(this)"
                          onerror="handleMediaError(this, '${thumbSrc}', '${mediaSrc}')" 
                          onclick="openLightbox('${mediaSrc}', 'photo', 'pm_photo_${msg.id}.jpg')">
-                    <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto</button>
+                    <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_photo_${msg.id}.jpg')">💾 Simpan Foto Asli</button>
                 </div>`;
         } else if (msg.media_type === 'video') {
             mediaTag = `
-                <div style="position:relative; min-height:140px;">
-                    <video src="${mediaSrc}" loading="lazy" class="msg-media" controls preload="metadata" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
+                <div class="msg-media-wrap" style="min-height:160px; background:#000;">
+                    <video src="${mediaSrc}" poster="${thumbSrc}" class="msg-media" controls preload="metadata" onloadedmetadata="onMediaLoaded(this)" onerror="handleVideoError(this, '${mediaSrc}')" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
                     <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
                 </div>`;
         } else if (msg.media_type === 'audio') {
             mediaTag = `
-                <div style="background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; margin-bottom:6px;">
-                    <audio src="${mediaSrc}" controls preload="none" style="width:100%; margin-bottom:4px;"></audio>
-                    <button class="save-media-btn" style="font-size:11px;" onclick="directDownload(this, '${mediaSrc}', 'pm_audio_${msg.id}.m4a')">💾 Simpan Voice/Audio</button>
+                <div class="msg-audio-card">
+                    <div class="msg-audio-head">
+                        <span>🎵</span>
+                        <span>Voice Note / Audio PM</span>
+                    </div>
+                    <audio src="${mediaSrc}" class="msg-audio-player" controls preload="metadata" onloadedmetadata="onMediaLoaded(this)" onerror="handleAudioError(this, '${mediaSrc}')"></audio>
+                    <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                        <button class="save-media-btn" style="font-size:11px;" onclick="directDownload(this, '${mediaSrc}', 'pm_audio_${msg.id}.m4a')">💾 Simpan Audio</button>
+                    </div>
                 </div>`;
         }
     }
+
+    const reactionsHtml = renderReactionBadgesHtml(msg.id, msgReactionsMap[msg.id]);
 
     return `
         <div class="msg-row" data-msg-id="${msg.id}">
             <div class="msg-bubble">
                 ${mediaTag}
                 <div>${(msg.text || "").replace(/\n/g, '<br>')}</div>
+                <div class="msg-reaction-badges" id="reactions-${msg.id}" style="${reactionsHtml ? 'display:flex;' : 'display:none;'}">
+                    ${reactionsHtml}
+                </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; pt-2; border-top:1px solid rgba(255,255,255,0.05);">
                     <div style="display:flex; gap:6px;">
                         <button style="background:none; border:none; color:var(--accent-blue); font-size:11px; cursor:pointer; padding:0;" onclick="openCommentComposer(${msg.id})">💬 Balas</button>
@@ -981,12 +1046,12 @@ function jumpToMessage(msgId) {
     const targetRow = document.querySelector(`.msg-row[data-msg-id="${msgId}"]`);
     if (targetRow) {
         targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        targetRow.style.transition = "background 0.3s ease";
-        targetRow.style.background = "rgba(255, 215, 0, 0.25)";
-        targetRow.style.borderRadius = "12px";
+        targetRow.classList.add('highlight-pulse');
         setTimeout(() => {
-            targetRow.style.background = "none";
+            targetRow.classList.remove('highlight-pulse');
         }, 2500);
+    } else {
+        showToast(`Pesan #${msgId} berada di luar jangkauan chat yang dimuat.`);
     }
 }
 
@@ -1042,6 +1107,121 @@ async function requestDeltaSync() {
     } catch(e) {}
 }
 
+// ============================================
+// REACTION SYSTEM (OPTIMISTIC UI & LOCAL STORAGE)
+// ============================================
+function getUserReactions() {
+    try {
+        return JSON.parse(localStorage.getItem('pm_user_reactions') || '{}');
+    } catch(e) { return {}; }
+}
+
+function setUserReaction(msgId, emoji, active) {
+    try {
+        const key = `${msgId}_${emoji}`;
+        const map = getUserReactions();
+        if (active) map[key] = true;
+        else delete map[key];
+        localStorage.setItem('pm_user_reactions', JSON.stringify(map));
+    } catch(e) {}
+}
+
+function hasUserReacted(msgId, emoji) {
+    const key = `${msgId}_${emoji}`;
+    const map = getUserReactions();
+    return !!map[key];
+}
+
+function renderReactionBadgesHtml(msgId, reactions) {
+    if (!reactions || typeof reactions !== 'object') return '';
+    let html = '';
+    for (const [emoji, count] of Object.entries(reactions)) {
+        if (count > 0) {
+            const isUser = hasUserReacted(msgId, emoji);
+            html += `<span class="reaction-chip ${isUser ? 'user-reacted' : ''}" onclick="toggleReaction(${msgId}, '${emoji}')" title="${count} reaksi ${emoji}">${emoji} <span class="chip-count">${count}</span></span>`;
+        }
+    }
+    return html;
+}
+
+function renderReactionBadges(msgId, reactions) {
+    const container = document.getElementById(`reactions-${msgId}`);
+    if (!container) return;
+    const html = renderReactionBadgesHtml(msgId, reactions);
+    container.innerHTML = html;
+    container.style.display = html ? 'flex' : 'none';
+}
+
+async function fetchBatchReactions(messageIds) {
+    if (!messageIds || messageIds.length === 0) return;
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/batch-reactions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message_ids: messageIds })
+        });
+        const data = await res.json();
+        if (data.ok && data.reactions) {
+            for (const [idStr, rxMap] of Object.entries(data.reactions)) {
+                const idNum = parseInt(idStr, 10);
+                msgReactionsMap[idNum] = rxMap;
+                renderReactionBadges(idNum, rxMap);
+            }
+        }
+    } catch(e) {
+        console.error("[Reaction] Failed to fetch batch reactions:", e);
+    }
+}
+
+async function toggleReaction(msgId, emoji) {
+    const session = getCookie("user_session_pm");
+    if (!msgId || !emoji) return;
+
+    if (!msgReactionsMap[msgId]) {
+        msgReactionsMap[msgId] = {};
+    }
+
+    const currentCount = msgReactionsMap[msgId][emoji] || 0;
+    const alreadyReacted = hasUserReacted(msgId, emoji);
+
+    // Optimistic UI update
+    if (alreadyReacted) {
+        setUserReaction(msgId, emoji, false);
+        if (currentCount <= 1) {
+            delete msgReactionsMap[msgId][emoji];
+        } else {
+            msgReactionsMap[msgId][emoji] = currentCount - 1;
+        }
+    } else {
+        setUserReaction(msgId, emoji, true);
+        msgReactionsMap[msgId][emoji] = currentCount + 1;
+    }
+    renderReactionBadges(msgId, msgReactionsMap[msgId]);
+
+    try {
+        const res = await fetch(BACKEND_URL + "/pm/react", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                session_cookie: session,
+                archive_message_id: msgId,
+                reaction: emoji,
+                folder_name: activeMember ? activeMember.name : ""
+            })
+        });
+        const data = await res.json();
+        if (data && data.reactions) {
+            msgReactionsMap[msgId] = data.reactions;
+            renderReactionBadges(msgId, msgReactionsMap[msgId]);
+        }
+    } catch(e) {
+        console.error("Gagal mengirim reaksi:", e);
+    }
+}
+
+// ============================================
+// SAVED MESSAGES (BOOKMARK) MODAL LOGIC
+// ============================================
 async function toggleSaveMessage(msgId) {
     const session = getCookie("user_session_pm");
     try {
@@ -1056,25 +1236,332 @@ async function toggleSaveMessage(msgId) {
         });
         const data = await res.json();
         if (res.ok && data.ok) {
-            showToast(data.is_saved ? "✓ Pesan disimpan ke Bookmark" : "Dihapus dari Bookmark");
+            showToast(data.is_saved ? "⭐ Pesan disimpan ke Bookmark" : "Dihapus dari Bookmark");
+            const modal = document.getElementById("savedMessagesModal");
+            if (modal && modal.classList.contains("visible")) {
+                loadSavedMessages();
+            }
         }
     } catch(e) {}
 }
 
-async function toggleReaction(msgId, emoji) {
+function openSavedMessagesModal() {
+    const modal = document.getElementById("savedMessagesModal");
+    if (!modal) return;
+    modal.classList.add("visible");
+    const searchInput = document.getElementById("savedSearchInput");
+    if (searchInput) searchInput.value = "";
+    loadSavedMessages();
+}
+
+function closeSavedMessagesModal(e) {
+    if (e && e.target && e.target.id !== "savedMessagesModal" && !e.target.classList.contains("custom-modal-close")) return;
+    const modal = document.getElementById("savedMessagesModal");
+    if (modal) modal.classList.remove("visible");
+}
+
+async function loadSavedMessages() {
+    const container = document.getElementById("savedMessagesList");
+    if (!container) return;
+    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-sub);"><div class="loading-spinner" style="margin: 0 auto 10px auto;"></div><div>Memuat pesan tersimpan...</div></div>`;
+
     const session = getCookie("user_session_pm");
     try {
-        await fetch(BACKEND_URL + "/pm/react", {
+        const res = await fetch(BACKEND_URL + "/pm/saved-messages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                session_cookie: session,
-                archive_message_id: msgId,
-                reaction: emoji,
-                folder_name: activeMember ? activeMember.name : ""
-            })
+            body: JSON.stringify({ session_cookie: session })
         });
-    } catch(e) {}
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            allSavedMessages = data.saved || [];
+            renderSavedMessages(allSavedMessages);
+        } else {
+            container.innerHTML = `<div class="saved-empty-state"><div class="saved-empty-icon">⚠️</div><div>Gagal memuat pesan tersimpan.</div></div>`;
+        }
+    } catch (e) {
+        container.innerHTML = `<div class="saved-empty-state"><div class="saved-empty-icon">❌</div><div>Koneksi bermasalah: ${e.message}</div></div>`;
+    }
+}
+
+function renderSavedMessages(list) {
+    const container = document.getElementById("savedMessagesList");
+    if (!container) return;
+
+    if (!list || list.length === 0) {
+        container.innerHTML = `
+            <div class="saved-empty-state">
+                <div class="saved-empty-icon">⭐</div>
+                <div style="font-size:15px; font-weight:700; color:#fff; margin-bottom:6px;">Belum Ada Pesan Tersimpan</div>
+                <div style="font-size:12px; line-height:1.5;">Klik tombol <strong>⭐ Simpan</strong> pada pesan PM mana saja untuk menyimpannya di sini agar mudah dibaca kembali.</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = list.map(item => {
+        let mediaSnippet = '';
+        if (item.has_media) {
+            if (item.media_type === 'photo') {
+                const thumbUrl = getThumbUrl(item.archive_message_id);
+                mediaSnippet = `<div style="margin-top:6px;"><img src="${thumbUrl}" class="saved-msg-media-preview" alt="Foto"></div>`;
+            } else if (item.media_type === 'video') {
+                mediaSnippet = `<div style="font-size:12px; color:var(--accent-blue); margin-top:4px;">🎥 Video terlampir</div>`;
+            } else if (item.media_type === 'audio') {
+                mediaSnippet = `<div style="font-size:12px; color:#ffd700; margin-top:4px;">🎵 Pesan Audio/VN</div>`;
+            }
+        }
+        const safeText = (item.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+        const memberDisplayName = item.member_name ? (item.member_name.startsWith('PM ') ? item.member_name : `PM ${item.member_name}`) : 'Member PM';
+        return `
+            <div class="saved-msg-item" data-saved-msg-id="${item.archive_message_id}">
+                <div class="saved-msg-head">
+                    <span class="saved-msg-author">🌸 ${memberDisplayName}</span>
+                    <span class="saved-msg-date">${item.created_at || ""}</span>
+                </div>
+                <div class="saved-msg-body">
+                    ${safeText ? `<div>${safeText}</div>` : ''}
+                    ${mediaSnippet}
+                </div>
+                <div class="saved-msg-actions">
+                    <button class="saved-action-del" onclick="removeSavedMessage(${item.archive_message_id}, event)">🗑️ Hapus</button>
+                    <button class="saved-action-jump" onclick="jumpToSavedMessage('${item.member_name || ''}', ${item.archive_message_id})">💬 Buka Chat</button>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function filterSavedMessages() {
+    const input = document.getElementById("savedSearchInput");
+    const q = (input ? input.value : "").trim().toLowerCase();
+    if (!q) {
+        renderSavedMessages(allSavedMessages);
+        return;
+    }
+    const filtered = allSavedMessages.filter(item => {
+        const text = (item.text || "").toLowerCase();
+        const mem = (item.member_name || "").toLowerCase();
+        return text.includes(q) || mem.includes(q);
+    });
+    renderSavedMessages(filtered);
+}
+
+async function removeSavedMessage(msgId, event) {
+    if (event) event.stopPropagation();
+    allSavedMessages = allSavedMessages.filter(m => String(m.archive_message_id) !== String(msgId));
+    filterSavedMessages();
+    await toggleSaveMessage(msgId);
+}
+
+async function jumpToSavedMessage(memberName, msgId) {
+    const modal = document.getElementById("savedMessagesModal");
+    if (modal) modal.classList.remove("visible");
+    if (!memberName) return;
+
+    const cleanName = memberName.replace(/^PM\s+/i, '').trim().toLowerCase();
+    const target = MEMBER_PM_LIST.find(m => m.name.toLowerCase() === memberName.toLowerCase() || m.id.toLowerCase() === cleanName);
+    if (!target) {
+        showToast("Member tidak ditemukan dalam daftar.");
+        return;
+    }
+
+    if (!activeMember || activeMember.id.toLowerCase() !== target.id.toLowerCase()) {
+        await selectMember(target);
+        setTimeout(() => {
+            jumpToMessage(msgId);
+        }, 1200);
+    } else {
+        jumpToMessage(msgId);
+    }
+}
+
+// ============================================
+// CUSTOM WALLPAPER ENGINE (GALLERY UPLOAD & PRESETS)
+// ============================================
+function initWallpaper() {
+    applyCurrentWallpaperSettings();
+}
+
+function applyCurrentWallpaperSettings() {
+    const wallpaperData = localStorage.getItem("pm_custom_wallpaper") || "";
+    const preset = localStorage.getItem("pm_wallpaper_preset") || "default";
+    const brightness = localStorage.getItem("pm_wallpaper_brightness") || "45";
+    const blur = localStorage.getItem("pm_wallpaper_blur") || "0";
+
+    const bgEl = document.getElementById("chatWallpaperBg");
+    const previewEl = document.getElementById("wallpaperLivePreview");
+
+    [bgEl, previewEl].forEach(el => {
+        if (!el) return;
+        if (preset === 'dark') {
+            el.style.backgroundImage = 'none';
+            el.style.backgroundColor = '#07090e';
+            el.style.filter = 'none';
+            el.classList.add('active');
+        } else if (preset === 'dream') {
+            el.style.backgroundImage = 'radial-gradient(ellipse at top, rgba(0, 168, 255, 0.35) 0%, rgba(5, 14, 30, 0.95) 75%)';
+            el.style.backgroundColor = '#040b17';
+            el.style.filter = 'none';
+            el.classList.add('active');
+        } else if (preset === 'passion') {
+            el.style.backgroundImage = 'radial-gradient(ellipse at top, rgba(235, 47, 6, 0.35) 0%, rgba(30, 5, 10, 0.95) 75%)';
+            el.style.backgroundColor = '#120406';
+            el.style.filter = 'none';
+            el.classList.add('active');
+        } else if (preset === 'love') {
+            el.style.backgroundImage = 'radial-gradient(ellipse at top, rgba(237, 76, 103, 0.35) 0%, rgba(28, 5, 25, 0.95) 75%)';
+            el.style.backgroundColor = '#120410';
+            el.style.filter = 'none';
+            el.classList.add('active');
+        } else if (wallpaperData) {
+            el.style.backgroundImage = `url("${wallpaperData}")`;
+            el.style.backgroundColor = '#000000';
+            el.style.backgroundPosition = 'center';
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundRepeat = 'no-repeat';
+            el.style.filter = `brightness(${brightness}%) blur(${blur}px)`;
+            el.classList.add('active');
+        } else {
+            el.style.backgroundImage = 'none';
+            el.style.backgroundColor = 'transparent';
+            el.style.filter = 'none';
+            el.classList.remove('active');
+        }
+    });
+}
+
+function openWallpaperModal() {
+    const modal = document.getElementById("wallpaperModal");
+    if (!modal) return;
+    modal.classList.add("visible");
+
+    const brightness = localStorage.getItem("pm_wallpaper_brightness") || "45";
+    const blur = localStorage.getItem("pm_wallpaper_blur") || "0";
+    const bInput = document.getElementById("wallpaperBrightnessInput");
+    const bVal = document.getElementById("brightnessVal");
+    if (bInput) bInput.value = brightness;
+    if (bVal) bVal.innerText = `${brightness}%`;
+
+    const blInput = document.getElementById("wallpaperBlurInput");
+    const blVal = document.getElementById("blurVal");
+    if (blInput) blInput.value = blur;
+    if (blVal) blVal.innerText = `${blur}px`;
+
+    applyCurrentWallpaperSettings();
+}
+
+function closeWallpaperModal(e) {
+    if (e && e.target && e.target.id !== "wallpaperModal" && !e.target.classList.contains("custom-modal-close") && e.target.tagName !== "BUTTON") return;
+    const modal = document.getElementById("wallpaperModal");
+    if (modal) modal.classList.remove("visible");
+}
+
+function handleWallpaperUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+        alert("Format file tidak didukung. Harap pilih gambar dari galeri.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+            // Resize via canvas to keep it lightweight (<250KB) and prevent LocalStorage quota overflow
+            const maxDim = 1280;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+                if (w > h) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                } else {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+
+            try {
+                localStorage.setItem("pm_custom_wallpaper", dataUrl);
+                localStorage.setItem("pm_wallpaper_preset", "custom");
+                applyCurrentWallpaperSettings();
+                showToast("✓ Wallpaper dari galeri berhasil dipasang!");
+            } catch(err) {
+                try {
+                    // Retry with 70% dimension & lower quality if storage is tight
+                    const smCanvas = document.createElement("canvas");
+                    smCanvas.width = Math.round(w * 0.7);
+                    smCanvas.height = Math.round(h * 0.7);
+                    const smCtx = smCanvas.getContext("2d");
+                    smCtx.drawImage(img, 0, 0, smCanvas.width, smCanvas.height);
+                    const smDataUrl = smCanvas.toDataURL("image/jpeg", 0.7);
+                    localStorage.setItem("pm_custom_wallpaper", smDataUrl);
+                    localStorage.setItem("pm_wallpaper_preset", "custom");
+                    applyCurrentWallpaperSettings();
+                    showToast("✓ Wallpaper dari galeri berhasil dipasang!");
+                } catch(err2) {
+                    alert("Foto terlalu besar untuk disimpan di memori browser. Coba gunakan foto lain.");
+                }
+            }
+        };
+        img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+}
+
+function updateWallpaperAdjustments() {
+    const bInput = document.getElementById("wallpaperBrightnessInput");
+    const blInput = document.getElementById("wallpaperBlurInput");
+    const bVal = document.getElementById("brightnessVal");
+    const blVal = document.getElementById("blurVal");
+
+    const brightness = bInput ? bInput.value : 45;
+    const blur = blInput ? blInput.value : 0;
+
+    if (bVal) bVal.innerText = `${brightness}%`;
+    if (blVal) blVal.innerText = `${blur}px`;
+
+    localStorage.setItem("pm_wallpaper_brightness", brightness);
+    localStorage.setItem("pm_wallpaper_blur", blur);
+    applyCurrentWallpaperSettings();
+}
+
+function applyPresetWallpaper(presetName) {
+    localStorage.setItem("pm_wallpaper_preset", presetName);
+    if (presetName === 'default') {
+        localStorage.removeItem("pm_custom_wallpaper");
+    }
+    applyCurrentWallpaperSettings();
+    showToast(`Tema wallpaper diubah ke: ${presetName}`);
+}
+
+function resetWallpaper() {
+    localStorage.removeItem("pm_custom_wallpaper");
+    localStorage.setItem("pm_wallpaper_preset", "default");
+    localStorage.setItem("pm_wallpaper_brightness", "45");
+    localStorage.setItem("pm_wallpaper_blur", "0");
+
+    const bInput = document.getElementById("wallpaperBrightnessInput");
+    const blInput = document.getElementById("wallpaperBlurInput");
+    const bVal = document.getElementById("brightnessVal");
+    const blVal = document.getElementById("blurVal");
+    if (bInput) bInput.value = 45;
+    if (bVal) bVal.innerText = "45%";
+    if (blInput) blInput.value = 0;
+    if (blVal) blVal.innerText = "0px";
+
+    applyCurrentWallpaperSettings();
+    showToast("Wallpaper direset ke tampilan bawaan.");
 }
 
 function getMessageSnippet(msgId) {
@@ -1221,11 +1708,27 @@ async function submitCommentComposer() {
 function forceScrollToBottom() {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
-    chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
     
-    requestAnimationFrame(() => {
+    const scrollInstant = () => {
         chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
-    });
+    };
+
+    scrollInstant();
+    requestAnimationFrame(scrollInstant);
+    setTimeout(scrollInstant, 50);
+    setTimeout(scrollInstant, 150);
+    setTimeout(scrollInstant, 350);
+    setTimeout(scrollInstant, 700);
+    setTimeout(scrollInstant, 1200);
+}
+
+function onMediaLoaded(el) {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+    const distanceFromBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
+    if (isInitialChatLoading || distanceFromBottom < 350) {
+        chatMessages.scrollTop = chatMessages.scrollHeight + 100000;
+    }
 }
 
 function attachChatScrollListener() {
@@ -1300,7 +1803,7 @@ function setupReadStateObserver() {
     rows.forEach(r => readStateObserver.observe(r));
 }
 
-function renderMessages(messages) {
+function renderMessages(messages, lastReadId = 0) {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
     
@@ -1311,9 +1814,17 @@ function renderMessages(messages) {
 
     let msgHtml = "";
     let lastDate = "";
+    let unreadDividerInserted = false;
     const totalCount = messages.length;
 
     const reversed = messages.slice().reverse();
+
+    // Jika seluruh pesan yang ditampilkan belum dibaca (misal user lama tidak buka)
+    if (lastReadId > 0 && reversed.length > 0 && reversed[0].id > lastReadId) {
+        msgHtml += `<div class="unread-divider" id="unreadDivider"><span class="unread-badge">Belum di baca</span></div>`;
+        unreadDividerInserted = true;
+    }
+
     reversed.forEach((msg, idx) => {
         let currentDate = "";
         if (msg.timestamp && msg.timestamp.includes(" ")) {
@@ -1326,14 +1837,36 @@ function renderMessages(messages) {
             lastDate = currentDate;
         }
 
-        const isRecent = (idx >= totalCount - 5);
+        // Sisipkan garis pembatas "Belum di baca" tepat sebelum pesan unread pertama
+        if (lastReadId > 0 && !unreadDividerInserted && msg.id > lastReadId) {
+            msgHtml += `<div class="unread-divider" id="unreadDivider"><span class="unread-badge">Belum di baca</span></div>`;
+            unreadDividerInserted = true;
+        }
+
+        const isRecent = (idx >= totalCount - 25);
         msgHtml += buildMessageNode(msg, isRecent);
     });
 
     chatMessages.innerHTML = msgHtml;
-    forceScrollToBottom();
+
+    if (unreadDividerInserted) {
+        const unreadElem = document.getElementById("unreadDivider");
+        if (unreadElem) {
+            unreadElem.scrollIntoView({ behavior: "auto", block: "center" });
+        } else {
+            forceScrollToBottom();
+        }
+    } else {
+        forceScrollToBottom();
+    }
+
     attachChatScrollListener();
     setupReadStateObserver();
+
+    if (messages && messages.length > 0) {
+        const ids = messages.map(m => m.id);
+        fetchBatchReactions(ids);
+    }
 }
 
 // INCREMENTAL APPEND SINGLE MESSAGE (TELEGRAM WEB BEHAVIOR)
@@ -1437,6 +1970,11 @@ async function loadOlderMessages() {
             // PERTAHANKAN POSISI SCROLL TELEGRAM-LIKE PREPEND
             chatMessages.scrollTop = chatMessages.scrollHeight - previousScrollHeight + previousScrollTop;
             renderMediaGrid();
+
+            if (olderMsgs && olderMsgs.length > 0) {
+                const olderIds = olderMsgs.map(m => m.id);
+                fetchBatchReactions(olderIds);
+            }
         } else {
             hasMoreMessages = false;
         }
@@ -1523,9 +2061,12 @@ function triggerWebNotification(memberName, textContent) {
     if ("Notification" in window && Notification.permission === "granted") {
         const title = `📩 Pesan PM Baru dari ${memberName}`;
         const options = {
-            body: textContent || "Member baru saja mengirimkan pesan/media baru di Convenant PM!"
+            body: textContent || "Member baru saja mengirimkan pesan/media baru di Convenant PM!",
+            icon: "../../assets/pm.jpg"
         };
-        new Notification(title, options);
+        try {
+            new Notification(title, options);
+        } catch (e) {}
     }
 }
 
@@ -1554,9 +2095,17 @@ function setupWebSocket() {
                     console.log('[WS] New comment created:', data.comment);
                 } else if (data.type === 'reaction_updated') {
                     console.log('[WS] Reaction updated for msg:', data.archive_message_id, data.reactions);
+                    if (data.archive_message_id) {
+                        msgReactionsMap[data.archive_message_id] = data.reactions;
+                        renderReactionBadges(data.archive_message_id, data.reactions);
+                    }
                 } else if (data && data.folder_name) {
                     triggerWebNotification(data.folder_name, data.text);
-                    if (activeMember && activeMember.name.toUpperCase() === data.folder_name.toUpperCase()) {
+                    const folderUp = data.folder_name.toUpperCase();
+                    const folderShort = folderUp.replace("PM ", "").trim();
+                    const isActive = activeMember && (activeMember.name.toUpperCase() === folderUp || activeMember.id.toUpperCase() === folderShort);
+
+                    if (isActive) {
                         const newMsg = data.message || {
                             id: data.id || Date.now(),
                             text: data.text || "",
@@ -1566,6 +2115,11 @@ function setupWebSocket() {
                             sender_id: data.sender_id || 0
                         };
                         appendSingleMessage(newMsg);
+                        debouncedUpdateReadState(newMsg.id);
+                    } else {
+                        unreadMemberMap[folderUp] = true;
+                        unreadMemberMap[folderShort] = true;
+                        renderMemberList();
                     }
                 }
             } catch (e) {}
@@ -1722,6 +2276,7 @@ window.addEventListener('offline', () => {
 document.addEventListener("DOMContentLoaded", () => {
     initPage();
     initOfflineOutboxDB();
+    initWallpaper();
 
     // DESKTOP KEYBOARD SHORTCUTS (Ctrl+K = Search, Esc = Close Modal)
     document.addEventListener("keydown", (e) => {
@@ -1734,6 +2289,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (overlay) overlay.remove();
             const lightbox = document.getElementById("lightboxModal");
             if (lightbox) lightbox.style.display = "none";
+            closeSavedMessagesModal();
+            closeWallpaperModal();
         }
     });
 

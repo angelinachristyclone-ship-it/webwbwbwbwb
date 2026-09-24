@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Convenant VIP — Archive PM JKT48</title>
-    <link rel="stylesheet" href="style.css?v=19.6">
+    <link rel="stylesheet" href="style.css?v=22.1">
 </head>
 <body>
     <!-- BACKGROUND STAR ANIMATION -->
@@ -43,6 +43,14 @@
                 <div class="member-search" role="search">
                     <input type="text" id="memberSearchInput" class="member-search-input" placeholder="🔍 Cari oshi kamu..." aria-label="Cari member oshi" oninput="filterMemberList()">
                 </div>
+                <div class="sidebar-shortcuts">
+                    <button class="sidebar-shortcut-btn" onclick="openSavedMessagesModal()" title="Lihat Pesan Tersimpan">
+                        <span>⭐</span> Tersimpan
+                    </button>
+                    <button class="sidebar-shortcut-btn" onclick="openWallpaperModal()" title="Ganti Wallpaper Chat">
+                        <span>🎨</span> Wallpaper
+                    </button>
+                </div>
             </header>
             <div id="memberList" class="member-list" role="listbox" aria-label="Pilih Oshi">
                 <!-- Member items rendered via JS -->
@@ -51,6 +59,9 @@
 
         <!-- MAIN CHAT AREA -->
         <main class="chat-area">
+            <!-- LATAR CUSTOM WALLPAPER DARI GALERI -->
+            <div id="chatWallpaperBg" class="chat-wallpaper-bg" aria-hidden="true"></div>
+
             <header class="chat-header">
                 <button id="backToSidebarBtn" class="back-sidebar-btn" aria-label="Kembali ke daftar member" onclick="showSidebarMobile()" title="Kembali ke daftar member">←</button>
                 
@@ -63,6 +74,8 @@
                 </div>
 
                 <div class="header-actions">
+                    <button class="header-icon-btn" aria-label="Pesan Tersimpan" onclick="openSavedMessagesModal()" title="Pesan Tersimpan">⭐</button>
+                    <button class="header-icon-btn" aria-label="Custom Wallpaper" onclick="openWallpaperModal()" title="Custom Wallpaper">🎨</button>
                     <button class="header-icon-btn" aria-label="Shared Media" onclick="toggleMediaPanel()" title="Shared Media">🖼️</button>
                     <button class="header-icon-btn logout-btn" aria-label="Logout" onclick="logout()" title="Logout">🚪</button>
                 </div>
@@ -97,6 +110,91 @@
 
     </div>
 
-    <script src="app.js?v=19.6"></script>
+    <!-- MODAL PESAN TERSIMPAN (BOOKMARKS) -->
+    <div id="savedMessagesModal" class="custom-modal" role="dialog" aria-modal="true" aria-label="Pesan Tersimpan" onclick="closeSavedMessagesModal(event)">
+        <div class="custom-modal-card saved-messages-card" onclick="event.stopPropagation()">
+            <header class="custom-modal-header">
+                <div class="custom-modal-title-wrap">
+                    <span class="custom-modal-icon">⭐</span>
+                    <div>
+                        <h2 class="custom-modal-title">Pesan Tersimpan</h2>
+                        <p class="custom-modal-sub">Daftar pesan & media yang kamu bookmark</p>
+                    </div>
+                </div>
+                <button class="custom-modal-close" onclick="closeSavedMessagesModal(event)">&times;</button>
+            </header>
+            <div class="saved-search-wrap">
+                <input type="text" id="savedSearchInput" class="saved-search-input" placeholder="🔍 Cari di pesan tersimpan..." oninput="filterSavedMessages()">
+            </div>
+            <div id="savedMessagesList" class="saved-messages-list">
+                <!-- Rendered via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CUSTOM WALLPAPER -->
+    <div id="wallpaperModal" class="custom-modal" role="dialog" aria-modal="true" aria-label="Custom Wallpaper" onclick="closeWallpaperModal(event)">
+        <div class="custom-modal-card wallpaper-card" onclick="event.stopPropagation()">
+            <header class="custom-modal-header">
+                <div class="custom-modal-title-wrap">
+                    <span class="custom-modal-icon">🎨</span>
+                    <div>
+                        <h2 class="custom-modal-title">Custom Wallpaper Chat</h2>
+                        <p class="custom-modal-sub">Ganti latar belakang chat dari galeri HP atau PC kamu</p>
+                    </div>
+                </div>
+                <button class="custom-modal-close" onclick="closeWallpaperModal(event)">&times;</button>
+            </header>
+            <div class="wallpaper-body">
+                <!-- Hidden File Input -->
+                <input type="file" id="wallpaperFileInput" accept="image/*" style="display:none;" onchange="handleWallpaperUpload(event)">
+                
+                <div class="wallpaper-preview-box">
+                    <div id="wallpaperLivePreview" class="wallpaper-live-preview">
+                        <div class="sample-chat-bubble">
+                            <span>✨ Ini contoh tampilan bubble chat dengan wallpaper kamu.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="wallpaper-upload-btn" onclick="document.getElementById('wallpaperFileInput').click()">
+                    📁 Pilih Foto dari Galeri HP / PC
+                </button>
+
+                <div class="wallpaper-controls">
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Kecerahan Wallpaper (Brightness)</span>
+                            <span id="brightnessVal">45%</span>
+                        </div>
+                        <input type="range" id="wallpaperBrightnessInput" min="10" max="100" value="45" oninput="updateWallpaperAdjustments()">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Efek Blur</span>
+                            <span id="blurVal">0px</span>
+                        </div>
+                        <input type="range" id="wallpaperBlurInput" min="0" max="12" value="0" oninput="updateWallpaperAdjustments()">
+                    </div>
+                </div>
+
+                <div class="wallpaper-presets-title">Atau pilih tema bawaan:</div>
+                <div class="wallpaper-presets-grid">
+                    <button class="preset-btn" onclick="applyPresetWallpaper('default')">🌌 Bintang & Tim</button>
+                    <button class="preset-btn" onclick="applyPresetWallpaper('dark')">🌑 Gelap Pekat</button>
+                    <button class="preset-btn" onclick="applyPresetWallpaper('dream')">💙 Team Dream</button>
+                    <button class="preset-btn" onclick="applyPresetWallpaper('passion')">❤️ Team Passion</button>
+                    <button class="preset-btn" onclick="applyPresetWallpaper('love')">💖 Team Love</button>
+                </div>
+
+                <div class="wallpaper-actions">
+                    <button class="wallpaper-reset-btn" onclick="resetWallpaper()">🗑️ Reset ke Bawaan</button>
+                    <button class="order-btn" style="flex:1;" onclick="closeWallpaperModal()">✓ Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=22.1"></script>
 </body>
 </html>
