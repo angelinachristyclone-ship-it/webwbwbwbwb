@@ -492,18 +492,20 @@ let isInitialChatLoading = false;
 
 async function selectMember(memberId) {
     const chatMessages = document.getElementById("chatMessages");
+    const rawId = (typeof memberId === 'object' && memberId !== null) ? (memberId.id || memberId.name) : memberId;
+    if (!rawId) return;
 
-    if (activeMember && activeMember.id === memberId && currentMemberAllMessages.length > 0) {
+    if (activeMember && activeMember.id === rawId && currentMemberAllMessages.length > 0) {
         document.body.classList.add("mobile-chat-active");
         forceScrollToBottom();
         return;
     }
 
-    activeMember = MEMBER_PM_LIST.find(m => m.id === memberId);
-    if (activeMember) {
-        delete unreadMemberMap[activeMember.name.toUpperCase()];
-        delete unreadMemberMap[activeMember.id.toUpperCase()];
-    }
+    activeMember = MEMBER_PM_LIST.find(m => m.id === rawId || m.name === rawId) || MEMBER_PM_LIST[0];
+    if (!activeMember) return;
+
+    delete unreadMemberMap[activeMember.name.toUpperCase()];
+    delete unreadMemberMap[activeMember.id.toUpperCase()];
     renderMemberList();
 
     document.body.classList.add("mobile-chat-active");
@@ -601,6 +603,7 @@ async function selectMember(memberId) {
     } catch (e) {
         if (e.name !== "AbortError") {
             chatMessages.innerHTML = `<div style="margin:auto; color:#ff4d4d;">❌ Gagal memuat pesan dari Telegram.</div>`;
+        }
     }
 }
 
@@ -1249,6 +1252,7 @@ function openSavedMessagesModal() {
     const modal = document.getElementById("savedMessagesModal");
     if (!modal) return;
     modal.classList.add("visible");
+    modal.style.display = "flex";
     const searchInput = document.getElementById("savedSearchInput");
     if (searchInput) searchInput.value = "";
     loadSavedMessages();
@@ -1257,7 +1261,10 @@ function openSavedMessagesModal() {
 function closeSavedMessagesModal(e) {
     if (e && e.target && e.target.id !== "savedMessagesModal" && !e.target.classList.contains("custom-modal-close")) return;
     const modal = document.getElementById("savedMessagesModal");
-    if (modal) modal.classList.remove("visible");
+    if (modal) {
+        modal.classList.remove("visible");
+        modal.style.display = "none";
+    }
 }
 
 async function loadSavedMessages() {
@@ -1435,26 +1442,34 @@ function openWallpaperModal() {
     const modal = document.getElementById("wallpaperModal");
     if (!modal) return;
     modal.classList.add("visible");
+    modal.style.display = "flex";
 
-    const brightness = localStorage.getItem("pm_wallpaper_brightness") || "45";
-    const blur = localStorage.getItem("pm_wallpaper_blur") || "0";
-    const bInput = document.getElementById("wallpaperBrightnessInput");
-    const bVal = document.getElementById("brightnessVal");
-    if (bInput) bInput.value = brightness;
-    if (bVal) bVal.innerText = `${brightness}%`;
+    try {
+        const brightness = localStorage.getItem("pm_wallpaper_brightness") || "45";
+        const blur = localStorage.getItem("pm_wallpaper_blur") || "0";
+        const bInput = document.getElementById("wallpaperBrightnessInput");
+        const bVal = document.getElementById("brightnessVal");
+        if (bInput) bInput.value = brightness;
+        if (bVal) bVal.innerText = `${brightness}%`;
 
-    const blInput = document.getElementById("wallpaperBlurInput");
-    const blVal = document.getElementById("blurVal");
-    if (blInput) blInput.value = blur;
-    if (blVal) blVal.innerText = `${blur}px`;
+        const blInput = document.getElementById("wallpaperBlurInput");
+        const blVal = document.getElementById("blurVal");
+        if (blInput) blInput.value = blur;
+        if (blVal) blVal.innerText = `${blur}px`;
 
-    applyCurrentWallpaperSettings();
+        applyCurrentWallpaperSettings();
+    } catch(err) {
+        console.warn("Storage warning in openWallpaperModal:", err);
+    }
 }
 
 function closeWallpaperModal(e) {
     if (e && e.target && e.target.id !== "wallpaperModal" && !e.target.classList.contains("custom-modal-close") && e.target.tagName !== "BUTTON") return;
     const modal = document.getElementById("wallpaperModal");
-    if (modal) modal.classList.remove("visible");
+    if (modal) {
+        modal.classList.remove("visible");
+        modal.style.display = "none";
+    }
 }
 
 function handleWallpaperUpload(e) {
@@ -2273,7 +2288,7 @@ window.addEventListener('offline', () => {
     updateNetworkBanner("🌐 Internet terputus — Komentar akan tersimpan persisten di IndexedDB Outbox", true);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+function bootstrapApp() {
     initPage();
     initOfflineOutboxDB();
     initWallpaper();
@@ -2310,4 +2325,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (targetMessageId) {
         setTimeout(() => jumpToMessage(targetMessageId), 1200);
     }
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrapApp);
+} else {
+    bootstrapApp();
+}
