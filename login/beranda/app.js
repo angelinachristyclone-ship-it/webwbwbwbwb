@@ -126,9 +126,9 @@ let currentMediaTab = 'photo';
 let currentFetchController = null;
 let searchDebounceTimer = null;
 
-// History pagination contract: the cursor only advances when a batch is rendered.
-const INITIAL_HISTORY_LIMIT = 200;
-const OLDER_HISTORY_LIMIT = 200;
+// History pagination contract: 50 messages per batch for sub-second opening
+const INITIAL_HISTORY_LIMIT = 50;
+const OLDER_HISTORY_LIMIT = 50;
 
 function getMediaUrl(msgId) {
     const session = getCookie("user_session_pm") || "";
@@ -146,8 +146,7 @@ function getThumbUrl(msgId) {
 // ============================================
 class MediaPrefetchManager {
     constructor() {
-        const threads = navigator.hardwareConcurrency || 4;
-        this.maxConcurrency = threads > 4 ? 6 : 3;
+        this.maxConcurrency = 3;
         this.activeCount = 0;
         this.queue = []; // Items: { msgId, priority: 0|1|2|3 }
         this.cache = new Map(); // msgId -> 'QUEUED' | 'PREFETCHING' | 'CACHED' | 'FAILED'
@@ -331,12 +330,14 @@ function normalizeFolderName(value) {
 }
 
 function isMemberSubscribed(member) {
-    if (!member || subscribedFolders.length === 0) return null; // unknown until backend status arrives
+    if (!member) return false;
+    if (subscribedFolders.includes("ALL")) return true;
+    if (subscribedFolders.length === 0) return false;
     const target = normalizeFolderName(member.name);
     const id = normalizeFolderName(member.id);
     return subscribedFolders.some(folder => {
         const normalized = normalizeFolderName(folder);
-        return normalized === target || normalized === id;
+        return normalized === target || normalized === id || normalized === "ALL";
     });
 }
 
@@ -347,25 +348,19 @@ function logout() {
 
 async function initPage() {
     AdaptiveEngine.init();
+
+    const session = getCookie("user_session_pm");
+    if (!session) {
+        console.warn("[Auth] Session cookie not found. Redirecting to login...");
+        window.location.href = "../";
+        return;
+    }
+
     renderMemberList(); // Render list cards immediately (0ms) so sidebar is never blank
 
     requestNotificationPermission();
     setupWebSocket();
     setupStarCanvas();
-
-    // Auto-select first member (Fiony) on load so chat is never empty
-    if (!activeMember && MEMBER_PM_LIST.length > 0) {
-        const defaultMember = MEMBER_PM_LIST.find(m => m.id === "Fiony") || MEMBER_PM_LIST[0];
-        if (defaultMember) {
-            selectMember(defaultMember.id);
-        }
-    }
-
-    const session = getCookie("user_session_pm");
-    if (!session) {
-        console.log("[Auth] Session cookie not found. Operating in Guest Viewer Mode.");
-        return;
-    }
 
     try {
         const res = await fetch(BACKEND_URL + "/pm/userpmstat", {
@@ -387,6 +382,18 @@ async function initPage() {
             const userBadge = document.getElementById("userBadge");
             if (userBadge) userBadge.innerText = data.nama || "Convenant VIP";
             renderMemberList();
+
+            // Auto-select first subscribed member on load, or default
+            if (!activeMember && MEMBER_PM_LIST.length > 0) {
+                const subbedMem = MEMBER_PM_LIST.find(m => isMemberSubscribed(m)) || MEMBER_PM_LIST[0];
+                if (subbedMem) {
+                    selectMember(subbedMem.id);
+                }
+            }
+        } else {
+            console.warn("[Auth] Session expired or invalid. Redirecting to login...");
+            document.cookie = "user_session_pm=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "../";
         }
     } catch (e) {
         console.error("Init Error:", e);
@@ -539,8 +546,7 @@ async function selectMember(memberId) {
     }
 
     // Backend is the authoritative subscription gate.
-    const localSubscriptionState = isMemberSubscribed(activeMember);
-    const isSubbed = localSubscriptionState !== false;
+    const isSubbed = isMemberSubscribed(activeMember);
 
     document.getElementById("headerName").innerText = activeMember.name;
     const baseFile = activeMember.file;
@@ -551,6 +557,23 @@ async function selectMember(memberId) {
     headerAvatar.onerror = function() { handleAvatarError(this, baseFile, isSubbed); };
     headerAvatar.className = isSubbed ? "header-member-avatar" : "header-member-avatar grey";
     document.getElementById("headerSub").innerText = isSubbed ? "Convenant VIP Archive" : "🔒 Belum Berlangganan";
+
+    if (!isSubbed) {
+        chatMessages.innerHTML = `
+            <div class="locked-paywall-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px; color:var(--text-main, #fff); max-width:440px; margin:auto; height:100%;">
+                <div style="font-size:56px; margin-bottom:16px;">🔒</div>
+                <h2 style="font-size:20px; font-weight:700; margin-bottom:10px;">Akses PM Terkunci</h2>
+                <p style="font-size:14px; color:#9ca3af; line-height:1.6; margin-bottom:24px;">
+                    Kamu belum berlangganan room PM <strong>${activeMember.name}</strong>.<br>
+                    Pesan dan media eksklusif hanya dapat diakses oleh pengguna yang aktif berlangganan.
+                </p>
+                <a href="https://t.me/VerifPmConvenantbot" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #10b981, #059669); color:#fff; text-decoration:none; padding:12px 28px; border-radius:12px; font-weight:700; font-size:14px; box-shadow:0 4px 15px rgba(16,185,129,0.35); transition:transform 0.2s;">
+                    🛒 Order Langganan di Bot
+                </a>
+            </div>
+        `;
+        return;
+    }
 
     chatMessages.innerHTML = renderSkeletonLoader();
 
@@ -568,6 +591,28 @@ async function selectMember(memberId) {
         });
         const data = await res.json();
 
+        if (res.status === 401) {
+            document.cookie = "user_session_pm=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "../";
+            return;
+        }
+
+        if (res.status === 403 || (data && !data.ok && data.is_subscribed === false)) {
+            chatMessages.innerHTML = `
+                <div class="locked-paywall-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px; color:var(--text-main, #fff); max-width:440px; margin:auto; height:100%;">
+                    <div style="font-size:56px; margin-bottom:16px;">🔒</div>
+                    <h2 style="font-size:20px; font-weight:700; margin-bottom:10px;">Akses PM Terkunci</h2>
+                    <p style="font-size:14px; color:#9ca3af; line-height:1.6; margin-bottom:24px;">
+                        ${data.msg || `Kamu belum berlangganan room PM ${activeMember.name}.`}
+                    </p>
+                    <a href="https://t.me/VerifPmConvenantbot" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #10b981, #059669); color:#fff; text-decoration:none; padding:12px 28px; border-radius:12px; font-weight:700; font-size:14px; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
+                        🛒 Order Langganan di Bot
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
         if (res.ok && data.ok) {
             const msgs = data.messages || [];
             currentMemberAllMessages = msgs;
@@ -575,10 +620,11 @@ async function selectMember(memberId) {
             if (msgs.length > 0) {
                 oldestMsgId = msgs[msgs.length - 1].id;
                 if (msgs.length < INITIAL_HISTORY_LIMIT) hasMoreMessages = false;
+
                 
-                // Only enqueue visible messages to prevent semaphore congestion
+                // Only enqueue visible photos (never audios or videos) to prevent semaphore congestion
                 msgs.slice(0, 8).forEach(m => {
-                    if (m.has_media) mediaPrefetcher.enqueue(m.id);
+                    if (m.has_media && m.media_type === 'photo') mediaPrefetcher.enqueue(m.id);
                 });
             } else {
                 hasMoreMessages = false;
@@ -878,7 +924,7 @@ function buildMessageNode(msg, isRecent = false) {
         } else if (msg.media_type === 'video') {
             mediaTag = `
                 <div class="msg-media-wrap" style="min-height:160px; background:#000;">
-                    <video src="${mediaSrc}" poster="${thumbSrc}" class="msg-media" controls preload="metadata" onloadedmetadata="onMediaLoaded(this)" onerror="handleVideoError(this, '${mediaSrc}')" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
+                    <video src="${mediaSrc}" poster="${thumbSrc}" class="msg-media" controls preload="none" onloadedmetadata="onMediaLoaded(this)" onerror="handleVideoError(this, '${mediaSrc}')" onclick="openLightbox('${mediaSrc}', 'video', 'pm_video_${msg.id}.mp4')"></video>
                     <button class="save-media-btn" onclick="directDownload(this, '${mediaSrc}', 'pm_video_${msg.id}.mp4')">💾 Simpan Video</button>
                 </div>`;
         } else if (msg.media_type === 'audio') {
@@ -888,7 +934,7 @@ function buildMessageNode(msg, isRecent = false) {
                         <span>🎵</span>
                         <span>Voice Note / Audio PM</span>
                     </div>
-                    <audio src="${mediaSrc}" class="msg-audio-player" controls preload="metadata" onloadedmetadata="onMediaLoaded(this)" onerror="handleAudioError(this, '${mediaSrc}')"></audio>
+                    <audio src="${mediaSrc}" class="msg-audio-player" controls preload="none" onloadedmetadata="onMediaLoaded(this)" onerror="handleAudioError(this, '${mediaSrc}')"></audio>
                     <div style="display:flex; justify-content:flex-end; margin-top:4px;">
                         <button class="save-media-btn" style="font-size:11px;" onclick="directDownload(this, '${mediaSrc}', 'pm_audio_${msg.id}.m4a')">💾 Simpan Audio</button>
                     </div>
@@ -1751,17 +1797,9 @@ function attachChatScrollListener() {
     if (!chatMessages) return;
 
     chatMessages.onscroll = function() {
-        // Pre-fetch 50 pesan lama berikutnya sebelum user benar-benar menyentuh mentok atas (scrollTop < 400px)
+        // Pre-fetch pesan lama berikutnya sebelum user benar-benar menyentuh mentok atas (scrollTop < 400px)
         if (chatMessages.scrollTop < 400 && hasMoreMessages && !isLoadingMore) {
             loadOlderMessages();
-        }
-
-        // Trigger Directional Thumbnail Prefetching untuk pesan terdekat di sekitar viewport
-        const visibleRows = chatMessages.querySelectorAll('.msg-row[data-msg-id]');
-        if (visibleRows.length > 0) {
-            const topRow = visibleRows[0];
-            const topId = parseInt(topRow.dataset.msgId, 10);
-            if (topId) mediaPrefetcher.prefetchAround(topId, 35);
         }
 
         const isNearBottom = (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight) < 250;
@@ -1955,7 +1993,7 @@ async function loadOlderMessages() {
             currentMemberAllMessages = currentMemberAllMessages.concat(olderMsgs);
 
             olderMsgs.forEach(m => {
-                if (m.has_media) mediaPrefetcher.enqueue(m.id);
+                if (m.has_media && m.media_type === 'photo') mediaPrefetcher.enqueue(m.id);
             });
 
             const tempDiv = document.createElement("div");

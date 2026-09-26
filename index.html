@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <!-- Google tag (gtag.js) -->
@@ -13,6 +13,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Convenant VIP - OrderVIP</title>
+    <!-- Google Fonts Calligraphy for ShinistrusPay -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
         /* --- CSS VARIABLES UNTUK DYNAMIC THEME --- */
         :root {
@@ -71,11 +75,113 @@
         .header-title {
             font-size: 34px;
             font-weight: 900;
-            margin-bottom: 6px;
+            margin-bottom: 2px;
             letter-spacing: 3px;
             text-transform: uppercase;
             text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 15px var(--glow-color);
             animation: glowPulse 2s infinite alternate;
+        }
+
+        /* --- KONTAK ADMIN PALING ATAS --- */
+        .top-admin-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 22px;
+        }
+
+        .top-admin-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 22px;
+            background: rgba(18, 24, 38, 0.88);
+            border: 1.5px solid rgba(0, 201, 147, 0.55);
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 6px 20px rgba(0, 201, 147, 0.25), 0 0 12px rgba(0, 201, 147, 0.15);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .top-admin-link:hover {
+            transform: translateY(-2px) scale(1.04);
+            border-color: #00c993;
+            box-shadow: 0 8px 26px rgba(0, 201, 147, 0.5), 0 0 20px rgba(0, 201, 147, 0.35);
+            background: rgba(22, 36, 56, 0.95);
+        }
+
+        .admin-live-dot {
+            width: 8px;
+            height: 8px;
+            background: #00c993;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00c993;
+            animation: adminLiveBlink 1.5s infinite;
+        }
+
+        @keyframes adminLiveBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.85); }
+        }
+
+        .admin-tag {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: rgba(0, 201, 147, 0.22);
+            color: #00c993;
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 201, 147, 0.45);
+        }
+
+        /* Collab x ShinistrusPay Calligraphy Header */
+        .collab-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1px;
+            margin-bottom: 12px;
+        }
+
+        .collab-x {
+            font-size: 18px;
+            font-weight: 900;
+            color: #ff2a4b !important;
+            letter-spacing: 2px;
+            line-height: 1;
+            margin: 4px 0 2px 0;
+            text-shadow: 0 0 10px rgba(255, 42, 75, 0.9), 0 0 20px rgba(255, 42, 75, 0.6);
+            display: inline-block;
+            filter: drop-shadow(0 0 6px rgba(255, 42, 75, 0.8));
+        }
+
+        .shinistrus-pay-calligraphy {
+            font-family: 'Great Vibes', 'Alex Brush', cursive;
+            font-size: 38px;
+            font-weight: 400;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            letter-spacing: 1.5px;
+            line-height: 1.15;
+            text-shadow: 0 0 14px rgba(255, 255, 255, 0.85), 0 0 25px rgba(255, 255, 255, 0.45), 0 0 35px var(--glow-accent);
+            filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.8));
+            animation: smoothGlowPulse 2.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes smoothGlowPulse {
+            from {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.3);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.95), 0 0 35px rgba(255, 255, 255, 0.6), 0 0 45px var(--glow-accent);
+            }
         }
 
         .header-motto {
@@ -279,10 +385,10 @@
         }
 
         .card {
-            background: var(--card-bg); 
-            border: 1px solid var(--card-border);
+            background: linear-gradient(145deg, rgba(22, 30, 48, 0.78) 0%, rgba(13, 17, 28, 0.88) 100%); 
+            border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 22px;
-            padding: 20px;
+            padding: 22px 20px;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             text-align: left;
@@ -290,6 +396,7 @@
             box-shadow: 0 14px 35px var(--card-shadow);
             position: relative;
             overflow: hidden;
+            animation: cardGloryGlow 5s ease-in-out infinite;
         }
 
         .card::before {
@@ -299,14 +406,82 @@
             left: 8%;
             right: 8%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
             pointer-events: none;
+            z-index: 1;
         }
 
+        /* 5-SECOND HOLOGRAPHIC GLORY SWEEP EFFECT */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: -65%;
+            left: -65%;
+            width: 230%;
+            height: 230%;
+            background: linear-gradient(
+                125deg,
+                transparent 22%,
+                rgba(255, 0, 128, 0.09) 35%,
+                rgba(255, 215, 0, 0.24) 44%,
+                rgba(0, 255, 220, 0.28) 50%,
+                rgba(66, 133, 244, 0.25) 56%,
+                rgba(168, 85, 247, 0.15) 65%,
+                transparent 78%
+            );
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transform: translate(-100%, -100%) rotate(25deg);
+            animation: cardHologramGlory 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes cardHologramGlory {
+            0% {
+                opacity: 0;
+                transform: translate(-100%, -100%) rotate(25deg);
+            }
+            8% {
+                opacity: 0.3;
+            }
+            22% {
+                opacity: 0.85;
+                transform: translate(30%, 30%) rotate(25deg);
+            }
+            36% {
+                opacity: 0;
+                transform: translate(110%, 110%) rotate(25deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(110%, 110%) rotate(25deg);
+            }
+        }
+
+        @keyframes cardGloryGlow {
+            0%, 100% {
+                box-shadow: 0 14px 35px var(--card-shadow), 0 0 0 1px rgba(255, 255, 255, 0.12);
+            }
+            25% {
+                box-shadow: 0 16px 42px rgba(0, 0, 0, 0.75), 0 0 20px rgba(42, 171, 238, 0.28), 0 0 0 1px rgba(255, 215, 0, 0.45);
+            }
+        }
+
+        /* Staggered Hologram Glory across catalog cards */
+        .card-list .card:nth-child(1)::after { animation-delay: 0s; }
+        .card-list .card:nth-child(2)::after { animation-delay: 0.4s; }
+        .card-list .card:nth-child(3)::after { animation-delay: 0.8s; }
+        .card-list .card:nth-child(4)::after { animation-delay: 1.2s; }
+        .card-list .card:nth-child(5)::after { animation-delay: 1.6s; }
+        .card-list .card:nth-child(6)::after { animation-delay: 2.0s; }
+        .card-list .card:nth-child(7)::after { animation-delay: 2.4s; }
+        .card-list .card:nth-child(8)::after { animation-delay: 2.8s; }
+        .card-list .card:nth-child(9)::after { animation-delay: 3.2s; }
+
         .card:hover {
-            transform: translateY(-6px);
-            border-color: var(--card-hover-border);
-            box-shadow: 0 18px 45px rgba(42, 171, 238, 0.25);
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(255, 215, 0, 0.85);
+            box-shadow: 0 20px 50px rgba(42, 171, 238, 0.35), 0 0 28px rgba(255, 215, 0, 0.3);
             background: var(--card-hover-bg);
         }
 
@@ -606,8 +781,22 @@
 
     <div class="container">
         
+        <!-- KONTAK ADMIN PALING ATAS -->
+        <div class="top-admin-container">
+            <a href="https://t.me/chokoretoangelina" target="_blank" class="top-admin-link">
+                <span class="admin-live-dot"></span>
+                <span class="admin-icon">💬</span>
+                <span class="admin-label">Hubungi Admin</span>
+                <span class="admin-tag">Fast Res</span>
+            </a>
+        </div>
+
         <!-- JUDUL & MOTO -->
         <div class="header-title">Convenant VIP</div>
+        <div class="collab-container">
+            <span class="collab-x">✕</span>
+            <div class="shinistrus-pay-calligraphy">ShinistrusPay</div>
+        </div>
         <div class="header-motto">"Money for Value, grup bisa keban tapi jarang sekitar 1-2 tahun sekali! Privasi terjaga kualitas atas"</div>
 
         <!-- RECTANGULAR HEADER ACTION PILL BUTTONS -->
@@ -671,8 +860,8 @@
                     • <strong>Bundle All Grup:</strong> Semua Convenant kecuali Inter + Gratis PM All Member 1 Bulan (<strong class="price-val-2">Rp 260.000</strong>)
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%203%20Grup%20VVIP%20(215k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option action-btn-1" target="_blank">Bundle 3 Grup - Rp 215.000</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Bundle%20All%20Grup%20Convenant%20(260k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-2" target="_blank">Bundle All Grup - Rp 260.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_take_all_3" class="btn btn-secondary-option action-btn-1" target="_blank">Bundle 3 Grup - Rp 215.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_take_all_all" class="btn btn-primary action-btn-2" target="_blank">Bundle All Grup - Rp 260.000</a>
                 </div>
             </div>
 
@@ -687,8 +876,8 @@
                     [gratis pm 10 member bebas pilih] <span style="color:#ff77c6; font-weight:700;">[Bonus Shadow Convenant]</span> VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 197.592 foto, 62.698 video</strong> (include cersex order atau req 2x free).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Tanpa%20Next%20Gen%20(150k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option action-btn-1" target="_blank">Tanpa Next Gen - Rp 150.000</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20VIP%20Tier%20Include%20Next%20Gen%20(170k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-2" target="_blank">Include Next Gen - Rp 170.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_vip_tier" class="btn btn-secondary-option action-btn-1" target="_blank">Tanpa Next Gen - Rp 150.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_vip_tier_nextgen" class="btn btn-primary action-btn-2" target="_blank">Include Next Gen - Rp 170.000</a>
                 </div>
             </div>
 
@@ -703,8 +892,8 @@
                     [gratis pm 5 member bebas pilih] <span style="color:#ff77c6; font-weight:700;">[Bonus Shadow Convenant]</span> Premium tier (populer), Free save, update daily, lifetime sampe keban, topik lengkap gen 1, 6, 7, 8 ,9 ,10 ,11 ,12. <strong>Media: 32.526 foto, 5.043 video</strong> (include cersex).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Tanpa%20Next%20Gen%20(40k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-secondary-option action-btn-1" target="_blank">Tanpa Next Gen - Rp 40.000</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Premium%20Tier%20Include%20Next%20Gen%20(50k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-2" target="_blank">Include Next Gen - Rp 50.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_premium_tier" class="btn btn-secondary-option action-btn-1" target="_blank">Tanpa Next Gen - Rp 40.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_premium_nextgen" class="btn btn-primary action-btn-2" target="_blank">Include Next Gen - Rp 50.000</a>
                 </div>
             </div>
 
@@ -719,7 +908,7 @@
                     [gratis pm 2 member bebas pilih] <span style="color:#ff77c6; font-weight:700;">[Bonus Shadow Convenant]</span> Isi media total sekitar 18rb media full video dan update (new version ai).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Grup%20Next%20Gen%20AI%20(30k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 30.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_next_gen_ai" class="btn btn-primary action-btn-1" target="_blank">Rp 30.000</a>
                 </div>
             </div>
 
@@ -734,7 +923,7 @@
                     <span style="color:#ff4757; font-weight:800;">[GABISA DI SAVE!]</span> [gratis pm 1 member bebas pilih] Shadowconvenant: 29rb media (<strong>16.572 foto dan 3.243 video</strong>).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Shadowconvenant%20Pre%20Order%20(20k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 20.000 (Pre Order)</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_shadowconvenant" class="btn btn-primary action-btn-1" target="_blank">Rp 20.000 (Pre Order)</a>
                 </div>
             </div>
 
@@ -749,7 +938,7 @@
                     <span style="color:#ff4757; font-weight:800;">[GABISA DI SAVE!]</span> [gratis pm 1 member bebas pilih] Standart: sudah ada beberapa topik gen 7 sampai 12. <strong>Media: 19.772 foto, 5.895 video</strong> (sudah include Cersex).
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Standart%20(17k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 17.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_standart_tier" class="btn btn-primary action-btn-1" target="_blank">Rp 17.000</a>
                 </div>
             </div>
 
@@ -764,7 +953,7 @@
                     <span style="color:#ff4757; font-weight:800;">[GABISA DI SAVE!]</span> [gratis pm 1 member gacha(acak)] Midpay tier (populer), update daily, lifetime sampe keban, topik lengkap. random gak di sortir total media sekitar 13k foto video.
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Convenant%20Midpay%20Tier%20(12k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 12.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_midpay_tier" class="btn btn-primary action-btn-1" target="_blank">Rp 12.000</a>
                 </div>
             </div>
 
@@ -779,7 +968,7 @@
                     <span style="color:#ff4757; font-weight:800;">[GABISA DI SAVE!]</span> [gratis pm 1 member gacha(acak)] ba export, seleb, dll media 3k+
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Eureka%20(10k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 10.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_eureka_tier" class="btn btn-primary action-btn-1" target="_blank">Rp 10.000</a>
                 </div>
             </div>
 
@@ -794,7 +983,7 @@
                     <span style="color:#ff4757; font-weight:800;">[GABISA DI SAVE!]</span> [gratis pm 1 member gacha(acak)] Start tier: 10.000 media (persis sama inter start), no update.
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Start%20Tier%20(7k).%20Minta%20instruksi%20bayarnya%20dong!" class="btn btn-primary action-btn-1" target="_blank">Rp 7.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_start_tier" class="btn btn-primary action-btn-1" target="_blank">Rp 7.000</a>
                 </div>
             </div>
 
@@ -856,7 +1045,7 @@
                     <span style="color:#ff77c6; font-weight:700;">[Bonus Shadow Convenant]</span> Take all in (dapat semua manfaat paket di bawah, garansi keban (1x), keban invit lagi sekali gak perlu bayar lagi! (Bekas grup chat bebas).
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Take%20All%20Inter%20(60k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 60.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_take_all_inter" class="btn btn-primary action-btn-1" target="_blank">Rp 60.000</a>
                 </div>
             </div>
 
@@ -870,7 +1059,7 @@
                     <span style="color:#ff77c6; font-weight:700;">[Bonus Shadow Convenant]</span> VIP tier, Free save, update daily, lifetime sampe keban. <strong>Media: 95.441 foto, 17.862 video</strong> (include cersex order atau req 2x free). Bekas grup chat bebas.
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20VIP%20(50k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 50.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_take_all_inter" class="btn btn-primary action-btn-1" target="_blank">Rp 50.000</a>
                 </div>
             </div>
 
@@ -884,7 +1073,7 @@
                     <span style="color:#ff4757; font-weight:800;">[GABISA DI SAVE!]</span> Premium tier (populer), update daily, lifetime sampe keban, topik lengkap. <strong>Media: 24.824 foto, 5.416 video</strong>. Bekas grup chat bebas.
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Premium%20(15k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 15.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_take_all_inter" class="btn btn-primary action-btn-1" target="_blank">Rp 15.000</a>
                 </div>
             </div>
 
@@ -898,7 +1087,7 @@
                     <span style="color:#ff4757; font-weight:800;">[GABISA DI SAVE!]</span> Standart tier, sudah ada beberapa topik. <strong>Media: 8.259 foto, 2.477 video</strong> (sudah include Cersex). Bekas grup chat bebas.
                 </div>
                 <div class="btn-group">
-                    <a href="javascript:void(0)" onclick="confirmInter('https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20beli%20Paket%20Inter%20Start%20(5k).%20Minta%20instruksi%20bayarnya%20dong!')" class="btn btn-primary action-btn-1">Rp 5.000</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_take_all_inter" class="btn btn-primary action-btn-1" target="_blank">Rp 5.000</a>
                 </div>
             </div>
 
@@ -924,8 +1113,8 @@
                     • 🏆 <strong>All In (62 Member): <span class="price-val-2">Rp 40.000</span> / Bulan</strong>
                 </div>
                 <div class="btn-group">
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%201%20PM%20member%20(3k)." class="btn btn-secondary-option action-btn-1" target="_blank">1 Member (3k)</a>
-                    <a href="https://t.me/chokoretoangelina?text=Halo%20bos,%20gw%20mau%20order%20Take%20All%20PM%20Member%2062%20Member%20(40k)." class="btn btn-primary action-btn-2" target="_blank">All In 62 Member (40k)</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=beli" class="btn btn-secondary-option action-btn-1" target="_blank">1 Member (3k)</a>
+                    <a href="https://t.me/VerifPmConvenantbot?start=order_take_all_all" class="btn btn-primary action-btn-2" target="_blank">All In 62 Member (40k)</a>
                     <button onclick="showPmCustomModal()" class="btn" style="background: linear-gradient(135deg, rgba(0, 201, 147, 0.45), rgba(42, 171, 238, 0.4)); border: 1px solid rgba(0, 201, 147, 0.7); color: #fff; flex: 100%; margin-top: 6px; font-weight: 800;">🧮 Custom Pilih Jumlah Member</button>
                 </div>
             </div>
@@ -1139,9 +1328,73 @@
             return DEFAULT_REF;
         }
 
-        const currentRefCode = getActiveRefCode();
+        const BOT_BASE_URL = "https://t.me/VerifPmConvenantbot";
 
-        function applyRefToLinks() {
+        const CARD_PKG_MAP = {
+            "Take All In": { "action-btn-1": "take_all_3", "action-btn-2": "take_all_all" },
+            "VIP Tier": { "action-btn-1": "vip_tier", "action-btn-2": "vip_tier_nextgen" },
+            "Premium Tier": { "action-btn-1": "premium_tier", "action-btn-2": "premium_nextgen" },
+            "Next Gen AI": { "action-btn-1": "next_gen_ai" },
+            "Shadowconvenant": { "action-btn-1": "shadowconvenant" },
+            "Standart Tier": { "action-btn-1": "standart_tier" },
+            "Midpay Tier": { "action-btn-1": "midpay_tier" },
+            "Eureka Tier": { "action-btn-1": "eureka_tier" },
+            "Start Tier": { "action-btn-1": "start_tier" },
+            "Take All Inter": { "action-btn-1": "take_all_inter" },
+            "Inter VIP": { "action-btn-1": "take_all_inter" },
+            "Inter Premium": { "action-btn-1": "take_all_inter" },
+            "Inter Start": { "action-btn-1": "take_all_inter" }
+        };
+
+        function setupDirectBotOrderButtons() {
+            // 1. Setup semua tombol order di katalog agar langsung membuka bot Telegram (tanpa modal popup pilihan)
+            document.querySelectorAll('#main-catalog-list .card').forEach(card => {
+                const prodName = card.getAttribute('data-product') || "";
+                
+                card.querySelectorAll('.btn-group a.btn').forEach(btn => {
+                    const rawHref = btn.getAttribute('href') || "";
+                    // Biarkan link grup publik/free tetap join link asli
+                    if (rawHref.includes('+Z1fvS2ymaIY1MjE1') || rawHref.includes('aijkt48share') || rawHref.includes('+_smha9Eiju4xNTY1')) {
+                        return;
+                    }
+
+                    let pkgId = "beli";
+                    if (CARD_PKG_MAP[prodName]) {
+                        if (btn.classList.contains('action-btn-1') && CARD_PKG_MAP[prodName]['action-btn-1']) {
+                            pkgId = CARD_PKG_MAP[prodName]['action-btn-1'];
+                        } else if (btn.classList.contains('action-btn-2') && CARD_PKG_MAP[prodName]['action-btn-2']) {
+                            pkgId = CARD_PKG_MAP[prodName]['action-btn-2'];
+                        } else if (CARD_PKG_MAP[prodName]['action-btn-1']) {
+                            pkgId = CARD_PKG_MAP[prodName]['action-btn-1'];
+                        }
+                    } else if (rawHref.includes('text=')) {
+                        const txt = decodeURIComponent(rawHref).toLowerCase();
+                        if (txt.includes('next gen')) pkgId = 'next_gen_ai';
+                        else if (txt.includes('shadow')) pkgId = 'shadowconvenant';
+                        else if (txt.includes('bundle 3')) pkgId = 'take_all_3';
+                        else if (txt.includes('bundle all')) pkgId = 'take_all_all';
+                        else if (txt.includes('vip')) pkgId = 'vip_tier';
+                        else if (txt.includes('premium')) pkgId = 'premium_tier';
+                        else if (txt.includes('standart')) pkgId = 'standart_tier';
+                        else if (txt.includes('midpay')) pkgId = 'midpay_tier';
+                        else if (txt.includes('eureka')) pkgId = 'eureka_tier';
+                        else if (txt.includes('start')) pkgId = 'start_tier';
+                        else if (txt.includes('inter')) pkgId = 'take_all_inter';
+                    }
+
+                    const targetBotUrl = `${BOT_BASE_URL}?start=order_${pkgId}`;
+                    btn.setAttribute('href', targetBotUrl);
+                    btn.setAttribute('target', '_blank');
+                    btn.removeAttribute('onclick');
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        window.open(targetBotUrl, '_blank');
+                        return false;
+                    };
+                });
+            });
+
+            // 2. Setup link Kontak Admin (di paling atas & nav pills) langsung membuka chat admin tanpa modal
             document.querySelectorAll('a[href*="t.me/chokoretoangelina"]').forEach(link => {
                 let currentUrl = link.getAttribute('href');
                 if (currentUrl && !currentUrl.includes('%5BRef:')) {
@@ -1149,21 +1402,17 @@
                     currentUrl = currentUrl + separator + `%5BRef:%20${currentRefCode}%5D`;
                     link.setAttribute('href', currentUrl);
                 }
-                
-                link.onclick = (e) => {
-                    e.preventDefault();
-                    showChatSelectionModal(link.getAttribute('href'), false);
-                };
+                link.setAttribute('target', '_blank');
+                link.onclick = null; // Tidak ada modal, langsung buka chat admin
             });
         }
 
+        function applyRefToLinks() {
+            setupDirectBotOrderButtons();
+        }
+
         function confirmInter(url) {
-            let finalUrl = url;
-            if (finalUrl && !finalUrl.includes('%5BRef:')) {
-                const separator = finalUrl.includes('text=') ? '%20' : (finalUrl.includes('?') ? '&text=' : '?text=');
-                finalUrl += separator + `%5BRef:%20${currentRefCode}%5D`;
-            }
-            showChatSelectionModal(finalUrl, true);
+            window.open(`${BOT_BASE_URL}?start=order_take_all_inter`, '_blank');
         }
 
         // ================= CARD PREVIEW AUTO MULTI-SLIDE CAROUSEL SYSTEM =================
@@ -1346,7 +1595,7 @@
                 rawText = parsed.searchParams.get("text") || rawText;
             } catch(e) {}
 
-            const botUrl = `https://t.me/convenantstorebot?text=` + encodeURIComponent(`/start ${rawText}`);
+            const botUrl = `https://t.me/VerifPmConvenantbot?text=` + encodeURIComponent(`/start ${rawText}`);
 
             overlay.innerHTML = `
                 <div style="background: rgba(18, 24, 38, 0.75); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border-radius: 24px; padding: 28px 24px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.75), 0 0 35px rgba(42, 171, 238, 0.15); color: #fff; box-sizing: border-box; position: relative; overflow: hidden;">
@@ -1486,12 +1735,9 @@
         }
 
         function submitPmCustomOrder() {
-            const price = calculatePmPrice(currentPmCount);
-            const formattedPrice = "Rp " + price.toLocaleString('id-ID');
-            const labelText = currentPmCount >= 62 ? "Take All Member 62 Member (40k)" : `${currentPmCount} Member (${formattedPrice})`;
-            const targetUrl = `https://t.me/chokoretoangelina?text=` + encodeURIComponent(`Halo bos, gw mau order PM Member JKT48 sebanyak ${labelText}. Minta instruksi bayarnya dong!`);
             closePmCustomModal();
-            showChatSelectionModal(targetUrl, false);
+            const pkgParam = currentPmCount >= 62 ? "order_take_all_all" : "beli";
+            window.open(`${BOT_BASE_URL}?start=${pkgParam}`, '_blank');
         }
 
         // ================= MAGHRIB TWILIGHT CELESTIAL CANVAS =================
