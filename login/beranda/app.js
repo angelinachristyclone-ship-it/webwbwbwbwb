@@ -132,12 +132,14 @@ const OLDER_HISTORY_LIMIT = 50;
 
 function getMediaUrl(msgId) {
     const session = getCookie("user_session_pm") || "";
-    return `${BACKEND_URL}/pm/media/${msgId}?session_cookie=${encodeURIComponent(session)}`;
+    const memberName = activeMember ? encodeURIComponent(activeMember.name) : "";
+    return `${BACKEND_URL}/pm/media/${msgId}?session=${encodeURIComponent(session)}&session_cookie=${encodeURIComponent(session)}&folder=${memberName}`;
 }
 
 function getThumbUrl(msgId) {
     const session = getCookie("user_session_pm") || "";
-    return `${BACKEND_URL}/pm/thumb/${msgId}?session_cookie=${encodeURIComponent(session)}`;
+    const memberName = activeMember ? encodeURIComponent(activeMember.name) : "";
+    return `${BACKEND_URL}/pm/thumb/${msgId}?session=${encodeURIComponent(session)}&session_cookie=${encodeURIComponent(session)}&folder=${memberName}`;
 }
 
 // ============================================
@@ -900,14 +902,22 @@ function setupMediaViewportObserver() {
 }
 
 function buildMessageNode(msg, isRecent = false) {
-    let timeOnly = msg.timestamp;
-    if (msg.timestamp && msg.timestamp.includes(" ")) {
-        const parts = msg.timestamp.split(" ");
-        timeOnly = parts[1] || msg.timestamp;
+    let timeOnly = msg.timestamp || "";
+    if (timeOnly.includes(" ")) {
+        const parts = timeOnly.split(" ");
+        timeOnly = parts[1] || timeOnly;
+    }
+
+    const textContent = (msg.text || msg.caption || msg.message_text || msg.content || "").trim();
+    const hasMedia = Boolean(msg.has_media);
+
+    // Filter out completely empty ghost bubbles (no media and no text content)
+    if (!hasMedia && !textContent) {
+        return "";
     }
 
     let mediaTag = "";
-    if (msg.has_media) {
+    if (hasMedia) {
         const mediaSrc = getMediaUrl(msg.id);
         const thumbSrc = getThumbUrl(msg.id);
 
@@ -942,13 +952,14 @@ function buildMessageNode(msg, isRecent = false) {
         }
     }
 
+    const textHtml = textContent ? `<div class="msg-text-content" style="word-break:break-word; line-height:1.45;">${textContent.replace(/\n/g, '<br>')}</div>` : "";
     const reactionsHtml = renderReactionBadgesHtml(msg.id, msgReactionsMap[msg.id]);
 
     return `
         <div class="msg-row" data-msg-id="${msg.id}">
             <div class="msg-bubble">
                 ${mediaTag}
-                <div>${(msg.text || "").replace(/\n/g, '<br>')}</div>
+                ${textHtml}
                 <div class="msg-reaction-badges" id="reactions-${msg.id}" style="${reactionsHtml ? 'display:flex;' : 'display:none;'}">
                     ${reactionsHtml}
                 </div>
@@ -1784,6 +1795,7 @@ function forceScrollToBottom() {
 }
 
 function onMediaLoaded(el) {
+    if (el && el.classList) el.classList.add("loaded");
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
     const distanceFromBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
@@ -1927,13 +1939,20 @@ function appendSingleMessage(newMsg) {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
 
+    // Hindari duplikasi rendering jika pesan dengan ID ini sudah ada di layar
+    if (newMsg && newMsg.id && chatMessages.querySelector(`[data-msg-id="${newMsg.id}"]`)) {
+        return;
+    }
+
     // Tambahkan ke memori pesan member aktif
     currentMemberAllMessages.unshift(newMsg);
 
     const isNearBottom = (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight) < 250;
 
     const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = buildMessageNode(newMsg, true);
+    const nodeHtml = buildMessageNode(newMsg, true);
+    if (!nodeHtml) return;
+    tempDiv.innerHTML = nodeHtml;
     while (tempDiv.firstChild) {
         chatMessages.appendChild(tempDiv.firstChild);
     }
@@ -2110,17 +2129,48 @@ function requestNotificationPermission() {
     }
 }
 
-function triggerWebNotification(memberName, textContent) {
-    if ("Notification" in window && Notification.permission === "granted") {
-        const title = `📩 Pesan PM Baru dari ${memberName}`;
-        const options = {
-            body: textContent || "Member baru saja mengirimkan pesan/media baru di Convenant PM!",
-            icon: "../../assets/pm.jpg"
-        };
-        try {
-            new Notification(title, options);
-        } catch (e) {}
+// Anti-spam deduplikasi dan rate-limiting notifikasi OS browser
+const notifiedMessageIds = new Set();
+let lastNotificationTime = 0;
+const NOTIFICATION_COOLDOWN_MS = 6000;
+
+function triggerWebNotification(memberName, textContent, msgId = null) {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+    // 1. Deduplikasi ID pesan agar tidak dipicu 2x
+    if (msgId && notifiedMessageIds.has(msgId)) return;
+    if (msgId) {
+        notifiedMessageIds.add(msgId);
+        if (notifiedMessageIds.size > 200) {
+            const first = notifiedMessageIds.values().next().value;
+            notifiedMessageIds.delete(first);
+        }
     }
+
+    // 2. Jika user sedang aktif melihat tab dan sedang membuka chat member ini, heningkan notifikasi OS
+    const folderUp = (memberName || "").toUpperCase();
+    const folderShort = folderUp.replace("PM ", "").trim();
+    const isCurrentlyViewing = document.hasFocus() && activeMember && 
+        (activeMember.name.toUpperCase() === folderUp || activeMember.id.toUpperCase() === folderShort);
+    if (isCurrentlyViewing) return;
+
+    // 3. Rate limiting / Cooldown: cegah spam suara dering beruntun
+    const now = Date.now();
+    if (now - lastNotificationTime < NOTIFICATION_COOLDOWN_MS) {
+        return;
+    }
+    lastNotificationTime = now;
+
+    const title = `📩 Pesan PM Baru dari ${memberName}`;
+    const options = {
+        body: (textContent || "Member baru saja mengirimkan pesan/media baru di Convenant PM!").slice(0, 120),
+        icon: "../../assets/pm.jpg",
+        tag: `pm-${folderShort}`,
+        renotify: false
+    };
+    try {
+        new Notification(title, options);
+    } catch (e) {}
 }
 
 let wsRetryCount = 0;
@@ -2153,10 +2203,14 @@ function setupWebSocket() {
                         renderReactionBadges(data.archive_message_id, data.reactions);
                     }
                 } else if (data && data.folder_name) {
-                    triggerWebNotification(data.folder_name, data.text);
                     const folderUp = data.folder_name.toUpperCase();
                     const folderShort = folderUp.replace("PM ", "").trim();
                     const isActive = activeMember && (activeMember.name.toUpperCase() === folderUp || activeMember.id.toUpperCase() === folderShort);
+
+                    // Hanya panggil notifikasi jika user TIDAK sedang fokus membaca chat
+                    if (!isActive || !document.hasFocus()) {
+                        triggerWebNotification(data.folder_name, data.text, data.id);
+                    }
 
                     if (isActive) {
                         const newMsg = data.message || {

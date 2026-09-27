@@ -466,10 +466,25 @@ html, body {
 
 .msg-photo {
     min-width: 220px;
-    min-height: 200px;
+    max-width: 100%;
+    min-height: 180px;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(110deg, #151d26 8%, #1f2b38 18%, #151d26 33%);
+    background-size: 200% 100%;
+    animation: 1.6s shine-photo linear infinite;
+    border-radius: 10px;
+}
+
+.msg-photo.loaded {
+    animation: none;
+    background: transparent;
+}
+
+@keyframes shine-photo {
+    to {
+        background-position-x: -200%;
+    }
 }
 
 .msg-audio-card {

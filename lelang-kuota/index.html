@@ -331,7 +331,8 @@
 
         function updateSummary() {
             const phone = document.getElementById('lelang-phone').value.trim() || '-';
-            const disc = (botPricing.discounts && botPricing.discounts['4']) || 0;
+            const discData = botPricing.discounts && (botPricing.discounts['4'] || botPricing.discounts['lelang']);
+            const disc = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
             
             let displayNominal = `Rp ${currentNominal.toLocaleString('id-ID')}`;
             if (disc > 0) {
@@ -353,7 +354,8 @@
                 return;
             }
 
-            const disc = (botPricing.discounts && botPricing.discounts['4']) || 0;
+            const discData = botPricing.discounts && (botPricing.discounts['4'] || botPricing.discounts['lelang']);
+            const disc = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
             let finalAmt = currentNominal;
             if (disc > 0) {
                 finalAmt = Math.round(currentNominal * (1 - disc / 100));
@@ -373,7 +375,7 @@
                     botPricing.discounts = data.discounts || {};
                     botPricing.price_changes = data.price_changes || {};
 
-                    const discData = botPricing.discounts['4'];
+                    const discData = botPricing.discounts && (botPricing.discounts['4'] || botPricing.discounts['lelang']);
                     const percent = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
                     const ttl = typeof discData === 'object' ? (discData.ttl_seconds || 7200) : 7200;
 

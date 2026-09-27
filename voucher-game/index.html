@@ -386,7 +386,8 @@
             const container = document.getElementById('voucher-items-container');
             container.innerHTML = '';
             const items = EXCEL_VOUCHERS_GROUPED[brand] || [];
-            const disc = (botPricing.discounts && botPricing.discounts['3']) || 0;
+            const discData = botPricing.discounts && (botPricing.discounts['3'] || botPricing.discounts['voucher'] || botPricing.discounts['pcgame']);
+            const disc = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
 
             items.forEach(item => {
                 let finalPrice = item.price;
@@ -401,7 +402,7 @@
                 card.className = 'nominal-item-card';
                 card.onclick = () => redirectOrderTele('Voucher ' + brand, item.name, finalPrice);
                 card.innerHTML = `
-                    ${disc > 0 ? `<div class="discount-badge">-${disc}%</div><div class="discount-timer">⏱️ 01:59:45</div>` : ''}
+                    ${disc > 0 ? `<div class="discount-badge">-${disc}%</div><div class="discount-timer">⏱️ Flash Sale</div>` : ''}
                     <div class="nominal-item-name">${item.name}</div>
                     <div class="nominal-item-price">${strikeHtml}<span class="discounted-price">Rp ${finalPrice.toLocaleString('id-ID')}</span></div>
                 `;
@@ -424,7 +425,7 @@
                     botPricing.discounts = data.discounts || {};
                     botPricing.price_changes = data.price_changes || {};
 
-                    const discData = botPricing.discounts['3'];
+                    const discData = botPricing.discounts && (botPricing.discounts['3'] || botPricing.discounts['voucher'] || botPricing.discounts['pcgame']);
                     const percent = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
                     const ttl = typeof discData === 'object' ? (discData.ttl_seconds || 7200) : 7200;
 

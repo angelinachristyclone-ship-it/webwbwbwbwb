@@ -1192,7 +1192,7 @@
         }
 
         function applyCategory1Discounts() {
-            const discData = botPricing.discounts && botPricing.discounts['1'];
+            const discData = botPricing.discounts && (botPricing.discounts['1'] || botPricing.discounts['beranda'] || botPricing.discounts['main']);
             const percent = typeof discData === 'object' ? (discData.percent || 0) : parseInt(discData) || 0;
             let ttl = typeof discData === 'object' ? (discData.ttl_seconds || 7200) : 7200;
 
@@ -1210,6 +1210,8 @@
                 if (oldBadge) oldBadge.remove();
                 const oldTimer = card.querySelector('.discount-timer-pill');
                 if (oldTimer) oldTimer.remove();
+
+                const prodName = card.getAttribute('data-product') || "";
 
                 if (percent > 0) {
                     // Pasang Badge Diskon
@@ -1249,19 +1251,57 @@
                             }
                             btn.innerHTML = `${prefix}<span class="strike-price">Rp ${originalPrice.toLocaleString('id-ID')}</span> <b class="discount-price-highlight">Rp ${discountedPrice.toLocaleString('id-ID')}</b>`;
 
-                            // Update URL Telegram dengan harga diskon
-                            let href = btn.getAttribute('href');
-                            if (href && href.includes('t.me/')) {
-                                const kPrice = Math.round(discountedPrice / 1000) + 'k';
-                                href = href.replace(/\(\d+k\)/i, `(${kPrice})`);
-                                btn.setAttribute('href', href);
+                            // Dapatkan pkgId dari CARD_PKG_MAP
+                            let pkgId = "beli";
+                            if (CARD_PKG_MAP[prodName]) {
+                                const mapData = CARD_PKG_MAP[prodName];
+                                const btnClass = `action-btn-${btnIndex}`;
+                                if (mapData[btnClass]) {
+                                    pkgId = mapData[btnClass].pkgId;
+                                } else if (mapData['action-btn-1']) {
+                                    pkgId = mapData['action-btn-1'].pkgId;
+                                }
                             }
+
+                            // Update URL & Onclick Telegram dengan harga diskon
+                            const discountedBotUrl = `${BOT_BASE_URL}?start=order_${pkgId}_${discountedPrice}&text=${encodeURIComponent('/order ' + pkgId + ' ' + discountedPrice)}`;
+                            btn.setAttribute('href', discountedBotUrl);
+                            btn.setAttribute('target', '_blank');
+                            btn.onclick = (e) => {
+                                e.stopPropagation();
+                                window.open(discountedBotUrl, '_blank');
+                                return false;
+                            };
                         }
 
                         // Update juga teks di tier-desc jika ada
                         const descVal = card.querySelector(`.price-val-${btnIndex}`);
                         if (descVal) {
                             descVal.innerHTML = `<span class="strike-price">Rp ${originalPrice.toLocaleString('id-ID')}</span> <b class="discount-price-highlight">Rp ${discountedPrice.toLocaleString('id-ID')}</b>`;
+                        }
+                    });
+                } else {
+                    // Restore original text & bot URL if discount inactive/expired
+                    Object.keys(prices).forEach(key => {
+                        const originalPrice = prices[key];
+                        const btnIndex = key.replace('btn', '');
+                        const btn = card.querySelector(`.action-btn-${btnIndex}`);
+                        if (btn && btn.getAttribute('data-orig-text')) {
+                            btn.innerText = btn.getAttribute('data-orig-text');
+
+                            let pkgId = "beli";
+                            if (CARD_PKG_MAP[prodName]) {
+                                const mapData = CARD_PKG_MAP[prodName];
+                                const btnClass = `action-btn-${btnIndex}`;
+                                if (mapData[btnClass]) pkgId = mapData[btnClass].pkgId;
+                            }
+                            const origBotUrl = `${BOT_BASE_URL}?start=order_${pkgId}_${originalPrice}&text=${encodeURIComponent('/order ' + pkgId + ' ' + originalPrice)}`;
+                            btn.setAttribute('href', origBotUrl);
+                            btn.onclick = (e) => {
+                                e.stopPropagation();
+                                window.open(origBotUrl, '_blank');
+                                return false;
+                            };
                         }
                     });
                 }
@@ -1425,8 +1465,9 @@
             document.querySelectorAll('a[href*="t.me/chokoretoangelina"]').forEach(link => {
                 let currentUrl = link.getAttribute('href');
                 if (currentUrl && !currentUrl.includes('%5BRef:')) {
+                    const activeRef = typeof getActiveRefCode === 'function' ? getActiveRefCode() : DEFAULT_REF;
                     const separator = currentUrl.includes('text=') ? '%20' : (currentUrl.includes('?') ? '&text=' : '?text=');
-                    currentUrl = currentUrl + separator + `%5BRef:%20${currentRefCode}%5D`;
+                    currentUrl = currentUrl + separator + `%5BRef:%20${activeRef}%5D`;
                     link.setAttribute('href', currentUrl);
                 }
                 link.setAttribute('target', '_blank');
@@ -1974,12 +2015,12 @@
         window.addEventListener('scroll', getScrollRatio, { passive: true });
 
         document.addEventListener('DOMContentLoaded', () => {
-            resizeCanvas();
-            initParticles();
-            renderLoop();
-            applyRefToLinks();
-            initCardCarousels();
-            loadBotPricing();
+            try { resizeCanvas(); } catch(e) {}
+            try { initParticles(); } catch(e) {}
+            try { renderLoop(); } catch(e) {}
+            try { applyRefToLinks(); } catch(e) { console.error("[REF] Error:", e); }
+            try { initCardCarousels(); } catch(e) { console.error("[CAROUSEL] Error:", e); }
+            try { loadBotPricing(); } catch(e) { console.error("[PRICING] Error:", e); }
         });
     </script>
 </body>
