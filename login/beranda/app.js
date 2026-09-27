@@ -758,7 +758,10 @@ function switchMediaTab(tabType) {
 }function handleMediaError(imgElem, thumbSrc, mediaSrc) {
     if (!imgElem.dataset.retryStep) {
         imgElem.dataset.retryStep = "1";
-        imgElem.src = mediaSrc;
+        // Retry thumbnail ringan sekali lagi setelah jeda 600ms (menunggu background generator selesai jika baru pertama dibuat)
+        setTimeout(() => {
+            imgElem.src = thumbSrc + (thumbSrc.includes('?') ? '&' : '?') + 'r=' + Date.now();
+        }, 600);
     } else if (imgElem.dataset.retryStep === "1") {
         imgElem.dataset.retryStep = "2";
         const msgId = imgElem.closest('.msg-row') ? imgElem.closest('.msg-row').dataset.msgId : null;
