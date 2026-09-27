@@ -359,13 +359,9 @@
                 finalAmt = Math.round(currentNominal * (1 - disc / 100));
             }
 
-            let msg = `Halo admin, gw mau ikutan Lelang Kuota / Masa Aktif SIM nominal Rp ${finalAmt.toLocaleString('id-ID')} untuk No HP/SIM: ${phone}`;
-            if (note) {
-                msg += ` (Catatan: ${note})`;
-            }
-            msg += `. Tolong infokan paket/menu apa saja yang tersedia ya!`;
-
-            window.open(`https://t.me/chokoretoangelina?text=` + encodeURIComponent(msg), '_blank');
+            const cleanPhone = phone.replace(/[^0-9]/g, '');
+            const text = `/order lelang_kuota_${cleanPhone} ${finalAmt}`;
+            window.open(`https://t.me/VerifPmConvenantbot?text=` + encodeURIComponent(text), '_blank');
         }
 
         async function loadBotPricing() {

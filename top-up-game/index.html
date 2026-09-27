@@ -598,8 +598,9 @@
         }
 
         function redirectOrderTele(cat, itemName, price) {
-            const text = `Halo bos, gw mau order [${cat}] - [${itemName}] (Rp ${price.toLocaleString('id-ID')}). Minta instruksi bayar Qris dinamis dong!`;
-            window.open(`https://t.me/chokoretoangelina?text=` + encodeURIComponent(text), '_blank');
+            const cleanName = `${cat} ${itemName}`.replace(/[\s\(\)\[\]]+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+            const text = `/order ${cleanName} ${price}`;
+            window.open(`https://t.me/VerifPmConvenantbot?text=` + encodeURIComponent(text), '_blank');
         }
 
         async function loadBotPricing() {
