@@ -12,35 +12,38 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <title>Link Ads Move2Link - Convenant VIP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #05070d;
-            --text-main: #ffffff;
-            --text-sub: #a0aab5;
-            --card-bg: rgba(18, 24, 38, 0.78);
-            --card-border: rgba(255, 255, 255, 0.16);
-            --card-shadow: rgba(0, 0, 0, 0.6);
-            --glow-color: rgba(42, 171, 238, 0.8);
-            --accent-color: #2AABEE;
-            --success-color: #00c993;
-            --warning-color: #ffb800;
+                :root {
+            --bg-color: #f1f5f9;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --card-bg: rgba(255, 255, 255, 0.48);
+            --card-border: rgba(255, 255, 255, 0.75);
+            --card-shadow: rgba(0, 0, 0, 0.08);
+            --glow-color: rgba(255, 255, 255, 0.9);
+            --accent-color: #0284c7;
+            --success-color: #059669;
+            --warning-color: #d97706;
         }
 
         * {
             box-sizing: border-box;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         html, body {
             margin: 0;
             padding: 0;
-            font-family: 'Nunito', sans-serif;
-            background-color: #05070d !important;
+            background: linear-gradient(135deg, #e8edf3 0%, #f8fafc 50%, #e2e8f0 100%) !important;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -63,16 +66,52 @@
             max-width: 480px;
             width: 90%;
             margin: 30px auto;
-            padding: 28px 20px;
+            padding: 28px 24px;
             text-align: center;
             position: relative;
             z-index: 5;
             background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid var(--card-border);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
             border-radius: 24px;
-            box-shadow: 0 12px 40px var(--card-shadow);
+            box-shadow: 0 16px 40px var(--card-shadow), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Collab Header Box */
+        .page-brand-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            margin-bottom: 14px;
+        }
+
+        .brand-logo-img {
+            max-height: 44px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .collab-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 2px;
+        }
+
+        .collab-x {
+            font-size: 14px;
+            font-weight: 900;
+            color: #ef4444;
+        }
+
+        .shinistrus-calligraphy {
+            font-family: 'Great Vibes', cursive;
+            font-size: 30px;
+            font-weight: 400;
+            color: #0f172a;
         }
 
         .back-nav {
@@ -83,40 +122,62 @@
             text-decoration: none;
             font-weight: 700;
             font-size: 13px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
             transition: all 0.2s ease;
         }
 
         .back-nav:hover {
             color: var(--text-main);
+            background: rgba(255, 255, 255, 0.85);
             transform: translateX(-3px);
         }
 
         .header-title {
-            font-size: 25px;
+            font-size: 24px;
             font-weight: 900;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            text-shadow: 0 0 15px var(--glow-color);
+            margin-bottom: 6px;
+            color: #0f172a;
         }
 
         .header-subtitle {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--text-sub);
-            margin-bottom: 25px;
+            margin-bottom: 22px;
             line-height: 1.5;
         }
 
-        /* STEP CARDS */
         .step-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.85);
             border-radius: 16px;
             padding: 18px 16px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             text-align: left;
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+        }
+        .step-card:hover {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: #0284c7;
+        }
+        .step-title {
+            color: #0f172a !important;
+            font-weight: 800 !important;
+        }
+        .step-desc {
+            color: #475569 !important;
+        }
+        .action-btn {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2) !important;
+        }
+        .action-btn:hover {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
         }
 
         .step-card.active {
@@ -271,6 +332,70 @@
             line-height: 1.5;
             margin-top: 20px;
         }
+    
+/* UNIVERSAL WHITE TRANSPARENT GLASSMORPHISM FOR ALL CARDS & BUTTONS */
+.game-text-card, .voucher-cat-card, .nominal-item-card, .nominal-item, .nominal-card,
+.payment-card, .method-card, .step-card, .btn-lelang-nominal, .nav-cat-btn {
+    background: rgba(255, 255, 255, 0.42) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+    color: #0f172a !important;
+    transition: all 0.25s ease !important;
+}
+
+.game-text-card:hover, .voucher-cat-card:hover, .nominal-item-card:hover, .nominal-item:hover,
+.nominal-card:hover, .payment-card:hover, .method-card:hover, .step-card:hover, .btn-lelang-nominal:hover, .nav-cat-btn:hover {
+    background: rgba(255, 255, 255, 0.62) !important;
+    border-color: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1), inset 0 1px 3px rgba(255, 255, 255, 0.8) !important;
+    transform: translateY(-2px) !important;
+}
+
+.voucher-cat-card.active, .nominal-item-card.active, .nominal-item.selected,
+.payment-card.selected, .method-card.selected, .btn-lelang-nominal.active {
+    background: rgba(255, 255, 255, 0.68) !important;
+    border-color: #0284c7 !important;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.35), 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+.back-nav, .back-nav-link, .nav-cat-btn.home-btn, .btn-kembali {
+    background: rgba(255, 255, 255, 0.38) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+    color: #0f172a !important;
+}
+
+.back-nav:hover, .back-nav-link:hover, .nav-cat-btn.home-btn:hover, .btn-kembali:hover {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.game-detail-box, .section-card, .detail-box, .login-card, .login-header-box, .page-brand-box {
+    background: rgba(255, 255, 255, 0.45) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.6) !important;
+    color: #0f172a !important;
+}
+
+.input-text, .form-control, .input-field, .form-input-modern {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
+    color: #0f172a !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.input-text:focus, .form-control:focus, .input-field:focus, .form-input-modern:focus {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border-color: #0284c7 !important;
+}
+
     </style>
 </head>
 <body>

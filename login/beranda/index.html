@@ -7,124 +7,208 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-TMMDZ0QC24');
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Convenant VIP — Archive PM JKT48</title>
-    <link rel="stylesheet" href="style.css?v=29.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=30.0">
 </head>
 <body>
-    <!-- BACKGROUND STAR ANIMATION -->
+    <!-- 1. CINEMATIC PURE WHITE INTRO CURTAIN -->
+    <div id="introCurtain" class="intro-curtain"></div>
+
+    <!-- 2. AMBIENT BACKGROUND CANVAS -->
     <canvas id="star-canvas" aria-hidden="true"></canvas>
 
-    <!-- LIGHTBOX MODAL FULLSCREEN PREVIEW -->
-    <div id="lightboxModal" class="lightbox-modal" role="dialog" aria-modal="true" aria-label="Media Preview" onclick="closeLightbox(event)">
-        <button class="lightbox-close" aria-label="Tutup preview" onclick="closeLightbox(event)">&times;</button>
-        <div class="lightbox-content-wrap" onclick="event.stopPropagation()">
-            <div id="lightboxMediaContainer"></div>
-            <div class="lightbox-actions">
-                <button id="lightboxSaveBtn" class="order-btn">💾 Simpan File</button>
-            </div>
-        </div>
-    </div>
+    <!-- CUSTOM WALLPAPER OVERLAY -->
+    <div id="chatWallpaperBg" class="chat-wallpaper-bg" aria-hidden="true"></div>
 
-    <!-- APP SHELL CONTAINER -->
-    <div class="app-shell">
-        
-        <!-- SIDEBAR KIRI (DAFTAR MEMBER PM JKT48) -->
-        <aside class="sidebar" role="navigation" aria-label="Daftar Member PM">
-            <header class="sidebar-header">
-                <div class="sidebar-title-wrap">
-                    <h1 class="sidebar-title">Archive PM JKT48</h1>
-                    <span id="userBadge" class="user-badge">Convenant VIP</span>
+    <!-- SVG DEFS FOR GLOWING WINGS -->
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+        <defs>
+            <linearGradient id="wingGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                <stop offset="60%" stop-color="#93c5fd" stop-opacity="0.8" />
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.6" />
+            </linearGradient>
+            <linearGradient id="wingGradRight" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                <stop offset="60%" stop-color="#93c5fd" stop-opacity="0.8" />
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.6" />
+            </linearGradient>
+            <linearGradient id="goldWingLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.98" />
+                <stop offset="60%" stop-color="#fde047" stop-opacity="0.85" />
+                <stop offset="100%" stop-color="#eab308" stop-opacity="0.7" />
+            </linearGradient>
+            <linearGradient id="goldWingRight" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.98" />
+                <stop offset="60%" stop-color="#fde047" stop-opacity="0.85" />
+                <stop offset="100%" stop-color="#eab308" stop-opacity="0.7" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- MAIN APPLICATION CONTAINER -->
+    <div id="appContainer" class="app-container showcase-mode">
+
+        <!-- ==============================================================
+             STAGE 1: SHOWCASE VIEW (GELEMBUNG BERSAYAP PENUH SAAT BARU MASUK)
+             ============================================================== -->
+        <section id="showcaseSection" class="showcase-section">
+            <!-- TOP BRAND HEADER -->
+            <header class="showcase-topbar">
+                <div class="collab-brand-mini">
+                    <img src="../../web asset/logo.png" alt="Convenant Logo" class="brand-logo-img">
+                    <span class="collab-x">✕</span>
+                    <span class="shinistrus-calligraphy">ShinistrusPay</span>
                 </div>
-                <div class="member-search" role="search">
-                    <input type="text" id="memberSearchInput" class="member-search-input" placeholder="🔍 Cari oshi kamu..." aria-label="Cari member oshi" oninput="filterMemberList()">
+                <div class="showcase-search-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="showcaseSearchInput" class="showcase-search-input" placeholder="Cari nama oshi kamu..." oninput="filterShowcaseBubbles(this.value)">
                 </div>
-                <div class="sidebar-shortcuts">
-                    <button class="sidebar-shortcut-btn" onclick="openSavedMessagesModal()" title="Lihat Pesan Tersimpan">
-                        <span>⭐</span> Tersimpan
+                <div class="showcase-actions">
+                    <button class="nav-action-pill" onclick="openSavedMessagesModal()" title="Pesan Tersimpan">
+                        <span>⭐</span> <span>Tersimpan</span>
                     </button>
-                    <button class="sidebar-shortcut-btn" onclick="openWallpaperModal()" title="Ganti Wallpaper Chat">
-                        <span>🎨</span> Wallpaper
+                    <button class="nav-action-pill" onclick="openWallpaperModal()" title="Ganti Wallpaper">
+                        <span>🎨</span> <span>Wallpaper</span>
+                    </button>
+                    <button class="nav-action-pill logout-pill" onclick="logout()" title="Logout">
+                        <span>🚪</span> <span>Logout</span>
                     </button>
                 </div>
             </header>
-            <div id="memberList" class="member-list" role="listbox" aria-label="Pilih Oshi">
-                <!-- Member items rendered via JS -->
+
+            <div class="showcase-hero-text">
+                <h1 class="showcase-title">✨ Pilih Oshi Kesayangan Kamu ✨</h1>
+                <p class="showcase-subtitle">Sentuh gelembung bersayap untuk membuka room chat & arsip real-time PM JKT48</p>
+                <div id="userBadgeShowcase" class="user-tier-badge">Convenant VIP • 61 Member</div>
             </div>
-        </aside>
 
-        <!-- MAIN CHAT AREA -->
-        <main class="chat-area">
-            <!-- LATAR CUSTOM WALLPAPER DARI GALERI -->
-            <div id="chatWallpaperBg" class="chat-wallpaper-bg" aria-hidden="true"></div>
+            <!-- GRID GELEMBUNG BERSAYAP PENUH -->
+            <div id="showcaseBubbleGrid" class="showcase-bubble-grid">
+                <!-- Injected via JavaScript -->
+            </div>
+        </section>
 
-            <header class="chat-header">
-                <button id="backToSidebarBtn" class="back-sidebar-btn" aria-label="Kembali ke daftar member" onclick="showSidebarMobile()" title="Kembali ke daftar member">←</button>
-                
-                <div class="header-member-info" onclick="toggleMediaPanel()" role="button" tabindex="0" title="Klik untuk lihat Shared Media">
-                    <img id="headerAvatar" src="../../logo.png" class="header-member-avatar" alt="Avatar Member">
-                    <div class="header-text-group">
-                        <div id="headerName" class="header-member-name">Pilih Member PM</div>
-                        <div id="headerSub" class="header-member-sub">Convenant VIP Archive</div>
+        <!-- ==============================================================
+             STAGE 2: CHAT ACTIVE VIEW (MENU GELEMBUNG SELANG SELING + ROOM MELAYANG)
+             ============================================================== -->
+        <section id="chatSection" class="chat-section">
+            
+            <!-- SISI KIRI: MENU GELEMBUNG BERSAYAP SELANG-SELING (KIRI KANAN KIRI KANAN) -->
+            <aside id="bubbleMenuAside" class="bubble-menu-aside">
+                <div class="bubble-menu-header">
+                    <button class="btn-back-showcase" onclick="backToShowcase()" title="Kembali ke Galeri Oshi">
+                        <span>🌌</span> <span>Galeri Oshi</span>
+                    </button>
+                    <div class="mini-search-box">
+                        <input type="text" id="staggerSearchInput" class="stagger-search-input" placeholder="🔍 Cari oshi..." oninput="filterStaggerMenu(this.value)">
                     </div>
                 </div>
 
-                <div class="header-actions">
-                    <button class="header-icon-btn" aria-label="Pesan Tersimpan" onclick="openSavedMessagesModal()" title="Pesan Tersimpan">⭐</button>
-                    <button class="header-icon-btn" aria-label="Custom Wallpaper" onclick="openWallpaperModal()" title="Custom Wallpaper">🎨</button>
-                    <button class="header-icon-btn" aria-label="Shared Media" onclick="toggleMediaPanel()" title="Shared Media">🖼️</button>
-                    <button class="header-icon-btn logout-btn" aria-label="Logout" onclick="logout()" title="Logout">🚪</button>
+                <!-- LIST GELEMBUNG SELANG SELING (STAGGERED ZIGZAG) -->
+                <div id="staggerBubbleList" class="stagger-bubble-list">
+                    <!-- Rendered via JS in alternating left-right-left-right winged bubbles -->
                 </div>
-            </header>
+            </aside>
 
-            <div id="chatMessages" class="chat-messages" role="log" aria-live="polite">
-                <div class="unsubscribed-notice">
-                    <h3>💬 Selamat Datang di Convenant PM</h3>
-                    <p>Silakan pilih member PM dari daftar di sebelah kiri untuk melihat pesan arsip real-time Telegram.</p>
+            <!-- SISI KANAN: ROOM CHAT MELAYANG (FLOATING CHAT ROOM) -->
+            <main id="floatingChatRoom" class="floating-chat-room">
+                
+                <!-- HEADER CHAT MELAYANG -->
+                <header class="floating-chat-header">
+                    <button id="toggleMenuMobileBtn" class="toggle-menu-mobile-btn" onclick="toggleMobileMenu()" title="Daftar Member">
+                        <span>☰</span>
+                    </button>
+
+                    <div class="chat-header-member-info" onclick="toggleMediaPanel()" title="Lihat Shared Media">
+                        <div class="header-bubble-avatar-wrap">
+                            <img id="headerAvatar" src="../../logo.png" class="header-member-avatar" alt="Avatar Member">
+                            <span class="header-mini-wing wing-l"></span>
+                            <span class="header-mini-wing wing-r"></span>
+                        </div>
+                        <div class="header-member-text">
+                            <div id="headerName" class="header-member-name">Pilih Member PM</div>
+                            <div id="headerSub" class="header-member-sub">Convenant VIP Archive</div>
+                        </div>
+                    </div>
+
+                    <div class="floating-header-actions">
+                        <button class="glass-icon-btn" onclick="openSavedMessagesModal()" title="Pesan Tersimpan">⭐</button>
+                        <button class="glass-icon-btn" onclick="openWallpaperModal()" title="Custom Wallpaper">🎨</button>
+                        <button class="glass-icon-btn" onclick="toggleMediaPanel()" title="Shared Media">🖼️</button>
+                        <button class="glass-icon-btn logout-btn" onclick="logout()" title="Logout">🚪</button>
+                    </div>
+                </header>
+
+                <!-- FEED PESAN CHAT MELAYANG -->
+                <div id="chatMessages" class="floating-chat-messages" role="log" aria-live="polite">
+                    <div class="welcome-chat-notice">
+                        <div class="welcome-notice-orb">💬</div>
+                        <h3>Selamat Datang di Room PM Convenant</h3>
+                        <p>Pilih salah satu gelembung bersayap di samping untuk membuka pesan arsip real-time oshi kamu.</p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- TOMBOL FLOATING PANAH BAWAH KE CHAT TERBARU -->
-            <button id="scrollToBottomBtn" class="scroll-bottom-btn" aria-label="Ke chat terbaru" onclick="scrollToLatestChat()" title="Ke chat terbaru">⬇</button>
-        </main>
+                <!-- TOMBOL FLOATING SCROLL KE TERBARU -->
+                <button id="scrollToBottomBtn" class="floating-scroll-bottom-btn" onclick="scrollToLatestChat()" title="Ke pesan terbaru">⬇</button>
+            </main>
 
-        <!-- PANEL MEDIA (SLIDE OVERLAY KANAN) -->
-        <section id="mediaPanel" class="media-panel" aria-label="Panel Shared Media">
-            <header class="media-panel-header">
-                <span>📷 Shared Media</span>
-                <button class="close-panel-btn" aria-label="Tutup panel media" onclick="toggleMediaPanel()">✖</button>
-            </header>
-            <nav class="media-tabs" role="tablist">
-                <button id="mediaTabPhoto" class="media-tab-btn active" role="tab" aria-selected="true" onclick="switchMediaTab('photo')">🖼️ Foto</button>
-                <button id="mediaTabVideo" class="media-tab-btn" role="tab" aria-selected="false" onclick="switchMediaTab('video')">🎥 Video</button>
-                <button id="mediaTabAudio" class="media-tab-btn" role="tab" aria-selected="false" onclick="switchMediaTab('audio')">🎵 Audio</button>
-            </nav>
-            <div id="mediaGrid" class="media-grid" role="region" aria-label="Grid Media">
-                <!-- Shared media rendered via JS -->
-            </div>
+            <!-- SLIDE OVERLAY PANEL SHARED MEDIA -->
+            <section id="mediaPanel" class="media-panel-overlay">
+                <header class="media-panel-header">
+                    <span>📷 Shared Media</span>
+                    <button class="close-panel-btn" onclick="toggleMediaPanel()">&times;</button>
+                </header>
+                <nav class="media-tabs-bar">
+                    <button id="mediaTabPhoto" class="media-tab-pill active" onclick="switchMediaTab('photo')">🖼️ Foto</button>
+                    <button id="mediaTabVideo" class="media-tab-pill" onclick="switchMediaTab('video')">🎥 Video</button>
+                    <button id="mediaTabAudio" class="media-tab-pill" onclick="switchMediaTab('audio')">🎵 Audio</button>
+                </nav>
+                <div id="mediaGrid" class="media-grid-container">
+                    <!-- Media items rendered via JS -->
+                </div>
+            </section>
+
         </section>
 
     </div>
 
+    <!-- ==============================================================
+         3. MODALS (LIGHTBOX, SAVED MESSAGES, CUSTOM WALLPAPER)
+         ============================================================== -->
+    <!-- LIGHTBOX FULLSCREEN PREVIEW -->
+    <div id="lightboxModal" class="lightbox-modal" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+        <div class="lightbox-content-box" onclick="event.stopPropagation()">
+            <div id="lightboxMediaContainer"></div>
+            <div class="lightbox-actions">
+                <button id="lightboxSaveBtn" class="lightbox-action-btn">💾 Simpan File</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL PESAN TERSIMPAN (BOOKMARKS) -->
-    <div id="savedMessagesModal" class="custom-modal" role="dialog" aria-modal="true" aria-label="Pesan Tersimpan" onclick="closeSavedMessagesModal(event)">
-        <div class="custom-modal-card saved-messages-card" onclick="event.stopPropagation()">
+    <div id="savedMessagesModal" class="custom-modal" onclick="closeSavedMessagesModal(event)">
+        <div class="custom-modal-card" onclick="event.stopPropagation()">
             <header class="custom-modal-header">
                 <div class="custom-modal-title-wrap">
                     <span class="custom-modal-icon">⭐</span>
                     <div>
                         <h2 class="custom-modal-title">Pesan Tersimpan</h2>
-                        <p class="custom-modal-sub">Daftar pesan & media yang kamu bookmark</p>
+                        <p class="custom-modal-sub">Daftar bookmark pesan & media oshi kamu</p>
                     </div>
                 </div>
                 <button class="custom-modal-close" onclick="closeSavedMessagesModal(event)">&times;</button>
             </header>
-            <div class="saved-search-wrap">
-                <input type="text" id="savedSearchInput" class="saved-search-input" placeholder="🔍 Cari di pesan tersimpan..." oninput="filterSavedMessages()">
+            <div class="saved-search-box">
+                <input type="text" id="savedSearchInput" class="saved-search-input" placeholder="🔍 Cari pesan tersimpan..." oninput="filterSavedMessages()">
             </div>
             <div id="savedMessagesList" class="saved-messages-list">
                 <!-- Rendered via JS -->
@@ -133,26 +217,25 @@
     </div>
 
     <!-- MODAL CUSTOM WALLPAPER -->
-    <div id="wallpaperModal" class="custom-modal" role="dialog" aria-modal="true" aria-label="Custom Wallpaper" onclick="closeWallpaperModal(event)">
-        <div class="custom-modal-card wallpaper-card" onclick="event.stopPropagation()">
+    <div id="wallpaperModal" class="custom-modal" onclick="closeWallpaperModal(event)">
+        <div class="custom-modal-card" onclick="event.stopPropagation()">
             <header class="custom-modal-header">
                 <div class="custom-modal-title-wrap">
                     <span class="custom-modal-icon">🎨</span>
                     <div>
-                        <h2 class="custom-modal-title">Custom Wallpaper Chat</h2>
-                        <p class="custom-modal-sub">Ganti latar belakang chat dari galeri HP atau PC kamu</p>
+                        <h2 class="custom-modal-title">Custom Wallpaper Room Chat</h2>
+                        <p class="custom-modal-sub">Ubah latar belakang chat dari galeri HP atau PC kamu</p>
                     </div>
                 </div>
                 <button class="custom-modal-close" onclick="closeWallpaperModal(event)">&times;</button>
             </header>
-            <div class="wallpaper-body">
-                <!-- Hidden File Input -->
+            <div class="wallpaper-modal-body">
                 <input type="file" id="wallpaperFileInput" accept="image/*" style="display:none;" onchange="handleWallpaperUpload(event)">
                 
                 <div class="wallpaper-preview-box">
                     <div id="wallpaperLivePreview" class="wallpaper-live-preview">
-                        <div class="sample-chat-bubble">
-                            <span>✨ Ini contoh tampilan bubble chat dengan wallpaper kamu.</span>
+                        <div class="sample-bubble">
+                            <span>✨ Contoh tampilan pesan dengan wallpaper kamu.</span>
                         </div>
                     </div>
                 </div>
@@ -161,16 +244,16 @@
                     📁 Pilih Foto dari Galeri HP / PC
                 </button>
 
-                <div class="wallpaper-controls">
-                    <div class="slider-group">
-                        <div class="slider-label">
-                            <span>Kecerahan Wallpaper (Brightness)</span>
+                <div class="wallpaper-controls-box">
+                    <div class="slider-row">
+                        <div class="slider-info">
+                            <span>Kecerahan (Brightness)</span>
                             <span id="brightnessVal">45%</span>
                         </div>
                         <input type="range" id="wallpaperBrightnessInput" min="10" max="100" value="45" oninput="updateWallpaperAdjustments()">
                     </div>
-                    <div class="slider-group">
-                        <div class="slider-label">
+                    <div class="slider-row">
+                        <div class="slider-info">
                             <span>Efek Blur</span>
                             <span id="blurVal">0px</span>
                         </div>
@@ -178,23 +261,26 @@
                     </div>
                 </div>
 
-                <div class="wallpaper-presets-title">Atau pilih tema bawaan:</div>
+                <div class="preset-label">Atau pilih tema bawaan:</div>
                 <div class="wallpaper-presets-grid">
-                    <button class="preset-btn" onclick="applyPresetWallpaper('default')">🌌 Bintang & Tim</button>
-                    <button class="preset-btn" onclick="applyPresetWallpaper('dark')">🌑 Gelap Pekat</button>
-                    <button class="preset-btn" onclick="applyPresetWallpaper('dream')">💙 Team Dream</button>
-                    <button class="preset-btn" onclick="applyPresetWallpaper('passion')">❤️ Team Passion</button>
-                    <button class="preset-btn" onclick="applyPresetWallpaper('love')">💖 Team Love</button>
+                    <button class="preset-pill-btn" onclick="applyPresetWallpaper('default')">🌌 Bintang & Tim</button>
+                    <button class="preset-pill-btn" onclick="applyPresetWallpaper('dark')">🌑 Gelap Pekat</button>
+                    <button class="preset-pill-btn" onclick="applyPresetWallpaper('dream')">💙 Team Dream</button>
+                    <button class="preset-pill-btn" onclick="applyPresetWallpaper('passion')">❤️ Team Passion</button>
+                    <button class="preset-pill-btn" onclick="applyPresetWallpaper('love')">💖 Team Love</button>
                 </div>
 
-                <div class="wallpaper-actions">
-                    <button class="wallpaper-reset-btn" onclick="resetWallpaper()">🗑️ Reset ke Bawaan</button>
-                    <button class="order-btn" style="flex:1;" onclick="closeWallpaperModal()">✓ Selesai</button>
+                <div class="wallpaper-modal-footer">
+                    <button class="wallpaper-reset-btn" onclick="resetWallpaper()">🗑️ Reset Bawaan</button>
+                    <button class="lightbox-action-btn" style="flex:1;" onclick="closeWallpaperModal()">✓ Selesai</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="app.js?v=29.0"></script>
+    <!-- AUDIO ELEMENT UNTUK SUARA / VOICE NOTE -->
+    <audio id="globalAudioPlayer" style="display:none;"></audio>
+
+    <script src="app.js?v=30.0"></script>
 </body>
 </html>
