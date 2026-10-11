@@ -222,11 +222,11 @@
         .beranda-btn-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr); /* Mobile: kebawah / 2 kolom compact */
-            gap: 6px 8px;
-            max-width: 335px;
-            width: calc(100% - 44px);
+            gap: 5px 6px;
+            max-width: 260px;
+            width: calc(100% - 84px);
             margin-top: auto; /* Di bawah, jangan naik */
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             margin-left: auto;
             margin-right: auto;
             z-index: 5;
@@ -239,21 +239,21 @@
             background: rgba(255, 255, 255, 0.35);
             backdrop-filter: blur(18px) saturate(180%);
             -webkit-backdrop-filter: blur(18px) saturate(180%);
-            border: 1.6px solid rgba(255, 255, 255, 0.85);
-            border-radius: 20px;
-            padding: 8px 14px;
+            border: 1.4px solid rgba(255, 255, 255, 0.85);
+            border-radius: 14px;
+            padding: 5px 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
             color: #ffffff;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
             text-decoration: none;
-            font-weight: 900;
-            font-size: 11.5px;
-            letter-spacing: 0.6px;
+            font-weight: 800;
+            font-size: 10px;
+            letter-spacing: 0.3px;
             white-space: nowrap;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.75);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.75);
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             box-sizing: border-box;
@@ -263,37 +263,37 @@
             transform: translateY(-2px) scale(1.02);
             background: rgba(255, 255, 255, 0.52);
             border-color: #ffffff;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22), inset 0 1px 3px rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.9);
         }
         .btn-order-vip-wide:active {
             transform: scale(0.97);
         }
 
         .btn-vip-text {
-            font-size: 11.5px;
-            font-weight: 900;
+            font-size: 10px;
+            font-weight: 800;
             color: #ffffff;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .action-card-btn {
             background: rgba(255, 255, 255, 0.28);
             backdrop-filter: blur(16px) saturate(180%);
             -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border: 1.5px solid rgba(255, 255, 255, 0.55);
-            border-radius: 20px;
-            padding: 6.5px 10px;
+            border: 1.2px solid rgba(255, 255, 255, 0.55);
+            border-radius: 14px;
+            padding: 4px 6px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 4px;
             color: #ffffff;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
             text-decoration: none;
-            font-weight: 800;
-            font-size: 11px;
+            font-weight: 700;
+            font-size: 9.5px;
             white-space: nowrap;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.65);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.65);
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             contain: content;
@@ -303,36 +303,36 @@
             transform: translateY(-2px) scale(1.04);
             background: rgba(255, 255, 255, 0.45);
             border-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18), inset 0 1px 3px rgba(255, 255, 255, 0.85);
         }
         .action-card-btn:active {
             transform: scale(0.97);
         }
 
         .btn-icon {
-            font-size: 13.5px;
+            font-size: 11px;
             line-height: 1;
         }
         .btn-label {
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 9.5px;
+            font-weight: 700;
             color: #ffffff;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
-            letter-spacing: 0.2px;
+            letter-spacing: 0px;
         }
 
         /* ── DUAL THIN LINE SWIPE INDICATORS (NO BULKY CARD) ── */
         .swipe-thin-indicator {
             position: fixed;
-            top: 36%; /* PENTING: Pada mobile diangkat ke 36% (area bahu/dada) agar TIDAK NABRAK tombol Login PM di bawah */
+            top: 28%; /* Diangkat ke 28% di mobile, jauh di atas tombol */
             transform: translateY(-50%);
             z-index: 25;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             cursor: pointer;
             user-select: none;
-            padding: 6px 3px;
+            padding: 4px 2px;
             background: transparent;
             border: none;
             transition: transform 0.25s ease, opacity 0.3s ease;
@@ -342,39 +342,39 @@
         }
 
         .indicator-left {
-            left: 6px;
+            left: 2px;
             animation: nudgeLeft 2.2s infinite alternate ease-in-out;
         }
         .indicator-right {
-            right: 6px;
+            right: 2px;
             animation: nudgeRight 2.2s infinite alternate ease-in-out;
         }
 
         @keyframes nudgeLeft {
             0% { transform: translateY(-50%) translateX(0); }
-            100% { transform: translateY(-50%) translateX(5px); }
+            100% { transform: translateY(-50%) translateX(4px); }
         }
         @keyframes nudgeRight {
             0% { transform: translateY(-50%) translateX(0); }
-            100% { transform: translateY(-50%) translateX(-5px); }
+            100% { transform: translateY(-50%) translateX(-4px); }
         }
 
         .indicator-double-lines {
             display: flex;
-            gap: 3px;
+            gap: 2.5px;
             align-items: center;
         }
 
         .thin-bar {
             width: 1.5px;
-            height: 72px; /* Compact bar di mobile agar rapi */
+            height: 50px; /* Jauh lebih ringkas */
             background: rgba(255, 255, 255, 0.85);
             border-radius: 1px;
             box-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 2px 4px rgba(0, 0, 0, 0.6);
         }
 
         .indicator-pointer {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 900;
             color: #ffffff;
             line-height: 1;
@@ -391,9 +391,9 @@
             writing-mode: vertical-rl;
             text-orientation: mixed;
             transform: rotate(180deg);
-            font-size: 9.5px; /* Ramping di mobile agar tidak panjang menjulur */
+            font-size: 8px; /* Lebih ramping agar tidak menjulur */
             font-weight: 800;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.4px;
             text-transform: uppercase;
             color: #ffffff;
             white-space: nowrap;
